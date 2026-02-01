@@ -1,0 +1,99 @@
+# Nablarch Handler Catalog
+# Standard handlers and their ordering constraints for each application type.
+
+web:
+  description: "Web application handler queue"
+  handlers:
+    - name: HttpCharacterEncodingHandler
+      description: "Sets character encoding for HTTP requests/responses"
+      order: 1
+    - name: GlobalErrorHandler
+      description: "Catches unhandled exceptions and returns error responses"
+      order: 2
+    - name: HttpResponseHandler
+      description: "Builds HTTP response from handler results"
+      order: 3
+    - name: SecureHandler
+      description: "Security-related header settings (CSRF, etc.)"
+      order: 4
+    - name: MultipartHandler
+      description: "Handles multipart form data (file uploads)"
+      order: 5
+    - name: SessionStoreHandler
+      description: "Manages HTTP session store"
+      order: 6
+    - name: DbConnectionManagementHandler
+      description: "Manages database connection lifecycle"
+      order: 7
+    - name: TransactionManagementHandler
+      description: "Manages database transaction boundaries"
+      order: 8
+    - name: DispatchHandler
+      description: "Routes requests to action classes based on URI"
+      order: 9
+
+rest:
+  description: "RESTful web service handler queue"
+  handlers:
+    - name: GlobalErrorHandler
+      description: "Catches unhandled exceptions and returns error responses"
+      order: 1
+    - name: StatusCodeConvertHandler
+      description: "Converts internal status codes to HTTP status codes"
+      order: 2
+    - name: DbConnectionManagementHandler
+      description: "Manages database connection lifecycle"
+      order: 3
+    - name: TransactionManagementHandler
+      description: "Manages database transaction boundaries"
+      order: 4
+    - name: DispatchHandler
+      description: "Routes requests to resource classes based on URI"
+      order: 5
+
+batch:
+  description: "Batch application handler queue"
+  handlers:
+    - name: StatusCodeConvertHandler
+      description: "Converts process result status to exit code"
+      order: 1
+    - name: GlobalErrorHandler
+      description: "Catches unhandled exceptions"
+      order: 2
+    - name: DbConnectionManagementHandler
+      description: "Manages database connection lifecycle"
+      order: 3
+    - name: TransactionManagementHandler
+      description: "Manages database transaction boundaries"
+      order: 4
+    - name: LoopHandler
+      description: "Iterates over data records from DataReader"
+      order: 5
+    - name: DataReadHandler
+      description: "Reads input data records"
+      order: 6
+    - name: DispatchHandler
+      description: "Routes to action classes"
+      order: 7
+
+messaging:
+  description: "Messaging (table queue) handler queue"
+  handlers:
+    - name: StatusCodeConvertHandler
+      description: "Converts process result status to exit code"
+      order: 1
+    - name: GlobalErrorHandler
+      description: "Catches unhandled exceptions"
+      order: 2
+    - name: RetryHandler
+      description: "Retries on transient failures"
+      order: 3
+    - name: DbConnectionManagementHandler
+      description: "Manages database connection lifecycle"
+      order: 4
+    - name: TransactionManagementHandler
+      description: "Manages database transaction boundaries"
+      order: 5
+    - name: DispatchHandler
+      description: "Routes to action classes"
+      order: 6

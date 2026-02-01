@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: nablarch-mcp-server
+  main:
+    banner-mode: off
+    web-application-type: none
+
+  ai:
+    mcp:
+      server:
+        name: nablarch-mcp-server
+        version: 0.1.0
+        type: SYNC
+        stdio: true
+
+logging:
+  pattern:
+    console:
+  level:
+    root: WARN
+    com.tis.nablarch.mcp: INFO

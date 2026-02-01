@@ -1,0 +1,103 @@
+# Nablarch API Design Patterns
+# Common patterns and best practices for Nablarch development.
+
+patterns:
+  - name: action-class
+    category: web
+    description: "Standard action class pattern for handling HTTP requests"
+    example: |
+      public class UserSearchAction {
+          @InjectForm(form = UserSearchForm.class, prefix = "form")
+          @OnError(type = ApplicationException.class, path = "/WEB-INF/view/user/search.jsp")
+          public HttpResponse doSearch(HttpRequest request, ExecutionContext context) {
+              UserSearchForm form = context.getRequestScopedVar("form");
+              // Business logic here
+              return new HttpResponse("/WEB-INF/view/user/searchResult.jsp");
+          }
+      }
+
+  - name: form-validation
+    category: web
+    description: "Form bean with validation annotations"
+    example: |
+      public class UserSearchForm {
+          @Required
+          @Length(max = 50)
+          private String userName;
+
+          @NumberRange(min = 0, max = 150)
+          private String age;
+
+          // getters and setters
+      }
+
+  - name: universal-dao
+    category: library
+    description: "Universal DAO for database access using entity classes"
+    example: |
+      // Search
+      EntityList<User> users = UniversalDao.findAllBySqlFile(User.class, "FIND_BY_NAME",
+          new Object[]{condition});
+
+      // Insert
+      UniversalDao.insert(user);
+
+      // Update
+      UniversalDao.update(user);
+
+      // Delete
+      UniversalDao.delete(user);
+
+  - name: sql-file
+    category: library
+    description: "SQL file definition pattern (externalized SQL)"
+    example: |
+      -- src/main/resources/com/example/entity/User.sql
+      FIND_BY_NAME =
+      SELECT
+          USER_ID,
+          USER_NAME,
+          EMAIL
+      FROM
+          USER_TABLE
+      WHERE
+          USER_NAME LIKE :%userName%
+
+  - name: batch-action
+    category: batch
+    description: "Standard batch action pattern with DataReader"
+    example: |
+      public class UserImportAction extends BatchAction<SqlRow> {
+          @Override
+          public DataReader<SqlRow> createReader(ExecutionContext ctx) {
+              return new DatabaseRecordReader()
+                  .setStatement(getSqlPStatement("SELECT_UNPROCESSED"));
+          }
+
+          @Override
+          public Result handle(SqlRow inputData, ExecutionContext ctx) {
+              // Process each record
+              return new Result.Success();
+          }
+      }
+
+  - name: rest-action
+    category: rest
+    description: "RESTful resource action pattern"
+    example: |
+      @Produces(MediaType.APPLICATION_JSON)
+      @Consumes(MediaType.APPLICATION_JSON)
+      public class UsersAction {
+          @GET
+          public EntityList<User> findAll(HttpRequest request, ExecutionContext context) {
+              return UniversalDao.findAll(User.class);
+          }
+
+          @POST
+          @Valid
+          public HttpResponse create(HttpRequest request, ExecutionContext context) {
+              User user = JacksonBodyConverter.read(request, User.class);
+              UniversalDao.insert(user);
+              return new HttpResponse(HttpResponse.Status.CREATED.getStatusCode());
+          }
+      }
