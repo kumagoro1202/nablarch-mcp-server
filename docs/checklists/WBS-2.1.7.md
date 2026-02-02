@@ -1,7 +1,7 @@
 # WBS 2.1.7 — 検索品質評価設計 完了基準チェックリスト
 
 **タスクID**: WBS 2.1.7
-**成果物**: docs/designs/search-quality-evaluation.md
+**成果物**: docs/designs/14_search-quality-evaluation.md
 **担当**: ashigaru8 (subtask_056)
 
 ## 完了基準

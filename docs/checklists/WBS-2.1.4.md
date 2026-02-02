@@ -1,7 +1,7 @@
 # WBS 2.1.4 — ハイブリッド検索設計 完了基準チェックリスト
 
 **タスクID**: WBS 2.1.4
-**成果物**: docs/designs/hybrid-search.md
+**成果物**: docs/designs/11_hybrid-search.md
 **担当**: ashigaru8 (subtask_056)
 
 ## 完了基準

@@ -7,7 +7,7 @@
 | 3 | 既存Tool登録（ToolCallbackProvider）が維持されている | ✅ PASS — nablarchTools Bean変更なし |
 | 4 | `./gradlew build` でビルドが通る | ✅ PASS — BUILD SUCCESSFUL in 7s |
 | 5 | `./gradlew bootRun` でサーバーが起動しSTDIO待受状態になる | ✅ PASS — JSON-RPC initializeレスポンスをstdoutに出力確認 |
-| 6 | 設計書（docs/design/mcp-sdk-integration.md）と実装が整合している | ✅ PASS — Resource 6件、Prompt 6件、Tool既存2件が設計通り |
+| 6 | 設計書（docs/designs/02_mcp-sdk-integration.md）と実装が整合している | ✅ PASS — Resource 6件、Prompt 6件、Tool既存2件が設計通り |
 
 ## 動作確認結果
 

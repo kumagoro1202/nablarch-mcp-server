@@ -1,7 +1,7 @@
 # WBS 1.1.4 完了基準チェックリスト: search_api Tool API設計
 
 ## 成果物
-- `docs/design/tool-search-api.md`
+- `docs/designs/04_tool-search-api.md`
 
 ## チェック項目
 

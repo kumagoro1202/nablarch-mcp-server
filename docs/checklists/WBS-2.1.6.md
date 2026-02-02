@@ -1,7 +1,7 @@
 # WBS 2.1.6 — semantic_search Tool設計 完了基準チェックリスト
 
 **タスクID**: WBS 2.1.6
-**成果物**: docs/designs/semantic-search-tool.md
+**成果物**: docs/designs/13_semantic-search-tool.md
 **担当**: ashigaru8 (subtask_056)
 
 ## 完了基準

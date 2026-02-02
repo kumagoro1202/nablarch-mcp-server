@@ -10,4 +10,4 @@
 | 6 | JSON-RPC 2.0ハンドラマッピングが記述されている | PASS |
 | 7 | サーバー初期化シーケンスが記述されている | PASS |
 | 8 | 既存McpServerConfig.javaの拡張計画が記述されている | PASS |
-| 9 | 設計書が docs/design/mcp-sdk-integration.md に保存されている | PASS |
+| 9 | 設計書が docs/designs/02_mcp-sdk-integration.md に保存されている | PASS |

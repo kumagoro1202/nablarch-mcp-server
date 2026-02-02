@@ -6,7 +6,7 @@
 - [x] 各タイプのチャンクサイズ・オーバーラップ・区切り戦略
 - [x] メタデータスキーマ定義
 - [x] チャンク品質基準
-- [x] 成果物: docs/designs/chunking-strategy.md
+- [x] 成果物: docs/designs/10_chunking-strategy.md
 
 ## 完了日時
 

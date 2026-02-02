@@ -1,6 +1,6 @@
 # WBS 2.1.1 ベクトルDBスキーマ設計 完了基準チェックリスト
 
-- [ ] docs/design/vector-db-schema.md が存在する
+- [ ] docs/designs/08_vector-db-schema.md が存在する
 - [ ] document_chunks テーブル定義がある（全カラム・型・制約）
 - [ ] code_chunks テーブル定義がある（全カラム・型・制約）
 - [ ] embedding カラムが vector(1024) で定義されている

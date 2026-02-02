@@ -7,7 +7,7 @@
 - [x] 各データソースのパース→チャンキング→Embedding→格納フロー
 - [x] バッチ処理設計（増分更新対応）
 - [x] エラーハンドリング・リトライ戦略
-- [x] 成果物: docs/designs/embedding-pipeline.md
+- [x] 成果物: docs/designs/09_embedding-pipeline.md
 
 ## 完了日時
 

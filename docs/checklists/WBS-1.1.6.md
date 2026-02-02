@@ -1,7 +1,7 @@
 # WBS 1.1.6 完了基準チェックリスト: Resource URI設計
 
 ## 成果物
-- `docs/design/resource-uri-design.md`
+- `docs/designs/06_resource-uri-design.md`
 
 ## チェック項目
 - [ ] handler/{app_type} の6 URI定義
