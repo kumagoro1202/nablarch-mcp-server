@@ -192,7 +192,13 @@ public class McpServerConfig {
             Function<Map<String, String>, McpSchema.GetPromptResult> handler) {
         return new McpServerFeatures.SyncPromptSpecification(
             new McpSchema.Prompt(name, description, arguments),
-            (exchange, request) -> handler.apply(request.arguments())
+            (exchange, request) -> {
+                Map<String, String> args = new java.util.HashMap<>();
+                if (request.arguments() != null) {
+                    request.arguments().forEach((k, v) -> args.put(k, v != null ? v.toString() : null));
+                }
+                return handler.apply(args);
+            }
         );
     }
 
