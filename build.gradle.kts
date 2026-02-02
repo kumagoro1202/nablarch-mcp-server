@@ -40,6 +40,9 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
 
+    // Phase 2: JDBC for BM25 search (PostgreSQL FTS)
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+
     // Phase 2: HTTP client for Embedding APIs
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
