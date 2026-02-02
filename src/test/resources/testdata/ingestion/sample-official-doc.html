@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Nablarchアーキテクチャ概要 — Nablarch 6u3 ドキュメント</title>
+</head>
+<body>
+    <div class="document">
+        <h1>Nablarchアーキテクチャ概要</h1>
+        <p>NablarchはTIS株式会社が開発したJavaアプリケーション開発・実行基盤である。
+        Webアプリケーション、RESTful API、バッチ処理、メッセージングなど
+        多様なアプリケーション形態をサポートする統合フレームワークである。</p>
+
+        <h2>実行制御基盤</h2>
+        <p>Nablarchの実行制御基盤は、アプリケーションのライフサイクルを管理する。
+        リクエスト受付からレスポンス返却までの一連の処理フローを、
+        ハンドラキューと呼ばれるパイプライン機構で制御する。
+        各ハンドラは単一の責務を持ち、チェーン形式で連結される。</p>
+        <p>ハンドラキューの設計思想は、関心の分離（Separation of Concerns）に基づいている。
+        認証、認可、データベーストランザクション管理、例外処理など、
+        横断的関心事をそれぞれ独立したハンドラとして実装する。</p>
+        <pre><code class="language-java">
+public class SampleHandler implements Handler&lt;HttpRequest, HttpResponse&gt; {
+    @Override
+    public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+        // ハンドラの処理
+        return context.handleNext(request);
+    }
+}
+        </code></pre>
+
+        <h2>データベースアクセス</h2>
+        <p>Nablarchのデータベースアクセスは、Universal DAOとSQLファイルベースの
+        2つのアプローチを提供する。Universal DAOはJPAライクなエンティティマッピングを提供し、
+        基本的なCRUD操作を簡潔に記述できる。
+        一方、SQLファイルベースのアプローチは、複雑なクエリを外部SQLファイルに定義し、
+        名前付きパラメータで安全にバインドする方式である。</p>
+        <p>トランザクション管理はDbConnectionManagementHandlerが担当し、
+        リクエスト単位のトランザクション境界を自動制御する。
+        二相コミットやXAトランザクションもサポートしている。</p>
+
+        <h2>バリデーション</h2>
+        <p>入力バリデーションはBean Validationに準拠したアノテーションベースの方式を採用する。
+        Nablarch独自のバリデータも提供しており、日本の業務要件に特化した検証（例: 全角カタカナ、
+        郵便番号形式）が標準で利用可能である。
+        バリデーションエラーは統一的なメッセージ管理機構で国際化対応する。</p>
+
+        <h3>カスタムバリデータ</h3>
+        <p>業務固有のバリデーションルールは、カスタムバリデータとして実装できる。
+        @Constraintアノテーションを使用してバリデーションロジックを
+        定義し、ConstraintValidatorインターフェースを実装する。
+        これにより、プロジェクト固有の検証要件を柔軟に追加できる。</p>
+
+        <h2>テスティングフレームワーク</h2>
+        <p>Nablarchは包括的なテスティングフレームワークを提供する。
+        ユニットテスト支援、リクエスト単体テスト、結合テストの各レベルに対応した
+        テストユーティリティを利用できる。
+        特にリクエスト単体テストでは、HTTPリクエストのシミュレーションから
+        データベースの事前準備・事後検証まで一貫したテスト環境を提供する。</p>
+
+        <h3>テストデータ管理</h3>
+        <p>テストデータはExcelファイルで管理する方式を標準で提供する。
+        テストクラスと同名のExcelファイルにテストデータを定義し、
+        テスト実行時に自動的にデータベースにセットアップされる。
+        この仕組みにより、テストデータの可視性と保守性を確保している。</p>
+
+        <table>
+            <tr>
+                <th>機能</th>
+                <th>説明</th>
+                <th>対応アプリ</th>
+            </tr>
+            <tr>
+                <td>ハンドラキュー</td>
+                <td>リクエスト処理パイプライン</td>
+                <td>全アプリ</td>
+            </tr>
+            <tr>
+                <td>Universal DAO</td>
+                <td>エンティティベースDB操作</td>
+                <td>全アプリ</td>
+            </tr>
+            <tr>
+                <td>Bean Validation</td>
+                <td>入力値検証</td>
+                <td>Web, REST</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
