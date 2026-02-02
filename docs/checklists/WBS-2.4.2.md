@@ -1,0 +1,22 @@
+# WBS 2.4.2 ベクトルDBスキーマドキュメント 完了基準チェックリスト
+
+- [x] docs/database-schema.md が存在する
+- [x] document_chunks テーブル定義がある（全14カラム・型・制約・説明）
+- [x] code_chunks テーブル定義がある（全9カラム・型・制約・説明）
+- [x] ER図（Mermaid）がある
+- [x] ivfflat インデックス定義がある（lists=100, vector_cosine_ops）
+- [x] GIN インデックス定義がある（to_tsvector FTS用）
+- [x] B-tree インデックス定義がある（メタデータフィルタ用 8個）
+- [x] インデックス一覧サマリテーブルがある（全12インデックス）
+- [x] コサイン類似度検索のクエリ例がある（ベクトル文字列フォーマット含む）
+- [x] BM25全文検索のクエリ例がある（to_tsvector/to_tsquery）
+- [x] ハイブリッド検索のクエリ例がある（CTE + RRF統合）
+- [x] メタデータフィルタ付き検索のクエリ例がある
+- [x] Embedding更新のクエリ例がある
+- [x] Flywayマイグレーションファイルの説明がある
+- [x] マイグレーション実行手順がある（Docker起動 + Gradle）
+- [x] Docker Compose設定の説明がある
+- [x] ivfflat vs HNSW の選択基準がある
+- [x] ivfflatのlists/probes設定指針がある
+- [x] VACUUM ANALYZE の推奨がある
+- [x] パフォーマンス目標テーブルがある
