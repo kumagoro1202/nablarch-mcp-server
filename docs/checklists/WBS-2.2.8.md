@@ -39,7 +39,7 @@
 - [x] mainブランチ未接触
 
 ### 納品
-- [ ] git commit + push
-- [ ] PR作成
-- [ ] ashigaru6_report.yaml 報告
-- [ ] 家老にsend-keys通知
+- [x] git commit + push
+- [x] PR作成: https://github.com/kumagoro1202/nablarch-mcp-server/pull/14
+- [x] ashigaru6_report.yaml 報告
+- [x] 家老にsend-keys通知
