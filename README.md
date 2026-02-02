@@ -56,7 +56,7 @@ Nablarchはミッションクリティカルシステム向けのJavaアプリ�
 ## 動作要件
 
 - Java 17 以上
-- Gradle 8.x（ラッパー同梱）
+- Maven 3.9.x（Maven Wrapper同梱）
 - PostgreSQL 16+ with pgvector拡張（RAG機能、Phase 2以降）
 
 ## クイックスタート
@@ -64,13 +64,13 @@ Nablarchはミッションクリティカルシステム向けのJavaアプリ�
 ### ビルド
 
 ```bash
-./gradlew build
+./mvnw package
 ```
 
 ### 実行（STDIOモード）
 
 ```bash
-./gradlew bootRun
+./mvnw spring-boot:run
 ```
 
 ### Claude Code での設定
@@ -82,7 +82,7 @@ MCP設定ファイル（`.claude/mcp.json`）に以下を追加:
   "mcpServers": {
     "nablarch": {
       "command": "java",
-      "args": ["-jar", "build/libs/nablarch-mcp-server-0.1.0-SNAPSHOT.jar"]
+      "args": ["-jar", "target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar"]
     }
   }
 }
@@ -101,7 +101,7 @@ docker compose up
 | 言語 | Java 17+ | Nablarchエコシステムとの一貫性 |
 | フレームワーク | Spring Boot 3.4.x | MCP Boot Starterサポート |
 | MCP SDK | [MCP Java SDK](https://github.com/modelcontextprotocol/java-sdk) 0.17.x | 公式SDK、Spring AI統合 |
-| ビルド | Gradle (Kotlin DSL) | モダンなビルドシステム |
+| ビルド | Maven 3.9.x | Nablarchエコシステムとの整合性 |
 | テスト | JUnit 5 + Spring Test | 標準的なJavaテスト |
 | ベクトルDB | PostgreSQL + pgvector | SQL + ベクトル検索統合、コスト効率 |
 | ドキュメントEmbedding | Jina embeddings-v4 | 89言語対応、32Kコンテキスト、OSS |

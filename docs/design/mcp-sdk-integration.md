@@ -65,11 +65,11 @@ spring:
 ### 起動方法
 
 ```bash
-# Gradleで直接起動
-./gradlew bootRun
+# Mavenで直接起動
+./mvnw spring-boot:run
 
 # JARで起動
-java -jar build/libs/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 
 # Claude Code MCP設定（claude_desktop_config.json）
 {
