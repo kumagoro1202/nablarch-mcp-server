@@ -2,7 +2,7 @@
 
 ## チェックリスト
 
-- [x] 6種のPromptテンプレート設計を docs/design/prompt-templates.md に記載
+- [x] 6種のPromptテンプレート設計を docs/designs/07_prompt-templates.md に記載
 - [x] 各Promptの入力（引数）と出力（テンプレート構造）を明記
 - [x] 使用する知識YAMLファイルの対応関係を明記
 - [x] 設計ドキュメントのレビュー完了

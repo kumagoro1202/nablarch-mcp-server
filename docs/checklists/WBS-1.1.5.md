@@ -1,7 +1,7 @@
 # WBS 1.1.5 完了基準チェックリスト: validate_config Tool API設計
 
 ## 成果物
-- `docs/design/tool-validate-config.md`
+- `docs/designs/05_tool-validate-config.md`
 
 ## チェック項目
 

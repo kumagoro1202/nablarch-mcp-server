@@ -4,7 +4,7 @@
 > **ステータス**: 設計完了
 > **作成日**: 2026-02-02
 > **作成者**: ashigaru8 (subtask_056)
-> **関連文書**: hybrid-search.md, reranking.md, architecture.md §4.6
+> **関連文書**: 11_hybrid-search.md, 12_reranking.md, architecture.md §4.6
 > **依存タスク**: WBS 2.1.4（ハイブリッド検索設計）, WBS 2.1.5（リランキング設計）
 
 ---
@@ -262,7 +262,7 @@ semantic_search Tool 呼び出し
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────┐
-│ Phase 3: ハイブリッド検索（hybrid-search.md 参照）         │
+│ Phase 3: ハイブリッド検索（11_hybrid-search.md 参照）         │
 │                                                           │
 │  BM25検索 ──────────────┐                                │
 │  (PostgreSQL FTS)       │                                │
@@ -278,7 +278,7 @@ semantic_search Tool 呼び出し
                        │
                        ▼
 ┌──────────────────────────────────────────────────────────┐
-│ Phase 4: リランキング（reranking.md 参照）                │
+│ Phase 4: リランキング（12_reranking.md 参照）                │
 │                                                           │
 │  Jina Reranker v2                                        │
 │  入力: query + Top-50候補                                 │

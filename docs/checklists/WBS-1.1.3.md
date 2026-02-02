@@ -1,7 +1,7 @@
 # WBS 1.1.3 完了基準チェックリスト: 静的知識ベース設計
 
 ## 成果物
-- `docs/design/knowledge-base.md`
+- `docs/designs/03_knowledge-base.md`
 
 ## チェック項目
 

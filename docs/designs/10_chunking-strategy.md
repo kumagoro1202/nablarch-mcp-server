@@ -3,7 +3,7 @@
 > **WBS**: 2.1.3
 > **ステータス**: 完了
 > **作成日**: 2026-02-02
-> **関連**: WBS 2.1.2 (embedding-pipeline.md), architecture.md §4.2
+> **関連**: WBS 2.1.2 (09_embedding-pipeline.md), architecture.md §4.2
 
 ---
 

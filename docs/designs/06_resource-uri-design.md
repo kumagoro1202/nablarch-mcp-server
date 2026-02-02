@@ -181,5 +181,5 @@ public List<McpServerFeatures.SyncResourceSpecification> nablarchResources(
 
 ## 参考文献
 
-- [知識ベース設計書](knowledge-base.md) — YAMLスキーマ定義
+- [知識ベース設計書](03_knowledge-base.md) — YAMLスキーマ定義
 - [アーキテクチャ設計書](../architecture.md) — MCP Resource仕様

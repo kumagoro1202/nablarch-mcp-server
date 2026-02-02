@@ -4,7 +4,7 @@
 > **ステータス**: 設計完了
 > **作成日**: 2026-02-02
 > **作成者**: ashigaru8 (subtask_056)
-> **関連文書**: hybrid-search.md, reranking.md, semantic-search-tool.md
+> **関連文書**: 11_hybrid-search.md, 12_reranking.md, 13_semantic-search-tool.md
 > **依存タスク**: WBS 2.1.6（semantic_search Tool設計）
 
 ---

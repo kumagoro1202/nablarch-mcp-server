@@ -1,7 +1,7 @@
 # WBS 2.1.5 — リランキング設計 完了基準チェックリスト
 
 **タスクID**: WBS 2.1.5
-**成果物**: docs/designs/reranking.md
+**成果物**: docs/designs/12_reranking.md
 **担当**: ashigaru8 (subtask_056)
 
 ## 完了基準

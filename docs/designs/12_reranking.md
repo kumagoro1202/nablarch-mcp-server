@@ -4,7 +4,7 @@
 > **ステータス**: 設計完了
 > **作成日**: 2026-02-02
 > **作成者**: ashigaru8 (subtask_056)
-> **関連文書**: hybrid-search.md, architecture.md §4.6, ADR-001
+> **関連文書**: 11_hybrid-search.md, architecture.md §4.6, ADR-001
 > **依存タスク**: WBS 2.1.4（ハイブリッド検索設計）
 
 ---

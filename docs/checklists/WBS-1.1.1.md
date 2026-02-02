@@ -8,4 +8,4 @@
 | 4 | ログ設計方針が記述されている | PASS |
 | 5 | エラーハンドリング方針（MCP JSON-RPC 2.0エラーコード）が記述されている | PASS |
 | 6 | 既存スタブクラス7個との整合性確認と変更点が記述されている | PASS |
-| 7 | 設計書が docs/design/spring-boot-foundation.md に保存されている | PASS |
+| 7 | 設計書が docs/designs/01_spring-boot-foundation.md に保存されている | PASS |
