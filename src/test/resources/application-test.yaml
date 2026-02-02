@@ -41,6 +41,14 @@ nablarch:
         timeout-seconds: 5
         max-retries: 1
 
+ingestion:
+  official-docs:
+    base-url: http://localhost:18082/docs/
+    batch-size: 5
+    delay-ms: 0
+    max-retries: 1
+    enabled: true
+
 logging:
   level:
     root: WARN

@@ -43,4 +43,23 @@ public record IngestionResult(
     public static IngestionResult allSuccess(int count) {
         return new IngestionResult(count, count, 0, List.of());
     }
+
+    /**
+     * 全件成功の結果を生成する。
+     *
+     * @param count 処理・成功件数
+     * @return 全件成功の取込結果
+     */
+    public static IngestionResult success(int count) {
+        return new IngestionResult(count, count, 0, List.of());
+    }
+
+    /**
+     * 空結果（処理対象なし）を生成する。
+     *
+     * @return 空の取込結果
+     */
+    public static IngestionResult empty() {
+        return new IngestionResult(0, 0, 0, List.of());
+    }
 }

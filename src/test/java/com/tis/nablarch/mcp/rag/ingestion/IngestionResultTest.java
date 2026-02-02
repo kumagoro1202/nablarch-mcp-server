@@ -46,4 +46,26 @@ class IngestionResultTest {
                 () -> assertTrue(result.errors().isEmpty())
         );
     }
+
+    @Test
+    @DisplayName("successファクトリメソッド")
+    void successFactory() {
+        IngestionResult result = IngestionResult.success(15);
+
+        assertEquals(15, result.processedCount());
+        assertEquals(15, result.successCount());
+        assertEquals(0, result.errorCount());
+        assertTrue(result.errors().isEmpty());
+    }
+
+    @Test
+    @DisplayName("emptyファクトリメソッド")
+    void emptyFactory() {
+        IngestionResult result = IngestionResult.empty();
+
+        assertEquals(0, result.processedCount());
+        assertEquals(0, result.successCount());
+        assertEquals(0, result.errorCount());
+        assertTrue(result.errors().isEmpty());
+    }
 }
