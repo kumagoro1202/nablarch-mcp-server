@@ -207,7 +207,7 @@ class OfficialDocsIngesterTest {
             assertEquals(1, result.successCount());
             assertEquals(1, result.errorCount());
             assertFalse(result.errors().isEmpty());
-            assertTrue(result.errors().get(0).url().contains("page2.html"));
+            assertTrue(result.errors().get(0).contains("page2.html"));
         }
 
         @Test
