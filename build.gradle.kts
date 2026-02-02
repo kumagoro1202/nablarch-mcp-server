@@ -33,6 +33,10 @@ dependencies {
     // YAML parsing
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 
+    // Phase 2: JDBC for BM25 search (PostgreSQL FTS)
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    runtimeOnly("org.postgresql:postgresql")
+
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
