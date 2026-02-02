@@ -187,7 +187,7 @@ public class OfficialDocsIngester implements DocumentIngester {
     private IngestionResult processUrls(List<String> urls) {
         int processed = urls.size();
         int success = 0;
-        List<IngestionResult.IngestionError> errors = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
 
         // チャンクをバッチ処理用に蓄積
         List<DocumentChunkDto> pendingChunks = new ArrayList<>();
@@ -205,7 +205,7 @@ public class OfficialDocsIngester implements DocumentIngester {
                 // HTML取得（リトライ付き）
                 String html = fetchHtmlWithRetry(url);
                 if (html == null || html.isBlank()) {
-                    errors.add(new IngestionResult.IngestionError(url, "空のレスポンス"));
+                    errors.add("[" + url + "] 空のレスポンス");
                     continue;
                 }
 
@@ -237,11 +237,11 @@ public class OfficialDocsIngester implements DocumentIngester {
 
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                errors.add(new IngestionResult.IngestionError(url, "処理が中断された", e));
+                errors.add("[" + url + "] 処理が中断された: " + e.getMessage());
                 break;
             } catch (Exception e) {
                 logger.warn("ドキュメント取り込み失敗（障害隔離）: url={}, error={}", url, e.getMessage());
-                errors.add(new IngestionResult.IngestionError(url, e.getMessage(), e));
+                errors.add("[" + url + "] " + e.getMessage());
             }
         }
 
@@ -252,8 +252,7 @@ public class OfficialDocsIngester implements DocumentIngester {
             } catch (Exception e) {
                 logger.error("残りチャンクのEmbedding/格納に失敗: {}", e.getMessage(), e);
                 // 残りチャンクの失敗は全体のエラーとして記録
-                errors.add(new IngestionResult.IngestionError(
-                        "batch-remainder", "残りチャンクの処理に失敗: " + e.getMessage(), e));
+                errors.add("[batch-remainder] 残りチャンクの処理に失敗: " + e.getMessage());
             }
         }
 
