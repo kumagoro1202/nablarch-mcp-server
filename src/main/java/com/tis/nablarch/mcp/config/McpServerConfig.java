@@ -9,6 +9,7 @@ import com.tis.nablarch.mcp.prompts.SetupHandlerQueuePrompt;
 import com.tis.nablarch.mcp.resources.GuideResourceProvider;
 import com.tis.nablarch.mcp.resources.HandlerResourceProvider;
 import com.tis.nablarch.mcp.tools.SearchApiTool;
+import com.tis.nablarch.mcp.tools.SemanticSearchTool;
 import com.tis.nablarch.mcp.tools.ValidateHandlerQueueTool;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.spec.McpSchema;
@@ -40,9 +41,10 @@ public class McpServerConfig {
     @Bean
     public ToolCallbackProvider nablarchTools(
             SearchApiTool searchApiTool,
-            ValidateHandlerQueueTool validateHandlerQueueTool) {
+            ValidateHandlerQueueTool validateHandlerQueueTool,
+            SemanticSearchTool semanticSearchTool) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(searchApiTool, validateHandlerQueueTool)
+                .toolObjects(searchApiTool, validateHandlerQueueTool, semanticSearchTool)
                 .build();
     }
 

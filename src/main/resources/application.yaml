@@ -51,6 +51,14 @@ nablarch:
         timeout-seconds: 30
         max-retries: 3
 
+    rerank:
+      jina:
+        api-key: ${JINA_API_KEY:}
+        model: jina-reranker-v2-base-multilingual
+        base-url: https://api.jina.ai/v1/rerank
+        timeout-ms: 3000
+        top-k: 10
+
 logging:
   pattern:
     console:
