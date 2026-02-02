@@ -19,16 +19,15 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom("io.modelcontextprotocol.sdk:mcp-bom:0.17.0")
+        mavenBom("org.springframework.ai:spring-ai-bom:1.0.0")
     }
 }
 
 dependencies {
-    // MCP Java SDK
-    implementation("io.modelcontextprotocol.sdk:mcp-spring-webflux")
+    // Spring AI MCP Server (STDIO transport, includes MCP SDK transitively)
+    implementation("org.springframework.ai:spring-ai-starter-mcp-server")
 
     // Spring Boot
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
     // YAML parsing
