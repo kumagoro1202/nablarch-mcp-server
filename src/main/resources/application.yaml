@@ -9,9 +9,47 @@ spring:
     mcp:
       server:
         name: nablarch-mcp-server
-        version: 0.1.0
+        version: 0.2.0
         type: SYNC
         stdio: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nablarch_mcp
+    username: nablarch
+    password: nablarch_dev
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+nablarch:
+  mcp:
+    knowledge:
+      base-path: classpath:knowledge/
+    embedding:
+      jina:
+        api-key: ${JINA_API_KEY:}
+        model: jina-embeddings-v4
+        dimensions: 1024
+        base-url: https://api.jina.ai/v1/embeddings
+        timeout-seconds: 30
+        max-retries: 3
+      voyage:
+        api-key: ${VOYAGE_API_KEY:}
+        model: voyage-code-3
+        dimensions: 1024
+        base-url: https://api.voyageai.com/v1/embeddings
+        timeout-seconds: 30
+        max-retries: 3
 
 logging:
   pattern:

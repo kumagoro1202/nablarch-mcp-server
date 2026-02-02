@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+
+  flyway:
+    enabled: false
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-test.sql
+
+nablarch:
+  mcp:
+    knowledge:
+      base-path: classpath:knowledge/
+    embedding:
+      jina:
+        api-key: test-jina-key
+        model: jina-embeddings-v4
+        dimensions: 1024
+        base-url: http://localhost:18080
+        timeout-seconds: 5
+        max-retries: 1
+      voyage:
+        api-key: test-voyage-key
+        model: voyage-code-3
+        dimensions: 1024
+        base-url: http://localhost:18081
+        timeout-seconds: 5
+        max-retries: 1
+
+logging:
+  level:
+    root: WARN
