@@ -1,0 +1,365 @@
+queries:
+  # ============================================================
+  # カテゴリ1: handler_queue（ハンドラキュー設定・設計）
+  # ============================================================
+  - id: Q001
+    query: "Nablarchのハンドラキュー設定方法"
+    category: handler_queue
+    language: JAPANESE
+    relevant_keywords: ["handler", "queue", "ハンドラキュー", "設定"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q002
+    query: "Webアプリケーションのハンドラ構成を教えてください"
+    category: handler_queue
+    language: JAPANESE
+    relevant_keywords: ["handler", "web", "HttpRequestHandler", "ハンドラ"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q003
+    query: "ThreadContextHandlerの役割と設定"
+    category: handler_queue
+    language: JAPANESE
+    relevant_keywords: ["ThreadContextHandler", "handler", "thread", "context"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q004
+    query: "How to configure handler queue in Nablarch"
+    category: handler_queue
+    language: ENGLISH
+    relevant_keywords: ["handler", "queue", "configuration", "nablarch"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q005
+    query: "HttpRequestHandler and response processing"
+    category: handler_queue
+    language: ENGLISH
+    relevant_keywords: ["HttpRequestHandler", "response", "handler", "request"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q006
+    query: "nablarch-fw-webのGlobalErrorHandlerについて"
+    category: handler_queue
+    language: JAPANESE
+    relevant_keywords: ["GlobalErrorHandler", "error", "nablarch-fw-web", "handler"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q007
+    query: "ハンドラの実行順序を変更したい"
+    category: handler_queue
+    language: JAPANESE
+    relevant_keywords: ["handler", "order", "queue", "ハンドラ", "順序"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q008
+    query: "RESTful APIのhandler queue構成"
+    category: handler_queue
+    language: MIXED
+    relevant_keywords: ["REST", "handler", "queue", "JAX-RS", "jaxrs"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q009
+    query: "バッチ処理のハンドラキューはWebと何が違いますか"
+    category: handler_queue
+    language: JAPANESE
+    relevant_keywords: ["batch", "handler", "queue", "web", "バッチ"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q010
+    query: "カスタムハンドラの作成方法とHandlerインターフェース"
+    category: handler_queue
+    language: JAPANESE
+    relevant_keywords: ["Handler", "custom", "interface", "カスタム"]
+    expected_top_sources: ["nablarch-document"]
+
+  # ============================================================
+  # カテゴリ2: api_usage（API利用方法）
+  # ============================================================
+  - id: Q011
+    query: "How to use Universal DAO"
+    category: api_usage
+    language: ENGLISH
+    relevant_keywords: ["UniversalDao", "database", "Entity", "DAO"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q012
+    query: "REST APIのバリデーション方法"
+    category: api_usage
+    language: JAPANESE
+    relevant_keywords: ["JAX-RS", "validation", "BeanValidation", "バリデーション"]
+    expected_top_sources: ["nablarch-document", "fintan"]
+
+  - id: Q013
+    query: "nablarch.common.dao.UniversalDaoの使い方"
+    category: api_usage
+    language: JAPANESE
+    relevant_keywords: ["UniversalDao", "nablarch.common.dao", "database", "SQL"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q014
+    query: "SystemRepositoryからコンポーネントを取得する方法"
+    category: api_usage
+    language: JAPANESE
+    relevant_keywords: ["SystemRepository", "component", "DI", "リポジトリ"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q015
+    query: "SqlFileを使ったSQLの実行方法"
+    category: api_usage
+    language: JAPANESE
+    relevant_keywords: ["SqlFile", "SQL", "database", "UniversalDao"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q016
+    query: "How to implement BeanValidation constraints"
+    category: api_usage
+    language: ENGLISH
+    relevant_keywords: ["BeanValidation", "validation", "constraint", "annotation"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q017
+    query: "メッセージングでMOMを使ったキュー送受信"
+    category: api_usage
+    language: JAPANESE
+    relevant_keywords: ["messaging", "MOM", "queue", "メッセージング"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q018
+    query: "コード管理機能CodeManagerの使い方"
+    category: api_usage
+    language: JAPANESE
+    relevant_keywords: ["CodeManager", "code", "management", "コード管理"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q019
+    query: "nablarch-testing frameworkでのユニットテスト"
+    category: api_usage
+    language: MIXED
+    relevant_keywords: ["testing", "nablarch-testing", "unit", "テスト"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q020
+    query: "入力チェックのエラーメッセージをカスタマイズしたい"
+    category: api_usage
+    language: JAPANESE
+    relevant_keywords: ["validation", "error", "message", "バリデーション", "カスタマイズ"]
+    expected_top_sources: ["nablarch-document"]
+
+  # ============================================================
+  # カテゴリ3: design_pattern（アーキテクチャ・パターン）
+  # ============================================================
+  - id: Q021
+    query: "Nablarchのアーキテクチャ概要"
+    category: design_pattern
+    language: JAPANESE
+    relevant_keywords: ["architecture", "handler", "action", "アーキテクチャ"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q022
+    query: "アクションクラスの設計パターン"
+    category: design_pattern
+    language: JAPANESE
+    relevant_keywords: ["Action", "action", "design", "pattern", "アクション"]
+    expected_top_sources: ["nablarch-document", "fintan"]
+
+  - id: Q023
+    query: "排他制御の楽観ロックと悲観ロックの使い分け"
+    category: design_pattern
+    language: JAPANESE
+    relevant_keywords: ["exclusive", "optimistic", "pessimistic", "lock", "排他制御"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q024
+    query: "What is the Nablarch handler queue architecture"
+    category: design_pattern
+    language: ENGLISH
+    relevant_keywords: ["handler", "queue", "architecture", "pipeline"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q025
+    query: "Nablarch interceptor design pattern"
+    category: design_pattern
+    language: ENGLISH
+    relevant_keywords: ["interceptor", "handler", "design", "pattern"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q026
+    query: "Webアプリケーションの責務分離設計"
+    category: design_pattern
+    language: JAPANESE
+    relevant_keywords: ["web", "design", "separation", "action", "form"]
+    expected_top_sources: ["nablarch-document", "fintan"]
+
+  - id: Q027
+    query: "マルチプロセス構成でのセッション管理"
+    category: design_pattern
+    language: JAPANESE
+    relevant_keywords: ["session", "multiprocess", "management", "セッション"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q028
+    query: "DBアクセスの設計パターンとDAO層の構成"
+    category: design_pattern
+    language: JAPANESE
+    relevant_keywords: ["database", "DAO", "UniversalDao", "design", "データベース"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q029
+    query: "nablarch-fw-batchのJSR352対応batch設計"
+    category: design_pattern
+    language: MIXED
+    relevant_keywords: ["batch", "JSR352", "nablarch-fw-batch", "design"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q030
+    query: "DI（依存性注入）とシステムリポジトリの設計思想"
+    category: design_pattern
+    language: JAPANESE
+    relevant_keywords: ["DI", "SystemRepository", "injection", "repository"]
+    expected_top_sources: ["nablarch-document"]
+
+  # ============================================================
+  # カテゴリ4: troubleshooting（トラブルシューティング）
+  # ============================================================
+  - id: Q031
+    query: "バッチ処理のエラーハンドリング"
+    category: troubleshooting
+    language: JAPANESE
+    relevant_keywords: ["batch", "error", "TransactionHandler", "RetryHandler"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q032
+    query: "NullPointerExceptionがアクションで発生する"
+    category: troubleshooting
+    language: JAPANESE
+    relevant_keywords: ["NullPointer", "action", "error", "exception"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q033
+    query: "データベース接続エラーの対処方法"
+    category: troubleshooting
+    language: JAPANESE
+    relevant_keywords: ["database", "connection", "error", "データベース", "接続"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q034
+    query: "How to debug handler queue execution order"
+    category: troubleshooting
+    language: ENGLISH
+    relevant_keywords: ["debug", "handler", "queue", "order", "execution"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q035
+    query: "Validation error message not displayed"
+    category: troubleshooting
+    language: ENGLISH
+    relevant_keywords: ["validation", "error", "message", "display"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q036
+    query: "トランザクション制御でロールバックされない問題"
+    category: troubleshooting
+    language: JAPANESE
+    relevant_keywords: ["transaction", "rollback", "TransactionHandler", "トランザクション"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q037
+    query: "ログが出力されない場合の設定確認"
+    category: troubleshooting
+    language: JAPANESE
+    relevant_keywords: ["log", "output", "configuration", "ログ", "設定"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q038
+    query: "メッセージング処理がタイムアウトする原因"
+    category: troubleshooting
+    language: JAPANESE
+    relevant_keywords: ["messaging", "timeout", "MOM", "メッセージング"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q039
+    query: "component-configurationのXMLパースエラー"
+    category: troubleshooting
+    language: MIXED
+    relevant_keywords: ["component-configuration", "XML", "parse", "error"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q040
+    query: "セッションストアの期限切れエラーを解決したい"
+    category: troubleshooting
+    language: JAPANESE
+    relevant_keywords: ["session", "store", "expire", "timeout", "セッション"]
+    expected_top_sources: ["nablarch-document"]
+
+  # ============================================================
+  # カテゴリ5: configuration（XML/プロパティ設定）
+  # ============================================================
+  - id: Q041
+    query: "コンポーネント定義XMLの書き方"
+    category: configuration
+    language: JAPANESE
+    relevant_keywords: ["component", "XML", "configuration", "定義", "コンポーネント"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q042
+    query: "web-component-configurationの設定項目"
+    category: configuration
+    language: JAPANESE
+    relevant_keywords: ["web-component-configuration", "web", "configuration", "設定"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q043
+    query: "データベース接続プールの設定方法"
+    category: configuration
+    language: JAPANESE
+    relevant_keywords: ["database", "connection", "pool", "configuration", "接続"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q044
+    query: "How to configure logging in Nablarch"
+    category: configuration
+    language: ENGLISH
+    relevant_keywords: ["logging", "configuration", "nablarch-core-log", "log"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q045
+    query: "Nablarch application.properties settings"
+    category: configuration
+    language: ENGLISH
+    relevant_keywords: ["application", "properties", "configuration", "settings"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q046
+    query: "Fintanの記事でNablarchの設定方法を知りたい"
+    category: configuration
+    language: JAPANESE
+    relevant_keywords: ["fintan", "configuration", "設定", "Nablarch"]
+    expected_top_sources: ["fintan"]
+
+  - id: Q047
+    query: "nablarch-fw-jaxrsのルーティング設定"
+    category: configuration
+    language: JAPANESE
+    relevant_keywords: ["nablarch-fw-jaxrs", "routing", "REST", "設定"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q048
+    query: "バッチジョブのスケジューラ設定とcron定義"
+    category: configuration
+    language: JAPANESE
+    relevant_keywords: ["batch", "scheduler", "cron", "configuration", "バッチ"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q049
+    query: "nablarch-core-validationのconfiguration設定"
+    category: configuration
+    language: MIXED
+    relevant_keywords: ["nablarch-core-validation", "validation", "configuration"]
+    expected_top_sources: ["nablarch-document"]
+
+  - id: Q050
+    query: "ファイルアップロードのサイズ制限設定"
+    category: configuration
+    language: JAPANESE
+    relevant_keywords: ["file", "upload", "size", "limit", "configuration"]
+    expected_top_sources: ["nablarch-document"]
