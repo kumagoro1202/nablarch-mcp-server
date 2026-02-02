@@ -49,6 +49,14 @@ ingestion:
     max-retries: 1
     enabled: true
 
+    rerank:
+      jina:
+        api-key: test-rerank-key
+        model: jina-reranker-v2-base-multilingual
+        base-url: http://localhost:18083/v1/rerank
+        timeout-ms: 3000
+        top-k: 10
+
 logging:
   level:
     root: WARN

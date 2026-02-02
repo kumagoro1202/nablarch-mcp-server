@@ -71,7 +71,7 @@ public class FintanIngester implements DocumentIngester {
             MarkdownDocumentParser markdownParser,
             HtmlDocumentParser htmlParser,
             ChunkingService chunkingService,
-            EmbeddingClient embeddingClient,
+            @org.springframework.beans.factory.annotation.Qualifier("jinaEmbeddingClient") EmbeddingClient embeddingClient,
             DocumentChunkRepository repository,
             WebClient webClient,
             FintanIngestionConfig config) {
