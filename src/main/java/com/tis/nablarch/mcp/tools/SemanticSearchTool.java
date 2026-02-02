@@ -7,6 +7,7 @@ import com.tis.nablarch.mcp.rag.search.SearchMode;
 import com.tis.nablarch.mcp.rag.search.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.tis.nablarch.mcp.rag.query.QueryAnalyzer;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class SemanticSearchTool {
      * 未注入の場合は元のクエリをそのまま使用する。</p>
      */
     @Autowired(required = false)
-    private Object queryAnalyzer;
+    private QueryAnalyzer queryAnalyzer;
 
     /**
      * コンストラクタ。
