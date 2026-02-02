@@ -46,6 +46,9 @@ dependencies {
     // Phase 2: HTTP client for Embedding APIs
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
+    // HTML parsing (for RAG document parser)
+    implementation("org.jsoup:jsoup:1.18.3")
+
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
