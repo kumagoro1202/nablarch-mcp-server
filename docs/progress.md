@@ -10,19 +10,21 @@
 |-----|---------|------|------|-----|------|
 | 1.1.1 | Spring Boot基盤設計 | Batch A (ashigaru2) | 完了 | — | docs/design/spring-boot-foundation.md |
 | 1.1.2 | MCP SDK統合設計 | Batch A (ashigaru2) | 完了 | — | docs/design/mcp-sdk-integration.md |
-| 1.1.3 | ナレッジベース設計 | Batch B | 未着手 | — | |
-| 1.1.4 | テスト戦略策定 | — | 未着手 | — | |
+| 1.1.3 | ナレッジベース設計 | Batch B | 完了 | — | docs/design/knowledge-base.md |
+| 1.1.4 | search_api Tool API設計 | Batch C (ashigaru2) | 完了 | — | docs/design/tool-search-api.md |
+| 1.1.5 | validate_config Tool API設計 | Batch C (ashigaru2) | 完了 | — | docs/design/tool-validate-config.md |
 | 1.2.1 | Spring Bootプロジェクト構築 | Batch A (ashigaru2) | 完了 | — | build.gradle.kts更新、パッケージ整備 |
 | 1.2.2 | MCP SDK統合・STDIOトランスポート | Batch A (ashigaru2) | 完了 | — | Resource/Prompt登録、STDIO動作確認済 |
-| 1.2.3 | ナレッジベース基盤実装 | Batch B | 未着手 | — | |
-| 1.2.4 | YAMLスキーマ定義・バリデーション | Batch B | 未着手 | — | |
+| 1.2.3 | ナレッジベース基盤実装 | Batch B | 完了 | — | 知識YAML 7本作成済 |
+| 1.2.4 | SearchApiTool実装 | Batch C (ashigaru2) | 完了 | — | NablarchKnowledgeBase.search()連携 |
+| 1.2.5 | ValidateHandlerQueueTool実装 | Batch C (ashigaru2) | 完了 | — | XML解析+ハンドラキュー検証 |
 
 ## Wave 2: コア機能実装
 
 | WBS | タスク名 | 担当 | 状態 | PR | 備考 |
 |-----|---------|------|------|-----|------|
-| 1.3.1 | search_api Tool実装 | — | 未着手 | — | |
-| 1.3.2 | validate_config Tool実装 | — | 未着手 | — | |
+| 1.3.1 | SearchApiToolテスト | Batch C (ashigaru2) | 完了 | — | Mockitoベース単体テスト 7件 |
+| 1.3.2 | ValidateHandlerQueueToolテスト | Batch C (ashigaru2) | 完了 | — | Mockitoベース単体テスト 11件 |
 | 1.3.3 | handler/{app_type} Resource実装 | — | 未着手 | — | |
 | 1.3.4 | guide/{topic} Resource実装 | — | 未着手 | — | |
 | 1.3.5 | Promptテンプレート実装 (6種) | — | 未着手 | — | |

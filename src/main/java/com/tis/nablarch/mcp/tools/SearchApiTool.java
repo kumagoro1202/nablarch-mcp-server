@@ -5,28 +5,35 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
- * MCP Tool: search_api
+ * MCPツール: search_api。
  *
- * <p>Searches the Nablarch API documentation and returns matching
- * classes, methods, and usage patterns. This tool enables AI assistants
- * to find relevant Nablarch APIs when generating code.</p>
+ * <p>Nablarch知識ベースからAPIパターン・モジュール・ハンドラ・設計パターン・
+ * エラー情報をキーワード検索する。AIアシスタントがNablarchのAPIを
+ * 理解してコード生成するために使用する。</p>
  */
 @Service
 public class SearchApiTool {
 
     private final NablarchKnowledgeBase knowledgeBase;
 
+    /**
+     * コンストラクタ。
+     *
+     * @param knowledgeBase Nablarch知識ベース
+     */
     public SearchApiTool(NablarchKnowledgeBase knowledgeBase) {
         this.knowledgeBase = knowledgeBase;
     }
 
     /**
-     * Search the Nablarch API documentation.
+     * Nablarch APIドキュメントを検索する。
      *
-     * @param keyword  the search keyword (class name, method name, or concept)
-     * @param category optional category filter (e.g., "handler", "library", "web", "batch")
-     * @return search results as formatted text
+     * @param keyword 検索キーワード（クラス名、メソッド名、概念）
+     * @param category カテゴリフィルタ（handler, library, web, batch, rest, messaging等）
+     * @return 検索結果のフォーマット済みテキスト
      */
     @Tool(description = "Search the Nablarch API documentation for classes, methods, and patterns. "
             + "Use this when you need to find Nablarch APIs for code generation.")
@@ -34,7 +41,29 @@ public class SearchApiTool {
             @ToolParam(description = "Search keyword (class name, method name, or concept)") String keyword,
             @ToolParam(description = "Optional category filter: handler, library, web, batch, rest, messaging")
             String category) {
-        // TODO: Implement full-text search over Nablarch knowledge base
-        throw new UnsupportedOperationException("Not yet implemented - Phase 1 stub");
+        if (keyword == null || keyword.isBlank()) {
+            return "検索キーワードを指定してください。";
+        }
+
+        String effectiveCategory = (category != null && !category.isBlank()) ? category : null;
+        List<String> results = knowledgeBase.search(keyword, effectiveCategory);
+
+        if (results.isEmpty()) {
+            return "検索結果なし: " + keyword
+                    + (effectiveCategory != null ? " (カテゴリ: " + effectiveCategory + ")" : "");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("検索結果: \"").append(keyword).append("\"");
+        if (effectiveCategory != null) {
+            sb.append(" (カテゴリ: ").append(effectiveCategory).append(")");
+        }
+        sb.append("\n件数: ").append(results.size()).append("件\n\n");
+
+        for (String result : results) {
+            sb.append(result).append("\n");
+        }
+
+        return sb.toString();
     }
 }

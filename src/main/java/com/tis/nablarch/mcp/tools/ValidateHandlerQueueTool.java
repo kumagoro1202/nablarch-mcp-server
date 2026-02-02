@@ -5,28 +5,45 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- * MCP Tool: validate_handler_queue
+ * MCPツール: validate_handler_queue。
  *
- * <p>Validates a Nablarch handler queue configuration (XML) against
- * known handler ordering constraints and best practices. Returns
- * validation results with suggestions for fixes.</p>
+ * <p>NablarchハンドラキューXML設定を検証する。
+ * ハンドラの順序制約・必須ハンドラの有無・互換性をチェックし、
+ * 検証結果をエラー・警告付きで返す。</p>
  */
 @Service
 public class ValidateHandlerQueueTool {
 
     private final NablarchKnowledgeBase knowledgeBase;
 
+    /** XML class属性からFQCNを抽出するパターン */
+    private static final Pattern CLASS_ATTR_PATTERN =
+            Pattern.compile("class\\s*=\\s*\"([^\"]+)\"");
+
+    /**
+     * コンストラクタ。
+     *
+     * @param knowledgeBase Nablarch知識ベース
+     */
     public ValidateHandlerQueueTool(NablarchKnowledgeBase knowledgeBase) {
         this.knowledgeBase = knowledgeBase;
     }
 
     /**
-     * Validate a Nablarch handler queue configuration.
+     * NablarchハンドラキューXML設定を検証する。
      *
-     * @param handlerQueueXml the handler queue XML configuration to validate
-     * @param applicationType the application type context (web, rest, batch, messaging)
-     * @return validation results including errors, warnings, and suggestions
+     * <p>入力XMLからハンドラクラス名を抽出し、
+     * 知識ベースの制約ルールに基づいて順序・必須・互換性を検証する。</p>
+     *
+     * @param handlerQueueXml ハンドラキューXML設定内容
+     * @param applicationType アプリケーションタイプ（web, rest, batch, messaging）
+     * @return 検証結果（エラー・警告を含むフォーマット済みテキスト）
      */
     @Tool(description = "Validate a Nablarch handler queue XML configuration. "
             + "Checks handler ordering constraints, required handlers, and best practices. "
@@ -35,7 +52,40 @@ public class ValidateHandlerQueueTool {
             @ToolParam(description = "Handler queue XML configuration content") String handlerQueueXml,
             @ToolParam(description = "Application type: web, rest, batch, or messaging")
             String applicationType) {
-        // TODO: Implement handler queue validation logic
-        throw new UnsupportedOperationException("Not yet implemented - Phase 1 stub");
+        if (handlerQueueXml == null || handlerQueueXml.isBlank()) {
+            return "ハンドラキューXMLを指定してください。";
+        }
+        if (applicationType == null || applicationType.isBlank()) {
+            return "アプリケーションタイプを指定してください（web, rest, batch, messaging）。";
+        }
+
+        List<String> handlerNames = extractHandlerNames(handlerQueueXml);
+        if (handlerNames.isEmpty()) {
+            return "XMLからハンドラクラスを抽出できませんでした。\n"
+                    + "class属性を持つcomponentまたはhandler要素を含むXMLを指定してください。";
+        }
+
+        return knowledgeBase.validateHandlerQueue(applicationType, handlerNames);
+    }
+
+    /**
+     * XML文字列からハンドラクラス名（単純名）を抽出する。
+     *
+     * <p>class属性のFQCNから末尾の単純クラス名を取得する。</p>
+     *
+     * @param xml ハンドラキューXML
+     * @return ハンドラ名のリスト（出現順）
+     */
+    List<String> extractHandlerNames(String xml) {
+        List<String> names = new ArrayList<>();
+        Matcher matcher = CLASS_ATTR_PATTERN.matcher(xml);
+        while (matcher.find()) {
+            String fqcn = matcher.group(1);
+            String simpleName = fqcn.contains(".")
+                    ? fqcn.substring(fqcn.lastIndexOf('.') + 1)
+                    : fqcn;
+            names.add(simpleName);
+        }
+        return names;
     }
 }
