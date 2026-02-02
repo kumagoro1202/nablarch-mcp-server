@@ -1,5 +1,7 @@
 package com.tis.nablarch.mcp.config;
 
+import com.tis.nablarch.mcp.resources.GuideResourceProvider;
+import com.tis.nablarch.mcp.resources.HandlerResourceProvider;
 import com.tis.nablarch.mcp.tools.SearchApiTool;
 import com.tis.nablarch.mcp.tools.ValidateHandlerQueueTool;
 import io.modelcontextprotocol.server.McpServerFeatures;
@@ -12,19 +14,10 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
- * MCP Server configuration.
+ * MCPサーバ構成クラス。
  *
- * <p>Registers MCP tools, resources, and prompts with the server.
- * Configures the STDIO transport for Phase 1.</p>
- *
- * <p>Phase 1 registers the framework for all three MCP primitives:
- * <ul>
- *   <li>Tools: via {@code @Tool} annotation + ToolCallbackProvider (existing)</li>
- *   <li>Resources: via SyncResourceSpecification beans (new)</li>
- *   <li>Prompts: via SyncPromptSpecification beans (new)</li>
- * </ul>
- * Resource and Prompt handlers return stub content in Phase 1.
- * Full implementations will be provided in Wave 2.</p>
+ * <p>MCPツール、リソース、プロンプトをサーバに登録する。
+ * Phase 1ではSTIOトランスポートを使用する。</p>
  */
 @Configuration
 public class McpServerConfig {
@@ -46,25 +39,55 @@ public class McpServerConfig {
     }
 
     /**
-     * Registers MCP resources for Nablarch handler catalogs and guides.
+     * NablarchハンドラカタログおよびガイドのMCPリソースを登録する。
      *
-     * @return list of resource specifications for MCP server auto-configuration
+     * <p>6種のハンドラリソースと6種のガイドリソース（計12リソース）を登録する。</p>
+     *
+     * @param handlerProvider ハンドラリソースプロバイダ
+     * @param guideProvider ガイドリソースプロバイダ
+     * @return MCPサーバ自動構成用のリソース仕様リスト
      */
     @Bean
-    public List<McpServerFeatures.SyncResourceSpecification> nablarchResources() {
+    public List<McpServerFeatures.SyncResourceSpecification> nablarchResources(
+            HandlerResourceProvider handlerProvider,
+            GuideResourceProvider guideProvider) {
         return List.of(
             createHandlerResourceSpec("web", "Nablarch Web Handler Catalog",
-                "Web application handler specifications and ordering constraints"),
+                "Web application handler specifications and ordering constraints",
+                handlerProvider),
             createHandlerResourceSpec("rest", "Nablarch REST Handler Catalog",
-                "REST application handler specifications and ordering constraints"),
+                "REST application handler specifications and ordering constraints",
+                handlerProvider),
             createHandlerResourceSpec("batch", "Nablarch Batch Handler Catalog",
-                "Batch application handler specifications and ordering constraints"),
+                "Batch application handler specifications and ordering constraints",
+                handlerProvider),
             createHandlerResourceSpec("messaging", "Nablarch Messaging Handler Catalog",
-                "Messaging application handler specifications and ordering constraints"),
+                "Messaging application handler specifications and ordering constraints",
+                handlerProvider),
+            createHandlerResourceSpec("http-messaging",
+                "Nablarch HTTP Messaging Handler Catalog",
+                "HTTP messaging handler specifications and ordering constraints",
+                handlerProvider),
+            createHandlerResourceSpec("jakarta-batch",
+                "Nablarch Jakarta Batch Handler Catalog",
+                "Jakarta Batch handler specifications and ordering constraints",
+                handlerProvider),
             createGuideResourceSpec("setup", "Nablarch Setup Guide",
-                "Nablarch project setup and configuration guide"),
+                "Nablarch project setup and configuration guide", guideProvider),
             createGuideResourceSpec("testing", "Nablarch Testing Guide",
-                "Nablarch testing patterns and best practices guide")
+                "Nablarch testing patterns and best practices guide", guideProvider),
+            createGuideResourceSpec("validation", "Nablarch Validation Guide",
+                "Nablarch validation patterns and design guide", guideProvider),
+            createGuideResourceSpec("database", "Nablarch Database Guide",
+                "Nablarch database access patterns and configuration guide",
+                guideProvider),
+            createGuideResourceSpec("handler-queue",
+                "Nablarch Handler Queue Guide",
+                "Nablarch handler queue architecture and configuration guide",
+                guideProvider),
+            createGuideResourceSpec("error-handling",
+                "Nablarch Error Handling Guide",
+                "Nablarch common errors and troubleshooting guide", guideProvider)
         );
     }
 
@@ -102,30 +125,28 @@ public class McpServerConfig {
     }
 
     private static McpServerFeatures.SyncResourceSpecification createHandlerResourceSpec(
-            String type, String name, String description) {
+            String type, String name, String description,
+            HandlerResourceProvider provider) {
         String uri = "nablarch://handler/" + type;
         return new McpServerFeatures.SyncResourceSpecification(
             new McpSchema.Resource(uri, name, description, "text/markdown", null),
             (exchange, request) -> new McpSchema.ReadResourceResult(
                 List.of(new McpSchema.TextResourceContents(
                     request.uri(), "text/markdown",
-                    "# " + name + "\n\n"
-                    + "[Phase 1 stub] Handler specifications for " + type
-                    + " applications will be provided in Wave 2.")))
+                    provider.getHandlerMarkdown(type))))
         );
     }
 
     private static McpServerFeatures.SyncResourceSpecification createGuideResourceSpec(
-            String topic, String name, String description) {
+            String topic, String name, String description,
+            GuideResourceProvider provider) {
         String uri = "nablarch://guide/" + topic;
         return new McpServerFeatures.SyncResourceSpecification(
             new McpSchema.Resource(uri, name, description, "text/markdown", null),
             (exchange, request) -> new McpSchema.ReadResourceResult(
                 List.of(new McpSchema.TextResourceContents(
                     request.uri(), "text/markdown",
-                    "# " + name + "\n\n"
-                    + "[Phase 1 stub] " + description
-                    + " will be provided in Wave 2.")))
+                    provider.getGuideMarkdown(topic))))
         );
     }
 

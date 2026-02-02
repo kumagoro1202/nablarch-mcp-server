@@ -4,11 +4,12 @@ import com.tis.nablarch.mcp.knowledge.NablarchKnowledgeBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for {@link ApiSpecResource}.
+ * {@link ApiSpecResource} のユニットテスト。
  */
 class ApiSpecResourceTest {
 
@@ -16,7 +17,8 @@ class ApiSpecResourceTest {
 
     @BeforeEach
     void setUp() {
-        apiSpecResource = new ApiSpecResource(new NablarchKnowledgeBase());
+        apiSpecResource = new ApiSpecResource(
+                new NablarchKnowledgeBase(new DefaultResourceLoader(), "classpath:knowledge/"));
     }
 
     @Test
