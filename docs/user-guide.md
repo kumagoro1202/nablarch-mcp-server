@@ -49,13 +49,13 @@ git clone https://github.com/kumanoGoro/nablarch-mcp-server.git
 cd nablarch-mcp-server
 
 # 2. ビルド
-./gradlew build
+./mvnw package
 
 # 3. 実行
-./gradlew bootRun
+./mvnw spring-boot:run
 ```
 
-ビルド成果物は `build/libs/nablarch-mcp-server-x.x.x.jar` に生成される。
+ビルド成果物は `target/nablarch-mcp-server-x.x.x.jar` に生成される。
 
 ### 方法3: Docker Compose（将来対応予定）
 

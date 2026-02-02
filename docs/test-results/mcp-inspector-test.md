@@ -20,7 +20,7 @@ FIFOパイプ（名前付きパイプ）を使用したSTDIO JSON-RPCテスト:
 mkfifo /tmp/mcp-input
 
 # サーバー起動（パイプからの入力を受け付ける）
-java -jar build/libs/nablarch-mcp-server-0.1.0-SNAPSHOT.jar \
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar \
   < /tmp/mcp-input > /tmp/mcp-all-output.jsonl 2>/dev/null &
 
 # JSON-RPCリクエストをパイプに送信

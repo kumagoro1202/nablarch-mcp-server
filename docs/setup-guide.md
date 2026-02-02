@@ -8,7 +8,7 @@ Nablarch MCP Serverは、AIアシスタント（Claude等）がNablarchフレー
 | 項目 | 要件 |
 |------|------|
 | Java | JDK 17以上 |
-| ビルドツール | Gradle 8.x（Gradle Wrapperを同梱） |
+| ビルドツール | Maven 3.9.x（Maven Wrapperを同梱） |
 | MCPクライアント | Claude Desktop、Claude Code、またはMCP Inspector |
 | OS | Windows、macOS、Linux |
 
@@ -24,13 +24,13 @@ cd nablarch-mcp-server
 ### 2. ビルド
 
 ```bash
-./gradlew bootJar
+./mvnw package
 ```
 
 ビルドが成功すると、以下にJARファイルが生成されます。
 
 ```
-build/libs/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
+target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
 ### 3. 動作確認（単体）
@@ -38,7 +38,7 @@ build/libs/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 サーバーが正しく起動するか確認します。
 
 ```bash
-java -jar build/libs/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
 サーバーはSTDIO（標準入出力）トランスポートで動作するため、起動後はJSON-RPCメッセージを待機します。
@@ -96,7 +96,7 @@ java -jar build/libs/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 MCP Inspectorを使ってサーバーの動作を対話的に確認できます。
 
 ```bash
-npx @modelcontextprotocol/inspector java -jar build/libs/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
+npx @modelcontextprotocol/inspector java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
 ブラウザが開き、Tools / Resources / Prompts の一覧と実行テストが可能です。
@@ -251,7 +251,7 @@ MCP Promptsはテンプレート化された対話パターンです。AIアシ�
 | エラー | 原因 | 対処法 |
 |--------|------|--------|
 | `UnsupportedClassVersionError` | Javaバージョンが17未満 | `java -version` で確認し、JDK 17以上をインストール |
-| `FileNotFoundException: knowledge/*.yaml` | JARファイルが破損 | `./gradlew clean bootJar` で再ビルド |
+| `FileNotFoundException: knowledge/*.yaml` | JARファイルが破損 | `./mvnw clean package` で再ビルド |
 | `Address already in use` | 別プロセスがポートを使用 | Phase 1はSTDIO transportのため通常発生しない |
 
 ### MCPクライアントから接続できない

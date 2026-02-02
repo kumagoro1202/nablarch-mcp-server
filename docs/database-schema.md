@@ -467,11 +467,11 @@ docker compose exec pgvector psql -U nablarch -d nablarch_mcp -c '\dx'
 #### Flywayマイグレーション実行
 
 ```bash
-# Gradleタスクで実行
-./gradlew flywayMigrate
+# Flywayマイグレーション実行
+./mvnw flyway:migrate
 
 # マイグレーション状態の確認
-./gradlew flywayInfo
+./mvnw flyway:info
 ```
 
 #### 手動実行（デバッグ用）

@@ -492,7 +492,7 @@ public class MetricsCalculator {
 
 ```bash
 # 評価テスト実行（@Tag("evaluation") でフィルタ）
-./gradlew test -PincludeTags='evaluation'
+./mvnw test -Dgroups='evaluation'
 
 # レポート出力先
 # docs/search-quality-report.md
