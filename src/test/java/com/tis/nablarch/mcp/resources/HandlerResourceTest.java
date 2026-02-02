@@ -4,13 +4,14 @@ import com.tis.nablarch.mcp.knowledge.NablarchKnowledgeBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for {@link HandlerResource}.
+ * {@link HandlerResource} のユニットテスト。
  */
 class HandlerResourceTest {
 
@@ -18,7 +19,8 @@ class HandlerResourceTest {
 
     @BeforeEach
     void setUp() {
-        handlerResource = new HandlerResource(new NablarchKnowledgeBase());
+        handlerResource = new HandlerResource(
+                new NablarchKnowledgeBase(new DefaultResourceLoader(), "classpath:knowledge/"));
     }
 
     @Test
