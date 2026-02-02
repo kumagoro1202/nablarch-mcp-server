@@ -1,0 +1,31 @@
+<html>
+<head><title>Nablarch ハンドラキュー</title></head>
+<body>
+<h1>ハンドラキュー</h1>
+<p>ハンドラキューはNablarchのリクエスト処理パイプラインである。</p>
+
+<h2>概要</h2>
+<p>ハンドラキューは複数のハンドラを直列に連結し、リクエストを順次処理する。</p>
+<pre><code class="language-java">public interface Handler&lt;I, O&gt; {
+    O handle(I input, ExecutionContext context);
+}</code></pre>
+
+<h2>設定方法</h2>
+<p>ハンドラキューはXML設定ファイルで定義する。</p>
+<table>
+<tr><th>ハンドラ</th><th>説明</th></tr>
+<tr><td>GlobalErrorHandler</td><td>例外ハンドリング</td></tr>
+<tr><td>HttpResponseHandler</td><td>レスポンス処理</td></tr>
+</table>
+
+<h3>XML設定例</h3>
+<p>以下はWebアプリケーション用のハンドラキュー設定例である。</p>
+<pre><code class="language-xml">&lt;component name="webFrontController"&gt;
+  &lt;property name="handlerQueue"&gt;
+    &lt;list&gt;
+      &lt;component class="nablarch.fw.handler.GlobalErrorHandler"/&gt;
+    &lt;/list&gt;
+  &lt;/property&gt;
+&lt;/component&gt;</code></pre>
+</body>
+</html>

@@ -33,6 +33,9 @@ dependencies {
     // YAML parsing
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 
+    // HTML parsing (for RAG document parser)
+    implementation("org.jsoup:jsoup:1.18.3")
+
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration">
+
+  <component name="webFrontController"
+             class="nablarch.fw.web.servlet.WebFrontController">
+    <property name="handlerQueue">
+      <list>
+        <component class="nablarch.fw.handler.GlobalErrorHandler"/>
+        <component class="nablarch.fw.web.handler.HttpResponseHandler"/>
+      </list>
+    </property>
+  </component>
+
+  <component name="dbConnectionManager"
+             class="nablarch.core.db.connection.BasicDbConnectionManager">
+    <property name="dataSource" ref="dataSource"/>
+  </component>
+
+</component-configuration>
