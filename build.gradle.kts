@@ -33,12 +33,27 @@ dependencies {
     // YAML parsing
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 
+    // Phase 2: Database (pgvector + JPA + Flyway)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.postgresql:postgresql")
+    implementation("com.pgvector:pgvector:0.1.6")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+
+    // Phase 2: JDBC for BM25 search (PostgreSQL FTS)
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+
+    // Phase 2: HTTP client for Embedding APIs
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+
     // HTML parsing (for RAG document parser)
     implementation("org.jsoup:jsoup:1.18.3")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("com.h2database:h2")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 tasks.withType<Test> {
