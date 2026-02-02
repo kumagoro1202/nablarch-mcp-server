@@ -1,93 +1,94 @@
-# Nablarch MCP Server — RAG-Enhanced Architecture Design
+# Nablarch MCPサーバー — RAG強化アーキテクチャ設計書
 
-> **Version**: 2.0 (RAG-enhanced rewrite)
-> **Created**: 2026-02-02
-> **Parent Task**: subtask_031 (cmd_017)
-> **Tech Stack**: Spring Boot 3.x + MCP Java SDK 0.17.x + RAG Pipeline
-
----
-
-## Table of Contents
-
-1. [System Overview](#1-system-overview)
-2. [Architecture Diagram](#2-architecture-diagram)
-3. [Component Architecture](#3-component-architecture)
-4. [RAG Pipeline Design](#4-rag-pipeline-design)
-5. [MCP Primitives Design](#5-mcp-primitives-design)
-6. [RAG-MCP Integration Architecture](#6-rag-mcp-integration-architecture)
-7. [Technology Stack](#7-technology-stack)
-8. [Deployment Architecture](#8-deployment-architecture)
-9. [Data Model](#9-data-model)
-10. [Security Architecture](#10-security-architecture)
-11. [Phased Roadmap](#11-phased-roadmap)
+> **バージョン**: 2.0（RAG強化版リライト）
+> **作成日**: 2026-02-02
+> **親タスク**: subtask_031 (cmd_017)
+> **技術スタック**: Spring Boot 3.x + MCP Java SDK 0.17.x + RAGパイプライン
 
 ---
 
-## 1. System Overview
+## 目次
 
-### 1.1 What This System Does
+1. [システム概要](#1-システム概要)
+2. [アーキテクチャ図](#2-アーキテクチャ図)
+3. [コンポーネントアーキテクチャ](#3-コンポーネントアーキテクチャ)
+4. [RAGパイプライン設計](#4-ragパイプライン設計)
+5. [MCPプリミティブ設計](#5-mcpプリミティブ設計)
+6. [RAG-MCP統合アーキテクチャ](#6-rag-mcp統合アーキテクチャ)
+7. [技術スタック](#7-技術スタック)
+8. [デプロイメントアーキテクチャ](#8-デプロイメントアーキテクチャ)
+9. [データモデル](#9-データモデル)
+10. [セキュリティアーキテクチャ](#10-セキュリティアーキテクチャ)
+11. [フェーズ別ロードマップ](#11-フェーズ別ロードマップ)
 
-The Nablarch MCP Server is a **RAG-enhanced MCP server** that provides Nablarch framework knowledge to AI coding assistants (Claude Code, Cursor, Copilot, VS Code) via the Model Context Protocol (MCP).
+---
 
-It combines:
-- **MCP** as the standard interface layer — exposing Tools, Resources, and Prompts to AI clients
-- **RAG (Retrieval-Augmented Generation)** as the intelligence layer — enabling semantic search over Nablarch documentation, source code, Javadoc, and XML configurations
+## 1. システム概要
 
-### 1.2 Why RAG + MCP
+### 1.1 本システムの機能
 
-| Approach | Search Quality | AI Tool Integration | Tool Execution | Verdict |
+Nablarch MCPサーバーは、NablarchフレームワークのナレッジをModel Context Protocol（MCP）経由でAIコーディングアシスタント（Claude Code、Cursor、Copilot、VS Code）に提供する**RAG強化MCPサーバー**である。
+
+本システムは以下を組み合わせている：
+- **MCP**（標準インターフェース層）— Tools、Resources、PromptsをAIクライアントに公開
+- **RAG（Retrieval-Augmented Generation）**（知識層）— Nablarchのドキュメント、ソースコード、Javadoc、XML設定に対するセマンティック検索を実現
+
+### 1.2 なぜRAG + MCPなのか
+
+| アプローチ | 検索品質 | AIツール統合 | ツール実行 | 評価 |
 |----------|:-------------:|:------------------:|:--------------:|---------|
-| RAG only | Semantic search | No standard interface | Not possible | Knowledge but no tooling |
-| MCP only | Keyword/static | Standard protocol | Possible | Tooling but weak search |
-| **RAG + MCP** | **Semantic search** | **Standard protocol** | **Possible** | **Best of both** |
+| RAGのみ | セマンティック検索 | 標準インターフェースなし | 不可 | ナレッジはあるがツールなし |
+| MCPのみ | キーワード/静的 | 標準プロトコル | 可能 | ツールはあるが検索が弱い |
+| **RAG + MCP** | **セマンティック検索** | **標準プロトコル** | **可能** | **両方の長所を活用** |
 
-Research (arXiv:2505.03275) demonstrates that RAG-enhanced MCP reduces prompt tokens by 75% and improves accuracy by 3x compared to naive MCP tool selection.
+研究（arXiv:2505.03275）によると、RAG強化MCPはナイーブなMCPツール選択と比較して、プロンプトトークンを75%削減し、精度を3倍向上させることが実証されている。
 
-### 1.3 Design Principles
+### 1.3 設計原則
 
-1. **RAG inside MCP** — The RAG engine runs inside the MCP server process, not as an external service
-2. **Hybrid Search** — Combine BM25 (keyword) + vector similarity for maximum recall
-3. **Dual Embedding** — Separate models for documentation (multilingual) and code (Java/XML)
-4. **Source Attribution** — Every answer carries source URLs, file paths, or Javadoc links
-5. **Phased Delivery** — Start with static knowledge, evolve to full RAG
+1. **MCP内蔵RAG** — RAGエンジンはMCPサーバープロセス内で動作し、外部サービスとしては存在しない
+2. **ハイブリッド検索** — BM25（キーワード）とベクトル類似度を組み合わせ、最大の再現率を実現
+3. **デュアルエンベディング** — ドキュメント（多言語対応）とコード（Java/XML）で別々のモデルを使用
+4. **出典明示** — すべての回答にソースURL、ファイルパス、またはJavadocリンクを付与
+5. **段階的デリバリー** — 静的ナレッジから始め、フルRAGへ進化
 
 ---
 
-## 2. Architecture Diagram
+## 2. アーキテクチャ図
 
-### 2.1 System-Level Architecture
+### 2.1 システムレベルアーキテクチャ
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                     AI Coding Tools                               │
+│                     AIコーディングツール                            │
 │   Claude Code  │  Cursor  │  Copilot  │  VS Code  │  Claude Desktop│
 │   ┌──────────────────────────────────────────────────────────┐   │
-│   │                      MCP Client                           │   │
+│   │                      MCPクライアント                       │   │
 │   └──────────────────────────┬───────────────────────────────┘   │
 └──────────────────────────────┼───────────────────────────────────┘
                                │ JSON-RPC 2.0
-                               │ STDIO (local) / Streamable HTTP (remote)
+                               │ STDIO（ローカル）/ Streamable HTTP（リモート）
 ┌──────────────────────────────▼───────────────────────────────────┐
-│              Nablarch MCP Server (Spring Boot)                    │
+│              Nablarch MCPサーバー（Spring Boot）                    │
 │                                                                   │
 │  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                   MCP Protocol Layer                         │ │
+│  │                   MCPプロトコル層                              │ │
 │  │  ┌────────────┐  ┌─────────────┐  ┌────────────────────┐  │ │
 │  │  │   Tools     │  │  Resources  │  │     Prompts        │  │ │
-│  │  │ (10 tools)  │  │ (8 types)   │  │  (6 templates)     │  │ │
+│  │  │ (10ツール)  │  │ (8タイプ)   │  │  (6テンプレート)    │  │ │
 │  │  └──────┬─────┘  └──────┬──────┘  └─────────┬──────────┘  │ │
 │  └─────────┼───────────────┼────────────────────┼─────────────┘ │
 │            │               │                    │                │
 │  ┌─────────▼───────────────▼────────────────────▼─────────────┐ │
-│  │                   RAG Engine (embedded)                      │ │
+│  │                   RAGエンジン（組み込み）                      │ │
 │  │                                                              │ │
 │  │  ┌──────────────┐  ┌───────────────┐  ┌────────────────┐  │ │
-│  │  │ Query        │  │ Hybrid Search │  │ Re-ranking     │  │ │
-│  │  │ Processor    │→ │ BM25 + Vector │→ │ Cross-Encoder  │  │ │
+│  │  │ クエリ       │  │ ハイブリッド   │  │ リランキング   │  │ │
+│  │  │ プロセッサ   │→ │ 検索          │→ │ Cross-Encoder  │  │ │
+│  │  │              │  │ BM25 + Vector │  │                │  │ │
 │  │  └──────────────┘  └───────────────┘  └────────────────┘  │ │
 │  │                                                              │ │
 │  │  ┌──────────────┐  ┌──────────────┐                        │ │
-│  │  │ Doc Embedder │  │ Code Embedder│   Embedding Models     │ │
+│  │  │ Docエンベッダ │  │ Codeエンベッダ│  エンベディングモデル  │ │
 │  │  │ (Jina v4)    │  │ (Voyage-c3)  │                        │ │
 │  │  └──────────────┘  └──────────────┘                        │ │
 │  └────────────────────────────┬─────────────────────────────┘   │
@@ -102,30 +103,30 @@ Research (arXiv:2505.03275) demonstrates that RAG-enhanced MCP reduces prompt to
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2 Component Diagram
+### 2.2 コンポーネント図
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                    Spring Boot Application                        │
+│                    Spring Bootアプリケーション                      │
 │                                                                   │
 │  ┌────────────────────────────────────┐                          │
-│  │        Transport Layer              │                          │
-│  │  StdioServerTransportProvider       │  ← STDIO (local)        │
-│  │  HttpServletStreamableServer...     │  ← HTTP  (remote)       │
+│  │        トランスポート層             │                          │
+│  │  StdioServerTransportProvider       │  ← STDIO（ローカル）     │
+│  │  HttpServletStreamableServer...     │  ← HTTP（リモート）      │
 │  └───────────────┬────────────────────┘                          │
 │                  │                                                │
 │  ┌───────────────▼────────────────────┐                          │
-│  │        MCP Server Core              │                          │
+│  │        MCPサーバーコア              │                          │
 │  │  McpServer / McpStreamableServer    │  ← MCP Java SDK         │
-│  │  Capability Negotiation             │                          │
-│  │  Session Management                 │                          │
+│  │  ケイパビリティネゴシエーション      │                          │
+│  │  セッション管理                     │                          │
 │  └───────────────┬────────────────────┘                          │
 │                  │                                                │
 │  ┌───────────────▼────────────────────┐                          │
-│  │        Application Layer            │                          │
+│  │        アプリケーション層           │                          │
 │  │                                     │                          │
 │  │  ┌──────────────────────────────┐  │                          │
-│  │  │ Tool Handlers                │  │                          │
+│  │  │ Toolハンドラ                 │  │                          │
 │  │  │ • SemanticSearchTool         │  │                          │
 │  │  │ • HandlerQueueDesignTool     │  │                          │
 │  │  │ • CodeGenerationTool         │  │                          │
@@ -139,7 +140,7 @@ Research (arXiv:2505.03275) demonstrates that RAG-enhanced MCP reduces prompt to
 │  │  └──────────────────────────────┘  │                          │
 │  │                                     │                          │
 │  │  ┌──────────────────────────────┐  │                          │
-│  │  │ Resource Providers           │  │                          │
+│  │  │ Resourceプロバイダ           │  │                          │
 │  │  │ • nablarch://handler/*       │  │                          │
 │  │  │ • nablarch://api/*           │  │                          │
 │  │  │ • nablarch://pattern/*       │  │                          │
@@ -151,7 +152,7 @@ Research (arXiv:2505.03275) demonstrates that RAG-enhanced MCP reduces prompt to
 │  │  └──────────────────────────────┘  │                          │
 │  │                                     │                          │
 │  │  ┌──────────────────────────────┐  │                          │
-│  │  │ Prompt Templates             │  │                          │
+│  │  │ Promptテンプレート           │  │                          │
 │  │  │ • setup-handler-queue        │  │                          │
 │  │  │ • create-web-app             │  │                          │
 │  │  │ • create-rest-api            │  │                          │
@@ -162,7 +163,7 @@ Research (arXiv:2505.03275) demonstrates that RAG-enhanced MCP reduces prompt to
 │  └───────────────┬────────────────────┘                          │
 │                  │                                                │
 │  ┌───────────────▼────────────────────┐                          │
-│  │        RAG Engine                   │                          │
+│  │        RAGエンジン                  │                          │
 │  │  ┌──────────┐ ┌──────────┐        │                          │
 │  │  │ Indexer   │ │ Retriever│        │                          │
 │  │  └──────────┘ └──────────┘        │                          │
@@ -172,7 +173,7 @@ Research (arXiv:2505.03275) demonstrates that RAG-enhanced MCP reduces prompt to
 │  └───────────────┬────────────────────┘                          │
 │                  │                                                │
 │  ┌───────────────▼────────────────────┐                          │
-│  │        Data Layer                   │                          │
+│  │        データ層                     │                          │
 │  │  PostgreSQL + pgvector              │                          │
 │  └─────────────────────────────────────┘                          │
 └──────────────────────────────────────────────────────────────────┘
@@ -180,101 +181,102 @@ Research (arXiv:2505.03275) demonstrates that RAG-enhanced MCP reduces prompt to
 
 ---
 
-## 3. Component Architecture
+## 3. コンポーネントアーキテクチャ
 
-### 3.1 Transport Layer
+### 3.1 トランスポート層
 
-| Transport | Class | Use Case | Protocol |
+| トランスポート | クラス | ユースケース | プロトコル |
 |-----------|-------|----------|----------|
-| STDIO | `StdioServerTransportProvider` | Local dev (Claude Code, Claude Desktop) | stdin/stdout JSON-RPC 2.0 |
-| Streamable HTTP | `HttpServletStreamableServerTransportProvider` | Remote/team server | HTTP POST + SSE |
+| STDIO | `StdioServerTransportProvider` | ローカル開発（Claude Code、Claude Desktop） | stdin/stdout JSON-RPC 2.0 |
+| Streamable HTTP | `HttpServletStreamableServerTransportProvider` | リモート/チームサーバー | HTTP POST + SSE |
 
-Both transports are provided by the MCP Java SDK `mcp-core` module (no Spring dependency for core).
+両トランスポートはMCP Java SDKの`mcp-core`モジュールによって提供される（コア部分にSpring依存なし）。
 
-### 3.2 MCP Server Core
+### 3.2 MCPサーバーコア
 
-Built on `McpServer` (sync) or `McpAsyncServer` from the MCP Java SDK. Responsibilities:
-- Protocol lifecycle (initialize → operate → shutdown)
-- Capability negotiation (advertise supported Tools/Resources/Prompts)
-- Session management (`Mcp-Session-Id` for HTTP)
-- Batch message handling
+MCP Java SDKの`McpServer`（同期）または`McpAsyncServer`上に構築。責務：
+- プロトコルライフサイクル（initialize → operate → shutdown）
+- ケイパビリティネゴシエーション（サポートするTools/Resources/Promptsの通知）
+- セッション管理（HTTP用の`Mcp-Session-Id`）
+- バッチメッセージ処理
 
-### 3.3 Application Layer
+### 3.3 アプリケーション層
 
-Three categories of MCP primitives:
+MCPプリミティブの3カテゴリ：
 
-| Category | Count | Control | Description |
+| カテゴリ | 数 | 制御主体 | 説明 |
 |----------|-------|---------|-------------|
-| **Tools** | 10 | AI model invokes | Executable functions (search, generate, validate) |
-| **Resources** | 8 URI patterns | Application controls | Read-only Nablarch knowledge |
-| **Prompts** | 6 templates | User selects | Guided workflow templates |
+| **Tools** | 10 | AIモデルが呼び出す | 実行可能な関数（検索、生成、検証） |
+| **Resources** | 8 URIパターン | アプリケーションが制御 | 読み取り専用のNablarchナレッジ |
+| **Prompts** | 6テンプレート | ユーザーが選択 | ガイド付きワークフローテンプレート |
 
-### 3.4 RAG Engine
+### 3.4 RAGエンジン
 
-Embedded within the Spring Boot process. Components:
+Spring Bootプロセス内に組み込み。コンポーネント：
 
-| Component | Responsibility | Technology |
+| コンポーネント | 責務 | 技術 |
 |-----------|---------------|------------|
-| **Query Processor** | Query analysis, reformulation, routing | Custom Java |
-| **Hybrid Search** | BM25 keyword + vector similarity | pgvector + PostgreSQL FTS |
-| **Re-ranker** | Score re-ranking of candidate results | Cross-Encoder model |
-| **Doc Embedder** | Embed documentation text | Jina embeddings-v4 |
-| **Code Embedder** | Embed Java/XML source code | Voyage-code-3 |
-| **Indexer** | Ingest, chunk, embed, store documents | Custom pipeline |
+| **クエリプロセッサ** | クエリ分析、再構成、ルーティング | カスタムJava |
+| **ハイブリッド検索** | BM25キーワード + ベクトル類似度 | pgvector + PostgreSQL FTS |
+| **リランカー** | 候補結果のスコアリランキング | Cross-Encoderモデル |
+| **Docエンベッダ** | ドキュメントテキストの埋め込み | Jina embeddings-v4 |
+| **Codeエンベッダ** | Java/XMLソースコードの埋め込み | Voyage-code-3 |
+| **Indexer** | ドキュメントの取り込み、チャンク分割、埋め込み、格納 | カスタムパイプライン |
 
-### 3.5 Data Layer
+### 3.5 データ層
 
-PostgreSQL with pgvector extension. Four specialized indexes for different content types with distinct chunking and embedding strategies.
+pgvector拡張を搭載したPostgreSQL。異なるコンテンツタイプに対して、それぞれ異なるチャンキング戦略とエンベディング戦略を持つ4つの専用インデックス。
 
 ---
 
-## 4. RAG Pipeline Design
+## 4. RAGパイプライン設計
 
-### 4.1 Data Ingestion Pipeline
+### 4.1 データ取り込みパイプライン
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Data Sources                               │
+│                    データソース                                │
 │                                                               │
 │  ┌──────────────┐ ┌──────────────┐ ┌──────────────────────┐ │
-│  │ Official Docs │ │ GitHub Repos │ │ API Javadoc          │ │
-│  │ nablarch.     │ │ 113 repos    │ │ nablarch.github.io/  │ │
-│  │ github.io     │ │ (nablarch    │ │ docs/*/javadoc/      │ │
+│  │ 公式ドキュメント│ │ GitHubリポジ │ │ API Javadoc          │ │
+│  │ nablarch.     │ │ トリ         │ │ nablarch.github.io/  │ │
+│  │ github.io     │ │ 113リポジトリ │ │ docs/*/javadoc/      │ │
+│  │               │ │ (nablarch    │ │                      │ │
 │  │               │ │  org)        │ │                      │ │
 │  └───────┬──────┘ └───────┬──────┘ └───────────┬──────────┘ │
 │          │                │                     │            │
 │  ┌──────────────┐ ┌──────────────┐ ┌──────────────────────┐ │
-│  │ Fintan       │ │ Config XML   │ │ Dev Standards        │ │
-│  │ fintan.jp    │ │ (example     │ │ nablarch-development │ │
-│  │ (guides,     │ │  projects)   │ │ -standards           │ │
-│  │  standards)  │ │              │ │                      │ │
+│  │ Fintan       │ │ 設定XML      │ │ 開発標準             │ │
+│  │ fintan.jp    │ │ (サンプル    │ │ nablarch-development │ │
+│  │ (ガイド、    │ │  プロジェクト)│ │ -standards           │ │
+│  │  標準)       │ │              │ │                      │ │
 │  └───────┬──────┘ └───────┬──────┘ └───────────┬──────────┘ │
 └──────────┼────────────────┼─────────────────────┼────────────┘
            ▼                ▼                     ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                 Document Processing                          │
+│                 ドキュメント処理                               │
 │                                                               │
 │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌───────────┐ │
-│  │ HTML Parser │ │ Java Parser│ │ XML Parser │ │ Javadoc   │ │
-│  │ (docs,      │ │ (AST-based)│ │ (tag-based)│ │ Parser    │ │
+│  │ HTMLパーサ  │ │ Javaパーサ │ │ XMLパーサ  │ │ Javadoc   │ │
+│  │ (ドキュメント│ │ (ASTベース)│ │ (タグベース)│ │ パーサ    │ │
 │  │  Fintan)    │ │            │ │            │ │           │ │
 │  └──────┬─────┘ └──────┬─────┘ └─────┬──────┘ └─────┬─────┘ │
 │         └───────┬──────┴──────┬──────┴───────┬───────┘       │
 │                 ▼             ▼              ▼               │
 │         ┌─────────────────────────────────────────────┐      │
-│         │        Chunking Engine                       │      │
-│         │  (content-type-aware strategies)             │      │
+│         │        チャンキングエンジン                    │      │
+│         │  （コンテンツタイプ別戦略）                     │      │
 │         └────────────────────┬────────────────────────┘      │
 └──────────────────────────────┼───────────────────────────────┘
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  Embedding & Storage                          │
+│                  エンベディング＆ストレージ                     │
 │                                                               │
 │  ┌──────────────────┐    ┌──────────────────┐                │
-│  │ Doc Embedder      │    │ Code Embedder    │                │
+│  │ Docエンベッダ      │    │ Codeエンベッダ   │                │
 │  │ (Jina v4, 3.8B)  │    │ (Voyage-code-3)  │                │
-│  │ 89 languages      │    │ Java/XML focus   │                │
-│  │ 32K context       │    │                  │                │
+│  │ 89言語対応        │    │ Java/XML特化     │                │
+│  │ 32Kコンテキスト    │    │                  │                │
 │  └────────┬─────────┘    └────────┬─────────┘                │
 │           └──────────┬───────────┘                            │
 │                      ▼                                        │
@@ -283,26 +285,26 @@ PostgreSQL with pgvector extension. Four specialized indexes for different conte
 │  │  ┌──────────┐ ┌──────────┐ ┌────────┐ ┌───────────┐  │   │
 │  │  │docs_index│ │code_index│ │jdoc_idx│ │config_idx │  │   │
 │  │  │          │ │          │ │        │ │           │  │   │
-│  │  │ ~5K docs │ │~20K files│ │~15K cls│ │~500 XMLs  │  │   │
+│  │  │ 約5K件   │ │約20Kファイル│ │約15Kクラス│ │約500 XML │  │   │
 │  │  └──────────┘ └──────────┘ └────────┘ └───────────┘  │   │
 │  └───────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 4.2 Chunking Strategy
+### 4.2 チャンキング戦略
 
-| Content Type | Strategy | Chunk Size | Overlap | Rationale |
+| コンテンツタイプ | 戦略 | チャンクサイズ | オーバーラップ | 根拠 |
 |---|---|---|---|---|
-| Official Docs (HTML/RST) | Structure-aware (heading-based) | 512 tokens | 20% | Headings provide natural semantic boundaries |
-| Java Source Code | AST-based (class/method unit) | 256–512 tokens | Context prepended | Method boundaries are natural split points |
-| XML Config Files | Tag-based (handler/component unit) | 256 tokens | Parent tag context | XML structure provides natural units |
-| API Javadoc | Class/method unit | 256 tokens | Package info prepended | 1 method = 1 chunk is ideal |
-| Dev Standards (text) | Semantic chunking | 512 tokens | 20% | Loose section structure requires semantic splitting |
-| Sample Code | File unit + method split | 512 tokens | File metadata prepended | Full-file context is important for samples |
+| 公式ドキュメント（HTML/RST） | 構造認識（見出しベース） | 512トークン | 20% | 見出しが自然なセマンティック境界を提供 |
+| Javaソースコード | ASTベース（クラス/メソッド単位） | 256–512トークン | コンテキストを先頭に付加 | メソッド境界が自然な分割点 |
+| XML設定ファイル | タグベース（ハンドラ/コンポーネント単位） | 256トークン | 親タグのコンテキスト | XML構造が自然な単位を提供 |
+| API Javadoc | クラス/メソッド単位 | 256トークン | パッケージ情報を先頭に付加 | 1メソッド = 1チャンクが最適 |
+| 開発標準（テキスト） | セマンティックチャンキング | 512トークン | 20% | 緩いセクション構造にはセマンティック分割が必要 |
+| サンプルコード | ファイル単位 + メソッド分割 | 512トークン | ファイルメタデータを先頭に付加 | サンプルにはファイル全体のコンテキストが重要 |
 
-### 4.3 Metadata Schema
+### 4.3 メタデータスキーマ
 
-Each chunk carries metadata for filtering, context enrichment, and source attribution:
+各チャンクはフィルタリング、コンテキスト補強、出典明示のためのメタデータを保持する：
 
 ```json
 {
@@ -320,95 +322,96 @@ Each chunk carries metadata for filtering, context enrichment, and source attrib
 }
 ```
 
-### 4.4 Embedding Model Selection
+### 4.4 エンベディングモデル選定
 
-| Model | Use | Parameters | Multilingual | Code | Context | License |
+| モデル | 用途 | パラメータ数 | 多言語対応 | コード | コンテキスト長 | ライセンス |
 |---|---|---|---|---|---|---|
-| **Jina embeddings-v4** | Documentation | 3.8B | 89 languages | Moderate | 32K tokens | OSS |
-| **Voyage-code-3** | Java/XML code | — | Yes | Excellent (77.33 CoIR) | — | Commercial |
+| **Jina embeddings-v4** | ドキュメント | 3.8B | 89言語 | 中程度 | 32Kトークン | OSS |
+| **Voyage-code-3** | Java/XMLコード | — | あり | 優秀（CoIR 77.33） | — | 商用 |
 
-**Rationale**: Dual-model approach is necessary because Nablarch has extensive Japanese documentation AND Java/XML source code. A single model cannot optimally embed both. Jina v4 outperforms OpenAI text-embedding-3-large by 12% on multilingual search benchmarks.
+**根拠**: Nablarchは広範な日本語ドキュメントとJava/XMLソースコードの両方を持つため、デュアルモデルアプローチが必要である。単一モデルでは両方を最適に埋め込むことはできない。Jina v4はOpenAI text-embedding-3-largeを多言語検索ベンチマークで12%上回る。
 
-### 4.5 Vector Database Selection
+### 4.5 ベクトルデータベース選定
 
-**Choice**: PostgreSQL + pgvector + pgvectorscale
+**選択**: PostgreSQL + pgvector + pgvectorscale
 
-| Criterion | pgvector | Dedicated VectorDB (Weaviate/Qdrant) |
+| 基準 | pgvector | 専用VectorDB（Weaviate/Qdrant） |
 |-----------|----------|--------------------------------------|
-| Cost | Low (reuse existing PostgreSQL) | Additional infrastructure |
-| SQL + Vector | Native join queries | Requires external SQL DB |
-| ACID | Full ACID compliance | Varies |
-| Scale | 50M vectors @ 471 QPS (99% recall) | Higher ceiling |
-| Nablarch affinity | High (Nablarch is RDBMS-centric) | Low relevance |
-| Maintenance | Single DB to manage | Additional service |
+| コスト | 低い（既存のPostgreSQLを再利用） | 追加のインフラが必要 |
+| SQL + Vector | ネイティブ結合クエリ | 外部SQLデータベースが必要 |
+| ACID | 完全なACIDコンプライアンス | 製品による |
+| スケール | 5000万ベクトル @ 471 QPS（再現率99%） | より高い上限 |
+| Nablarch親和性 | 高い（NablarchはRDBMS中心） | 低い関連性 |
+| 運用保守 | 単一DBの管理のみ | 追加サービスの管理が必要 |
 
-For our scale (~40K chunks), pgvector is more than sufficient and avoids introducing a new data store.
+我々の規模（約4万チャンク）では、pgvectorで十分以上であり、新たなデータストアの導入を回避できる。
 
-### 4.6 Retrieval Flow
+### 4.6 検索フロー
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                  Retrieval Pipeline                        │
+│                  検索パイプライン                           │
 │                                                           │
-│  Query: "REST API認証付きハンドラキュー構成"                │
+│  クエリ: "REST API認証付きハンドラキュー構成"               │
 │     │                                                     │
 │     ▼                                                     │
 │  ┌──────────────────────────────────────┐                │
-│  │ 1. Query Analysis                    │                │
-│  │    • Detect language (ja)             │                │
-│  │    • Classify: code? doc? config?     │                │
-│  │    • Extract entities: REST, auth,    │                │
-│  │      handler queue                    │                │
+│  │ 1. クエリ分析                        │                │
+│  │    • 言語検出（ja）                   │                │
+│  │    • 分類: コード? ドキュメント? 設定? │                │
+│  │    • エンティティ抽出: REST, 認証,    │                │
+│  │      ハンドラキュー                   │                │
 │  └───────────────┬──────────────────────┘                │
 │                  ▼                                        │
 │  ┌──────────────────────────────────────┐                │
-│  │ 2. Query Reformulation               │                │
-│  │    • Original: "REST API認証付きハンドラ│               │
-│  │      キュー構成"                       │                │
-│  │    • Expanded: "RESTful Web service    │                │
-│  │      handler queue authentication     │                │
-│  │      JaxRsResponseHandler"            │                │
+│  │ 2. クエリ再構成                      │                │
+│  │    • 原文: "REST API認証付きハンドラ   │               │
+│  │      キュー構成"                      │                │
+│  │    • 拡張: "RESTful Web service       │                │
+│  │      handler queue authentication    │                │
+│  │      JaxRsResponseHandler"           │                │
 │  └───────────────┬──────────────────────┘                │
 │                  ▼                                        │
 │  ┌──────────────────────────────────────┐                │
-│  │ 3. Hybrid Search                     │                │
-│  │    • BM25 (keyword): "REST handler   │                │
-│  │      queue authentication"            │                │
-│  │    • Vector (semantic): embed(query)  │                │
-│  │    • Reciprocal Rank Fusion           │                │
-│  │    • Filter: app_type = "rest"        │                │
+│  │ 3. ハイブリッド検索                   │                │
+│  │    • BM25（キーワード）: "REST handler│                │
+│  │      queue authentication"           │                │
+│  │    • Vector（セマンティック）: embed   │                │
+│  │      (query)                         │                │
+│  │    • Reciprocal Rank Fusion          │                │
+│  │    • フィルタ: app_type = "rest"     │                │
 │  └───────────────┬──────────────────────┘                │
 │                  ▼                                        │
 │  ┌──────────────────────────────────────┐                │
-│  │ 4. Re-ranking (Cross-Encoder)        │                │
-│  │    • Score each candidate against     │                │
-│  │      original query                   │                │
-│  │    • Return Top-K (default: 5)        │                │
+│  │ 4. リランキング（Cross-Encoder）      │                │
+│  │    • 各候補を元のクエリに対して       │                │
+│  │      スコアリング                     │                │
+│  │    • Top-Kを返却（デフォルト: 5）     │                │
 │  └───────────────┬──────────────────────┘                │
 │                  ▼                                        │
 │  ┌──────────────────────────────────────┐                │
-│  │ 5. Result Formatting                 │                │
-│  │    • Structured JSON with source URLs │                │
-│  │    • Confidence scores                │                │
-│  │    • Section highlights               │                │
+│  │ 5. 結果フォーマット                   │                │
+│  │    • ソースURL付き構造化JSON          │                │
+│  │    • 信頼度スコア                     │                │
+│  │    • セクションハイライト              │                │
 │  └──────────────────────────────────────┘                │
 └──────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 5. MCP Primitives Design
+## 5. MCPプリミティブ設計
 
 ### 5.1 Tools
 
 #### Tool 1: `semantic_search`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Search Nablarch knowledge base using natural language queries |
-| **When** | AI needs Nablarch-specific information not in its training data |
+| **説明** | 自然言語クエリを使用してNablarchナレッジベースを検索 |
+| **使用タイミング** | AIがトレーニングデータにないNablarch固有の情報を必要とする場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -422,15 +425,15 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 }
 ```
 
-**Output Schema**:
+**出力スキーマ**:
 ```json
 {
   "results": [
     {
-      "content": "string — matched content chunk",
-      "source_url": "string — URL or file path",
+      "content": "string — マッチしたコンテンツチャンク",
+      "source_url": "string — URLまたはファイルパス",
       "source_type": "string — docs|code|javadoc|config",
-      "score": "number — relevance score 0-1",
+      "score": "number — 関連度スコア 0-1",
       "metadata": { "module": "string", "fqcn": "string", "section": "string" }
     }
   ],
@@ -441,12 +444,12 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 
 #### Tool 2: `design_handler_queue`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Design a handler queue configuration for a given application type and requirements |
-| **When** | Developer needs to set up or modify a Nablarch handler queue |
+| **説明** | 指定されたアプリケーションタイプと要件に基づいてハンドラキュー構成を設計 |
+| **使用タイミング** | 開発者がNablarchハンドラキューのセットアップまたは変更を必要とする場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -468,26 +471,26 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 }
 ```
 
-**Output Schema**:
+**出力スキーマ**:
 ```json
 {
   "handler_queue": [
     { "order": 1, "name": "string", "fqcn": "string", "role": "string", "thread": "main|sub" }
   ],
-  "xml_config": "string — complete XML configuration",
-  "ordering_notes": ["string — constraint explanations"],
-  "source_references": ["string — documentation URLs"]
+  "xml_config": "string — 完全なXML設定",
+  "ordering_notes": ["string — 順序制約の説明"],
+  "source_references": ["string — ドキュメントURL"]
 }
 ```
 
 #### Tool 3: `generate_code`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Generate Nablarch-compliant code (Action, Form, SQL definition, etc.) |
-| **When** | Developer needs boilerplate code following Nablarch conventions |
+| **説明** | Nablarch準拠のコード（Action、Form、SQL定義等）を生成 |
+| **使用タイミング** | 開発者がNablarchの規約に従ったボイラープレートコードを必要とする場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -504,25 +507,25 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 }
 ```
 
-**Output**:
+**出力**:
 ```json
 {
   "files": [
-    { "path": "string — suggested file path", "content": "string — generated code", "language": "java|xml|sql" }
+    { "path": "string — 推奨ファイルパス", "content": "string — 生成されたコード", "language": "java|xml|sql" }
   ],
-  "conventions_applied": ["string — which Nablarch conventions were followed"],
-  "dependencies": ["string — required Maven artifacts"]
+  "conventions_applied": ["string — 適用されたNablarch規約"],
+  "dependencies": ["string — 必要なMavenアーティファクト"]
 }
 ```
 
 #### Tool 4: `validate_config`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Validate Nablarch XML configuration (handler queue, component definitions) |
-| **When** | Developer wants to check correctness of XML config before deployment |
+| **説明** | NablarchのXML設定（ハンドラキュー、コンポーネント定義）を検証 |
+| **使用タイミング** | 開発者がデプロイ前にXML設定の正確性を確認したい場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -534,7 +537,7 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 }
 ```
 
-**Output**:
+**出力**:
 ```json
 {
   "valid": "boolean",
@@ -546,12 +549,12 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 
 #### Tool 5: `search_api`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Search Nablarch API by class name, method name, or package |
-| **When** | Developer needs Javadoc-level API information |
+| **説明** | クラス名、メソッド名、またはパッケージでNablarch APIを検索 |
+| **使用タイミング** | 開発者がJavadocレベルのAPI情報を必要とする場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -563,7 +566,7 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 }
 ```
 
-**Output**:
+**出力**:
 ```json
 {
   "classes": [
@@ -581,12 +584,12 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 
 #### Tool 6: `generate_test`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Generate test code using Nablarch testing framework (JUnit + Excel test data) |
-| **When** | Developer needs test cases for Nablarch components |
+| **説明** | Nablarchテスティングフレームワーク（JUnit + Excelテストデータ）を使用したテストコードを生成 |
+| **使用タイミング** | 開発者がNablarchコンポーネントのテストケースを必要とする場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -601,12 +604,12 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 
 #### Tool 7: `troubleshoot`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Analyze a Nablarch error message and suggest solutions |
-| **When** | Developer encounters a Nablarch-specific error |
+| **説明** | Nablarchのエラーメッセージを分析し、解決策を提案 |
+| **使用タイミング** | 開発者がNablarch固有のエラーに遭遇した場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -621,12 +624,12 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 
 #### Tool 8: `analyze_migration`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Analyze code for Nablarch version migration (5→6) |
-| **When** | Team is migrating a Nablarch project between major versions |
+| **説明** | Nablarchバージョン移行（5→6）のためのコード分析 |
+| **使用タイミング** | チームがNablarchプロジェクトのメジャーバージョン間の移行を行う場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -641,12 +644,12 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 
 #### Tool 9: `recommend_pattern`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Recommend Nablarch design patterns for a given requirement |
-| **When** | Architect needs guidance on Nablarch-specific design decisions |
+| **説明** | 指定された要件に対してNablarchの設計パターンを推奨 |
+| **使用タイミング** | アーキテクトがNablarch固有の設計判断に関するガイダンスを必要とする場合 |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -661,12 +664,12 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 
 #### Tool 10: `optimize_handler_queue`
 
-| Field | Value |
+| フィールド | 値 |
 |-------|-------|
-| **Description** | Analyze an existing handler queue and suggest optimizations |
-| **When** | Performance tuning or configuration review |
+| **説明** | 既存のハンドラキューを分析し、最適化を提案 |
+| **使用タイミング** | パフォーマンスチューニングまたは設定レビュー |
 
-**Input Schema**:
+**入力スキーマ**:
 ```json
 {
   "type": "object",
@@ -681,46 +684,46 @@ For our scale (~40K chunks), pgvector is more than sufficient and avoids introdu
 
 ### 5.2 Resources
 
-| Resource URI Pattern | Description | Content Type |
+| Resource URIパターン | 説明 | コンテンツタイプ |
 |---|---|---|
-| `nablarch://handler/{app_type}` | Handler queue spec for each app type (web, rest, batch, resident-batch, mom-messaging, http-messaging) | JSON (handler list with FQCN, order, constraints) |
-| `nablarch://api/{module}/{class}` | API reference for a specific class | JSON (Javadoc-like structured data) |
-| `nablarch://pattern/{name}` | Design pattern catalog (e.g., session-management, multi-db, csrf-protection) | Markdown |
-| `nablarch://guide/{topic}` | Learning guides (handler-queue, testing, migration-5to6, xml-config) | Markdown |
-| `nablarch://example/{type}` | Example code (rest-api, web-crud, batch-db, messaging-mom) | JSON (multiple files) |
-| `nablarch://config/{name}` | XML configuration templates (web-component, rest-component, batch-component) | XML |
-| `nablarch://antipattern/{name}` | Common anti-patterns and their corrections | Markdown |
-| `nablarch://version` | Version info, supported platforms, module list | JSON |
+| `nablarch://handler/{app_type}` | 各アプリケーションタイプ（web, rest, batch, resident-batch, mom-messaging, http-messaging）のハンドラキュー仕様 | JSON（FQCN、順序、制約付きハンドラリスト） |
+| `nablarch://api/{module}/{class}` | 特定クラスのAPIリファレンス | JSON（Javadoc形式の構造化データ） |
+| `nablarch://pattern/{name}` | 設計パターンカタログ（例: session-management, multi-db, csrf-protection） | Markdown |
+| `nablarch://guide/{topic}` | 学習ガイド（handler-queue, testing, migration-5to6, xml-config） | Markdown |
+| `nablarch://example/{type}` | サンプルコード（rest-api, web-crud, batch-db, messaging-mom） | JSON（複数ファイル） |
+| `nablarch://config/{name}` | XML設定テンプレート（web-component, rest-component, batch-component） | XML |
+| `nablarch://antipattern/{name}` | よくあるアンチパターンとその修正 | Markdown |
+| `nablarch://version` | バージョン情報、対応プラットフォーム、モジュール一覧 | JSON |
 
 ### 5.3 Prompts
 
-| Prompt Name | Description | Arguments |
+| Prompt名 | 説明 | 引数 |
 |---|---|---|
-| `setup-handler-queue` | Step-by-step guide for designing a handler queue | `app_type`, `requirements` (auth, csrf, etc.) |
-| `create-web-app` | Guide for creating a new Nablarch web application from scratch | `level` (beginner/intermediate/advanced) |
-| `create-rest-api` | Guide for creating a RESTful API with Nablarch | `entity_name`, `operations` (CRUD selection) |
-| `create-batch` | Guide for creating a batch application | `batch_type` (db-read, file-process, resident) |
-| `review-code` | Nablarch coding convention review template | `code`, `aspect` (convention, security, performance) |
-| `troubleshoot` | Troubleshooting guide template | `error`, `env` |
+| `setup-handler-queue` | ハンドラキュー設計のステップバイステップガイド | `app_type`, `requirements`（認証、CSRF等） |
+| `create-web-app` | NablarchのWebアプリケーションをゼロから作成するガイド | `level`（beginner/intermediate/advanced） |
+| `create-rest-api` | NablarchでRESTful APIを作成するガイド | `entity_name`, `operations`（CRUD選択） |
+| `create-batch` | バッチアプリケーション作成ガイド | `batch_type`（db-read, file-process, resident） |
+| `review-code` | Nablarchコーディング規約レビューテンプレート | `code`, `aspect`（convention, security, performance） |
+| `troubleshoot` | トラブルシューティングガイドテンプレート | `error`, `env` |
 
 ---
 
-## 6. RAG-MCP Integration Architecture
+## 6. RAG-MCP統合アーキテクチャ
 
-### 6.1 Integration Pattern: RAG Inside MCP
+### 6.1 統合パターン: MCP内蔵RAG
 
-The RAG engine is embedded within the MCP server process. When an MCP Tool is called, it internally invokes the RAG engine for knowledge retrieval before generating its response.
+RAGエンジンはMCPサーバープロセス内に組み込まれている。MCPツールが呼び出されると、レスポンス生成前に内部でRAGエンジンを呼び出してナレッジを検索する。
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                    Integration Flow                           │
+│                    統合フロー                                   │
 │                                                               │
-│  MCP Tool Call                                                │
+│  MCPツール呼び出し                                              │
 │       │                                                       │
 │       ▼                                                       │
 │  ┌──────────────────────┐                                    │
-│  │ Tool Handler          │                                    │
-│  │ (e.g., design_handler │                                    │
+│  │ Toolハンドラ          │                                    │
+│  │ (例: design_handler   │                                    │
 │  │  _queue)              │                                    │
 │  └──────────┬───────────┘                                    │
 │             │                                                 │
@@ -728,127 +731,127 @@ The RAG engine is embedded within the MCP server process. When an MCP Tool is ca
 │       │           │                                           │
 │       ▼           ▼                                           │
 │  ┌─────────┐ ┌──────────┐                                   │
-│  │ RAG     │ │ Static   │                                    │
-│  │ Search  │ │ Knowledge│                                    │
+│  │ RAG     │ │ 静的     │                                    │
+│  │ 検索    │ │ ナレッジ │                                    │
 │  └────┬────┘ └────┬─────┘                                    │
 │       │           │                                           │
 │       └─────┬─────┘                                           │
 │             ▼                                                 │
 │  ┌──────────────────────┐                                    │
-│  │ Result Aggregator     │                                    │
-│  │ • Merge RAG results   │                                    │
-│  │ • Apply business logic│                                    │
-│  │ • Format response     │                                    │
-│  │ • Add source URLs     │                                    │
+│  │ 結果アグリゲータ      │                                    │
+│  │ • RAG結果をマージ     │                                    │
+│  │ • ビジネスロジック適用 │                                    │
+│  │ • レスポンスの整形    │                                    │
+│  │ • ソースURLの付与     │                                    │
 │  └──────────┬───────────┘                                    │
 │             │                                                 │
 │             ▼                                                 │
-│       MCP Response                                            │
+│       MCPレスポンス                                            │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### 6.2 Sequence: Tool Call with RAG
+### 6.2 シーケンス: RAG付きツール呼び出し
 
 ```mermaid
 sequenceDiagram
-    participant Client as AI Client (Claude Code)
-    participant MCP as MCP Server
-    participant Tool as Tool Handler
-    participant RAG as RAG Engine
+    participant Client as AIクライアント（Claude Code）
+    participant MCP as MCPサーバー
+    participant Tool as Toolハンドラ
+    participant RAG as RAGエンジン
     participant VDB as pgvector
 
     Client->>MCP: tools/call: design_handler_queue<br/>{app_type: "rest", auth: true}
 
-    MCP->>Tool: dispatch to HandlerQueueDesignTool
+    MCP->>Tool: HandlerQueueDesignToolにディスパッチ
 
-    Tool->>RAG: search("REST handler queue authentication<br/>configuration best practice")
-    RAG->>VDB: hybrid search (BM25 + vector)
-    VDB-->>RAG: candidate chunks (top 20)
-    RAG->>RAG: re-rank (cross-encoder)
-    RAG-->>Tool: top 5 relevant chunks<br/>+ source URLs
+    Tool->>RAG: search("RESTハンドラキュー認証<br/>設定ベストプラクティス")
+    RAG->>VDB: ハイブリッド検索（BM25 + vector）
+    VDB-->>RAG: 候補チャンク（上位20件）
+    RAG->>RAG: リランク（cross-encoder）
+    RAG-->>Tool: 関連度上位5チャンク<br/>+ ソースURL
 
-    Tool->>Tool: apply handler ordering constraints
-    Tool->>Tool: generate XML from pattern + requirements
-    Tool->>RAG: search("handler ordering constraints<br/>REST authentication")
-    RAG->>VDB: constraint rules search
-    VDB-->>RAG: ordering constraint data
-    RAG-->>Tool: constraint validation data
+    Tool->>Tool: ハンドラ順序制約を適用
+    Tool->>Tool: パターン + 要件からXMLを生成
+    Tool->>RAG: search("ハンドラ順序制約<br/>REST認証")
+    RAG->>VDB: 制約ルール検索
+    VDB-->>RAG: 順序制約データ
+    RAG-->>Tool: 制約検証データ
 
-    Tool->>Tool: validate generated XML<br/>against constraints
+    Tool->>Tool: 生成したXMLを<br/>制約に対して検証
 
     Tool-->>MCP: {handler_queue: [...],<br/>xml_config: "...",<br/>ordering_notes: [...],<br/>source_references: [...]}
 
-    MCP-->>Client: MCP response (JSON-RPC 2.0)
+    MCP-->>Client: MCPレスポンス（JSON-RPC 2.0）
 ```
 
-### 6.3 Sequence: Resource Read with RAG
+### 6.3 シーケンス: RAG付きResource読み取り
 
 ```mermaid
 sequenceDiagram
-    participant Client as AI Client
-    participant MCP as MCP Server
-    participant Res as Resource Provider
-    participant RAG as RAG Engine
+    participant Client as AIクライアント
+    participant MCP as MCPサーバー
+    participant Res as Resourceプロバイダ
+    participant RAG as RAGエンジン
     participant VDB as pgvector
 
     Client->>MCP: resources/read:<br/>nablarch://handler/rest
 
-    MCP->>Res: resolve URI "nablarch://handler/rest"
+    MCP->>Res: URI "nablarch://handler/rest" を解決
 
-    Note over Res: Static base data is available,<br/>but enrich with RAG for latest info
+    Note over Res: 静的ベースデータは利用可能だが、<br/>最新情報でRAGにより補強
 
-    Res->>RAG: search("REST handler complete list<br/>FQCN configuration")
-    RAG->>VDB: search docs_index + code_index
-    VDB-->>RAG: handler specifications
-    RAG-->>Res: enriched handler data
+    Res->>RAG: search("RESTハンドラ完全リスト<br/>FQCN設定")
+    RAG->>VDB: docs_index + code_indexを検索
+    VDB-->>RAG: ハンドラ仕様
+    RAG-->>Res: 補強されたハンドラデータ
 
-    Res->>Res: merge static catalog + RAG results
-    Res-->>MCP: structured handler list<br/>with FQCNs and constraints
+    Res->>Res: 静的カタログ + RAG結果をマージ
+    Res-->>MCP: FQCN・制約付き<br/>構造化ハンドラリスト
 
-    MCP-->>Client: resource content
+    MCP-->>Client: Resourceコンテンツ
 ```
 
-### 6.4 Context Injection Pattern
+### 6.4 コンテキスト注入パターン
 
-When the RAG engine returns search results, the MCP server injects them as structured context into the tool's response. This pattern ensures:
+RAGエンジンが検索結果を返すと、MCPサーバーはそれをToolのレスポンスに構造化コンテキストとして注入する。このパターンにより以下を保証する：
 
-1. **Source attribution** — Every piece of information carries its origin URL
-2. **Confidence scoring** — Results are ranked by relevance
-3. **Metadata filtering** — Results can be filtered by app type, module, version
-4. **Fallback** — If RAG returns no results, fall back to static knowledge base
+1. **出典明示** — すべての情報にその出自URLを付与
+2. **信頼度スコアリング** — 結果を関連度でランキング
+3. **メタデータフィルタリング** — アプリケーションタイプ、モジュール、バージョンで結果をフィルタリング可能
+4. **フォールバック** — RAGが結果を返さない場合、静的ナレッジベースにフォールバック
 
 ---
 
-## 7. Technology Stack
+## 7. 技術スタック
 
-| Layer | Technology | Version | Rationale |
+| レイヤー | 技術 | バージョン | 選定理由 |
 |---|---|---|---|
-| **Language** | Java | 17+ | Nablarch ecosystem consistency |
-| **Framework** | Spring Boot | 3.x | MCP Boot Starter support, mature ecosystem |
-| **MCP SDK** | MCP Java SDK | 0.17.x | Official SDK, Spring AI integration |
-| **Build** | Gradle (Kotlin DSL) | 8.x | Modern build system |
-| **Vector DB** | PostgreSQL + pgvector | 16 + 0.8.x | Cost-efficient, SQL+vector, ACID |
-| **Doc Embedding** | Jina embeddings-v4 | — | 89 languages, 32K context, OSS |
-| **Code Embedding** | Voyage-code-3 | — | Best-in-class Java/XML embedding |
-| **Re-ranker** | Cross-Encoder | — | Precision improvement on top of hybrid search |
-| **Transport (local)** | STDIO | — | Claude Code / Claude Desktop |
-| **Transport (remote)** | Streamable HTTP | — | Team sharing, Docker deployment |
-| **Test** | JUnit 5 | — | Standard Java testing |
-| **Containerization** | Docker | — | Reproducible deployment |
+| **言語** | Java | 17+ | Nablarchエコシステムとの一貫性 |
+| **フレームワーク** | Spring Boot | 3.x | MCP Boot Starterサポート、成熟したエコシステム |
+| **MCP SDK** | MCP Java SDK | 0.17.x | 公式SDK、Spring AI統合 |
+| **ビルド** | Gradle（Kotlin DSL） | 8.x | モダンなビルドシステム |
+| **ベクトルDB** | PostgreSQL + pgvector | 16 + 0.8.x | コスト効率、SQL+ベクトル、ACID |
+| **Docエンベディング** | Jina embeddings-v4 | — | 89言語対応、32Kコンテキスト、OSS |
+| **Codeエンベディング** | Voyage-code-3 | — | Java/XMLエンベディング最高水準 |
+| **リランカー** | Cross-Encoder | — | ハイブリッド検索上の精度向上 |
+| **トランスポート（ローカル）** | STDIO | — | Claude Code / Claude Desktop |
+| **トランスポート（リモート）** | Streamable HTTP | — | チーム共有、Dockerデプロイメント |
+| **テスト** | JUnit 5 | — | 標準Javaテスティング |
+| **コンテナ化** | Docker | — | 再現可能なデプロイメント |
 
-### 7.1 Key Dependencies
+### 7.1 主要な依存関係
 
 ```groovy
-// MCP Server
+// MCPサーバー
 implementation("io.modelcontextprotocol:mcp-spring-webmvc:0.17.x")
-// or for STDIO only:
+// STDIOのみの場合:
 implementation("io.modelcontextprotocol:mcp:0.17.x")
 
-// RAG - Vector DB
+// RAG - ベクトルDB
 implementation("org.postgresql:postgresql:42.x")
 implementation("com.pgvector:pgvector-java:0.x")
 
-// RAG - Embedding (HTTP clients to model APIs)
+// RAG - エンベディング（モデルAPIへのHTTPクライアント）
 implementation("com.squareup.okhttp3:okhttp:4.x")
 
 // Spring Boot
@@ -858,20 +861,20 @@ implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
 ---
 
-## 8. Deployment Architecture
+## 8. デプロイメントアーキテクチャ
 
-### 8.1 Local Mode (Developer PC)
+### 8.1 ローカルモード（開発者PC）
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                Developer PC                      │
+│                開発者PC                           │
 │                                                  │
 │  ┌──────────────┐    STDIO    ┌──────────────┐  │
 │  │ Claude Code / │◄──────────▶│ Nablarch MCP │  │
-│  │ Claude Desktop│            │ Server (JAR) │  │
+│  │ Claude Desktop│            │ サーバー(JAR) │  │
 │  └──────────────┘            │              │  │
 │                               │  ┌──────────┐│  │
-│                               │  │ Embedded  ││  │
+│                               │  │ 組み込み  ││  │
 │                               │  │ pgvector  ││  │
 │                               │  │ (H2+ext)  ││  │
 │                               │  └──────────┘│  │
@@ -879,7 +882,7 @@ implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 └─────────────────────────────────────────────────┘
 ```
 
-**Configuration** (`.claude/mcp.json` or `claude_desktop_config.json`):
+**設定**（`.claude/mcp.json` または `claude_desktop_config.json`）:
 ```json
 {
   "mcpServers": {
@@ -891,11 +894,11 @@ implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 }
 ```
 
-### 8.2 Remote Mode (Team Server)
+### 8.2 リモートモード（チームサーバー）
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                       Team Server                             │
+│                       チームサーバー                            │
 │                                                               │
 │  ┌────────────────────────────────────────────────────────┐  │
 │  │                Docker Compose                           │  │
@@ -903,7 +906,7 @@ implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 │  │  ┌──────────────────┐     ┌──────────────────────┐     │  │
 │  │  │ nablarch-mcp     │     │ postgres              │     │  │
 │  │  │ (Spring Boot)    │────▶│ (pgvector)            │     │  │
-│  │  │ Port: 8080       │     │ Port: 5432            │     │  │
+│  │  │ ポート: 8080     │     │ ポート: 5432          │     │  │
 │  │  │                  │     │                       │     │  │
 │  │  │ /mcp (HTTP)      │     │ • docs_index          │     │  │
 │  │  └──────────────────┘     │ • code_index          │     │  │
@@ -915,8 +918,8 @@ implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 └────────────┼──────────────────────────────────────────────────┘
              │
     ┌────────┴────────┐
-    │  AI Clients      │
-    │  (any developer) │
+    │  AIクライアント   │
+    │  (全開発者)      │
     └─────────────────┘
 ```
 
@@ -954,9 +957,9 @@ volumes:
 
 ---
 
-## 9. Data Model
+## 9. データモデル
 
-### 9.1 Vector Store Schema
+### 9.1 ベクトルストアスキーマ
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS vector;
@@ -964,14 +967,14 @@ CREATE EXTENSION IF NOT EXISTS vector;
 CREATE TABLE document_chunks (
     id          BIGSERIAL PRIMARY KEY,
     content     TEXT NOT NULL,
-    embedding   vector(1024),       -- Jina v4 dimension
+    embedding   vector(1024),       -- Jina v4の次元数
     source      VARCHAR(50) NOT NULL,  -- nablarch-document, github, fintan, javadoc
     source_type VARCHAR(20) NOT NULL,  -- documentation, code, javadoc, config, standard
     module      VARCHAR(100),
     app_type    VARCHAR(20),           -- web, rest, batch, messaging, common
     language    VARCHAR(5),            -- ja, en
-    fqcn        VARCHAR(300),          -- fully qualified class name
-    url         TEXT,                  -- source URL
+    fqcn        VARCHAR(300),          -- 完全修飾クラス名
+    url         TEXT,                  -- ソースURL
     file_path   TEXT,
     section_hierarchy TEXT[],
     nablarch_version VARCHAR(10) DEFAULT '6u3',
@@ -987,18 +990,18 @@ CREATE INDEX idx_chunks_app_type ON document_chunks (app_type);
 CREATE INDEX idx_chunks_module ON document_chunks (module);
 CREATE INDEX idx_chunks_fqcn ON document_chunks (fqcn);
 
--- Full-text search index for BM25-like keyword search
+-- BM25類似のキーワード検索用全文検索インデックス
 CREATE INDEX idx_chunks_content_fts ON document_chunks
     USING gin(to_tsvector('english', content));
 ```
 
-### 9.2 Code Index (separate embedding model)
+### 9.2 コードインデックス（別エンベディングモデル）
 
 ```sql
 CREATE TABLE code_chunks (
     id          BIGSERIAL PRIMARY KEY,
     content     TEXT NOT NULL,
-    embedding   vector(1024),       -- Voyage-code-3 dimension
+    embedding   vector(1024),       -- Voyage-code-3の次元数
     repo        VARCHAR(100) NOT NULL,
     file_path   TEXT NOT NULL,
     fqcn        VARCHAR(300),
@@ -1014,110 +1017,110 @@ CREATE INDEX idx_code_embedding ON code_chunks
 
 ---
 
-## 10. Security Architecture
+## 10. セキュリティアーキテクチャ
 
-### 10.1 Transport Security
+### 10.1 トランスポートセキュリティ
 
-| Mode | Security | Details |
+| モード | セキュリティ | 詳細 |
 |------|----------|---------|
-| STDIO (local) | Process isolation | Server runs as child process of AI client |
-| Streamable HTTP | TLS + Auth | HTTPS required, OAuth 2.0 / API key authentication |
+| STDIO（ローカル） | プロセス分離 | サーバーはAIクライアントの子プロセスとして実行 |
+| Streamable HTTP | TLS + 認証 | HTTPSが必須、OAuth 2.0 / APIキー認証 |
 
-### 10.2 Data Security
+### 10.2 データセキュリティ
 
-- Vector database contains only publicly available Nablarch documentation (OSS, Apache 2.0)
-- No customer code or proprietary data is stored in the knowledge base
-- API keys for embedding models are stored in environment variables, not in code
+- ベクトルデータベースには公開されているNablarchドキュメント（OSS、Apache 2.0）のみを格納
+- 顧客コードやプロプライエタリなデータはナレッジベースに格納しない
+- エンベディングモデルのAPIキーはコード内ではなく環境変数に格納
 
-### 10.3 MCP Security
+### 10.3 MCPセキュリティ
 
-- Origin header validation (Streamable HTTP)
-- Rate limiting per session
-- Read-only tools (no write operations to filesystem or databases)
-
----
-
-## 11. Phased Roadmap
-
-### Phase 1: MCP Foundation + Static Knowledge
-
-```
-Deliverables:
-├── Spring Boot MCP server (STDIO transport)
-├── Static Resources (handler catalog, patterns, examples)
-├── Basic Tools (search_api, validate_config)
-├── All 6 Prompt templates
-├── Claude Code / Claude Desktop integration test
-└── 2 Resource types (handler, guide)
-
-Tech: Spring Boot + MCP Java SDK + static YAML/JSON knowledge files
-```
-
-### Phase 2: RAG Engine Integration
-
-```
-Deliverables:
-├── pgvector setup + schema
-├── Document ingestion pipeline (official docs + Fintan)
-├── Dual embedding (Jina v4 + Voyage-code-3)
-├── semantic_search tool
-├── Hybrid search (BM25 + vector)
-├── Re-ranking (Cross-Encoder)
-├── 4 vector indexes (docs, code, javadoc, config)
-└── Search quality evaluation + tuning
-
-Tech: + PostgreSQL/pgvector + embedding model APIs
-```
-
-### Phase 3: Full Tool Suite
-
-```
-Deliverables:
-├── design_handler_queue tool (RAG-powered)
-├── generate_code tool (RAG-powered)
-├── generate_test tool
-├── troubleshoot tool
-├── analyze_migration tool
-├── recommend_pattern tool
-├── optimize_handler_queue tool
-├── All 8 Resource URI patterns
-└── Integration tests for all tools
-
-Tech: + tool-specific business logic
-```
-
-### Phase 4: Production Deployment
-
-```
-Deliverables:
-├── Streamable HTTP transport
-├── Docker Compose deployment
-├── OAuth 2.0 authentication
-├── API key management
-├── Monitoring & logging
-├── GitHub ingestion pipeline (113 repos)
-├── Javadoc ingestion pipeline
-└── Documentation & user guide
-
-Tech: + Docker + auth + monitoring
-```
+- Originヘッダーの検証（Streamable HTTP）
+- セッションごとのレートリミット
+- 読み取り専用ツール（ファイルシステムやデータベースへの書き込み操作なし）
 
 ---
 
-## References
+## 11. フェーズ別ロードマップ
 
-### Source Documents
-- [O-001] MCP Server Plan — `output/O-001_nablarch_mcp_server_plan.md`
-- [O-002] RAG System Plan — `output/O-002_nablarch_rag_system_plan.md`
-- [O-005] Official Docs KB — `output/O-005_nablarch_kb_official_docs.md`
-- [O-006] Architecture KB — `output/O-006_nablarch_kb_architecture.md`
-- [O-022] Feasibility Study — `output/O-022_nablarch_mcp_feasibility_study.md`
-- [O-023] RAG-MCP Analysis — `output/O-023_nablarch_rag_mcp_analysis.md`
+### Phase 1: MCP基盤 + 静的ナレッジ
 
-### External References
-- [MCP Specification](https://spec.modelcontextprotocol.io/)
+```
+成果物:
+├── Spring Boot MCPサーバー（STDIOトランスポート）
+├── 静的Resources（ハンドラカタログ、パターン、サンプル）
+├── 基本Tools（search_api, validate_config）
+├── 全6 Promptテンプレート
+├── Claude Code / Claude Desktop統合テスト
+└── 2 Resourceタイプ（handler, guide）
+
+技術: Spring Boot + MCP Java SDK + 静的YAML/JSONナレッジファイル
+```
+
+### Phase 2: RAGエンジン統合
+
+```
+成果物:
+├── pgvectorセットアップ + スキーマ
+├── ドキュメント取り込みパイプライン（公式ドキュメント + Fintan）
+├── デュアルエンベディング（Jina v4 + Voyage-code-3）
+├── semantic_searchツール
+├── ハイブリッド検索（BM25 + vector）
+├── リランキング（Cross-Encoder）
+├── 4ベクトルインデックス（docs, code, javadoc, config）
+└── 検索品質の評価・チューニング
+
+技術: + PostgreSQL/pgvector + エンベディングモデルAPI
+```
+
+### Phase 3: フルツールスイート
+
+```
+成果物:
+├── design_handler_queueツール（RAG駆動）
+├── generate_codeツール（RAG駆動）
+├── generate_testツール
+├── troubleshootツール
+├── analyze_migrationツール
+├── recommend_patternツール
+├── optimize_handler_queueツール
+├── 全8 Resource URIパターン
+└── 全ツールの統合テスト
+
+技術: + ツール固有のビジネスロジック
+```
+
+### Phase 4: 本番デプロイメント
+
+```
+成果物:
+├── Streamable HTTPトランスポート
+├── Docker Composeデプロイメント
+├── OAuth 2.0認証
+├── APIキー管理
+├── モニタリング＆ロギング
+├── GitHub取り込みパイプライン（113リポジトリ）
+├── Javadoc取り込みパイプライン
+└── ドキュメント＆ユーザーガイド
+
+技術: + Docker + 認証 + モニタリング
+```
+
+---
+
+## 参考文献
+
+### ソースドキュメント
+- [O-001] MCPサーバー計画書 — `output/O-001_nablarch_mcp_server_plan.md`
+- [O-002] RAGシステム計画書 — `output/O-002_nablarch_rag_system_plan.md`
+- [O-005] 公式ドキュメントKB — `output/O-005_nablarch_kb_official_docs.md`
+- [O-006] アーキテクチャKB — `output/O-006_nablarch_kb_architecture.md`
+- [O-022] フィージビリティスタディ — `output/O-022_nablarch_mcp_feasibility_study.md`
+- [O-023] RAG-MCP分析 — `output/O-023_nablarch_rag_mcp_analysis.md`
+
+### 外部参考文献
+- [MCP仕様](https://spec.modelcontextprotocol.io/)
 - [MCP Java SDK](https://github.com/modelcontextprotocol/java-sdk)
 - [Spring AI MCP](https://docs.spring.io/spring-ai/reference/api/mcp.html)
 - [pgvector](https://github.com/pgvector/pgvector)
-- [Nablarch Official Docs](https://nablarch.github.io/)
-- [RAG-MCP Paper (arXiv:2505.03275)](https://arxiv.org/abs/2505.03275)
+- [Nablarch公式ドキュメント](https://nablarch.github.io/)
+- [RAG-MCP論文 (arXiv:2505.03275)](https://arxiv.org/abs/2505.03275)

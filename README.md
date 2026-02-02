@@ -1,48 +1,48 @@
 # Nablarch MCP Server
 
-A **RAG-enhanced** [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that provides
-[Nablarch](https://nablarch.github.io/) framework knowledge to AI coding assistants.
+**RAG強化型** [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) サーバー。
+[Nablarch](https://nablarch.github.io/) フレームワークの知識をAIコーディングツールに提供する。
 
-## What is this?
+## 概要
 
-Nablarch is a Java application framework for mission-critical systems, but suffers from a severe lack of community resources compared to mainstream frameworks. This MCP server bridges that gap by combining **RAG (Retrieval-Augmented Generation)** with **MCP** to give AI tools deep Nablarch knowledge.
+Nablarchはミッションクリティカルシステム向けのJavaアプリケーションフレームワークだが、メインストリームのフレームワークと比較してコミュニティリソースが著しく不足している。本MCPサーバーは **RAG（Retrieval-Augmented Generation）** と **MCP** を組み合わせることで、AIツールにNablarchの深い知識を提供する。
 
-| Technology | Role |
+| 技術 | 役割 |
 |---|---|
-| **RAG** | Semantic search over Nablarch docs, code, and Javadoc |
-| **MCP** | Standard protocol to expose knowledge as Tools, Resources, and Prompts |
-| **RAG + MCP** | AI tools can "know and use" Nablarch knowledge with high precision |
+| **RAG** | Nablarchのドキュメント・コード・Javadocに対するセマンティック検索 |
+| **MCP** | 知識をTools・Resources・Promptsとして公開する標準プロトコル |
+| **RAG + MCP** | AIツールがNablarchの知識を「知って使う」ことを高精度で実現 |
 
-### What it provides
+### 提供機能
 
-- **Tools** (10): Semantic search, handler queue design, code generation, config validation, API search, test generation, troubleshooting, migration analysis, pattern recommendation, handler queue optimization
-- **Resources** (8 URI patterns): Handler catalogs, API references, design patterns, learning guides, example code, config templates, anti-patterns, version info
-- **Prompts** (6 templates): Web app creation, REST API creation, batch creation, handler queue setup, code review, troubleshooting
-- **RAG Pipeline**: Hybrid search (BM25 + vector similarity) over Nablarch's official documentation, 113 GitHub repositories, Javadoc, and Fintan content
+- **Tools**（10個）: セマンティック検索、ハンドラキュー設計、コード生成、設定XML検証、API検索、テスト生成、トラブルシューティング、マイグレーション分析、パターン推奨、ハンドラキュー最適化
+- **Resources**（8 URIパターン）: ハンドラカタログ、APIリファレンス、設計パターン、学習ガイド、サンプルコード、設定テンプレート、アンチパターン、バージョン情報
+- **Prompts**（6テンプレート）: Webアプリ作成、REST API作成、バッチ作成、ハンドラキュー設計、コードレビュー、トラブルシューティング
+- **RAGパイプライン**: Nablarch公式ドキュメント・GitHub 113リポジトリ・Javadoc・Fintanコンテンツに対するハイブリッド検索（BM25 + ベクトル類似度）
 
-## Architecture
+## アーキテクチャ
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                     AI Coding Tools                               │
+│                     AIコーディングツール                            │
 │   Claude Code  |  Cursor  |  Copilot  |  VS Code                 │
 │   ┌──────────────────────────────────────────────────────────┐   │
 │   │                      MCP Client                           │   │
 │   └──────────────────────────┬───────────────────────────────┘   │
 └──────────────────────────────┼───────────────────────────────────┘
                                │ JSON-RPC 2.0
-                               │ STDIO (local) / Streamable HTTP (remote)
+                               │ STDIO（ローカル）/ Streamable HTTP（リモート）
 ┌──────────────────────────────▼───────────────────────────────────┐
-│              Nablarch MCP Server (Spring Boot)                    │
+│              Nablarch MCP Server（Spring Boot）                    │
 │                                                                   │
 │  ┌─────────────────────────────────────────────────────────────┐ │
 │  │                   MCP Protocol Layer                         │ │
-│  │   Tools (10)  |  Resources (8 types)  |  Prompts (6)        │ │
+│  │   Tools (10)  |  Resources (8種)  |  Prompts (6)            │ │
 │  └──────────────────────────┬──────────────────────────────────┘ │
 │                              │                                    │
 │  ┌──────────────────────────▼──────────────────────────────────┐ │
-│  │                   RAG Engine (embedded)                      │ │
-│  │   Semantic Search  |  Hybrid Search  |  Re-ranking          │ │
+│  │                   RAGエンジン（内蔵）                         │ │
+│  │   セマンティック検索  |  ハイブリッド検索  |  リランキング       │ │
 │  │   Doc Embedder (Jina v4)  |  Code Embedder (Voyage-code-3) │ │
 │  └──────────────────────────┬──────────────────────────────────┘ │
 │                              │                                    │
@@ -53,29 +53,29 @@ Nablarch is a Java application framework for mission-critical systems, but suffe
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-## Requirements
+## 動作要件
 
-- Java 17 or later
-- Gradle 8.x (wrapper included)
-- PostgreSQL 16+ with pgvector extension (for RAG features, Phase 2+)
+- Java 17 以上
+- Gradle 8.x（ラッパー同梱）
+- PostgreSQL 16+ with pgvector拡張（RAG機能、Phase 2以降）
 
-## Quick Start
+## クイックスタート
 
-### Build
+### ビルド
 
 ```bash
 ./gradlew build
 ```
 
-### Run (STDIO mode)
+### 実行（STDIOモード）
 
 ```bash
 ./gradlew bootRun
 ```
 
-### Configure with Claude Code
+### Claude Code での設定
 
-Add to your MCP configuration (`.claude/mcp.json`):
+MCP設定ファイル（`.claude/mcp.json`）に以下を追加:
 
 ```json
 {
@@ -88,98 +88,98 @@ Add to your MCP configuration (`.claude/mcp.json`):
 }
 ```
 
-### Run with Docker (Phase 4)
+### Docker で実行（Phase 4）
 
 ```bash
 docker compose up
 ```
 
-## Technology Stack
+## 技術スタック
 
-| Component | Technology | Rationale |
+| コンポーネント | 技術 | 選定理由 |
 |---|---|---|
-| Language | Java 17+ | Nablarch ecosystem consistency |
-| Framework | Spring Boot 3.4.x | MCP Boot Starter support |
-| MCP SDK | [MCP Java SDK](https://github.com/modelcontextprotocol/java-sdk) 0.17.x | Official SDK, Spring AI integration |
-| Build | Gradle (Kotlin DSL) | Modern build system |
-| Test | JUnit 5 + Spring Test | Standard Java testing |
-| Vector DB | PostgreSQL + pgvector | SQL + vector search, cost-efficient |
-| Doc Embedding | Jina embeddings-v4 | 89 languages, 32K context, OSS |
-| Code Embedding | Voyage-code-3 | Best-in-class Java/XML embedding |
-| Re-ranker | Cross-Encoder | Precision improvement on hybrid search |
-| Transport | STDIO / Streamable HTTP | Local dev + remote team sharing |
+| 言語 | Java 17+ | Nablarchエコシステムとの一貫性 |
+| フレームワーク | Spring Boot 3.4.x | MCP Boot Starterサポート |
+| MCP SDK | [MCP Java SDK](https://github.com/modelcontextprotocol/java-sdk) 0.17.x | 公式SDK、Spring AI統合 |
+| ビルド | Gradle (Kotlin DSL) | モダンなビルドシステム |
+| テスト | JUnit 5 + Spring Test | 標準的なJavaテスト |
+| ベクトルDB | PostgreSQL + pgvector | SQL + ベクトル検索統合、コスト効率 |
+| ドキュメントEmbedding | Jina embeddings-v4 | 89言語対応、32Kコンテキスト、OSS |
+| コードEmbedding | Voyage-code-3 | Java/XMLに最高水準のEmbedding |
+| リランキング | Cross-Encoder | ハイブリッド検索の精度向上 |
+| トランスポート | STDIO / Streamable HTTP | ローカル開発 + リモートチーム共有 |
 
-## Knowledge Sources
+## 知識ソース
 
-The RAG pipeline indexes knowledge from:
+RAGパイプラインは以下のNablarch関連情報源をインデックス化する:
 
-| Source | Content | Scale |
+| ソース | 内容 | 規模 |
 |---|---|---|
-| [Nablarch Official Docs](https://nablarch.github.io/) | Architecture, API specs, guides | Hundreds of pages |
-| [GitHub nablarch org](https://github.com/nablarch) | 113 repositories (source code) | Tens of thousands of files |
-| Javadoc | Full API reference | All modules |
-| [Fintan](https://fintan.jp/) | Learning materials, dev standards | Dozens of articles |
+| [Nablarch公式ドキュメント](https://nablarch.github.io/) | アーキテクチャ、API仕様、開発ガイド | 数百ページ |
+| [GitHub nablarch org](https://github.com/nablarch) | 113リポジトリ（ソースコード） | 数万ファイル |
+| Javadoc | 全APIリファレンス | 全モジュール |
+| [Fintan](https://fintan.jp/) | 学習教材、開発標準 | 数十コンテンツ |
 
-## Project Status
+## プロジェクト状況
 
-**Current**: Planning & design phase. Project skeleton with stub implementations.
+**現在**: 計画・設計段階。プロジェクトスケルトンとスタブ実装。
 
-### Phase 1: MCP Foundation + Static Knowledge
-- [x] Project structure
-- [x] MCP SDK integration
-- [x] Tool stubs (search_api, validate_handler_queue)
-- [x] Resource stubs (API spec, handler spec)
-- [x] Knowledge base structure
-- [ ] Tool implementation
-- [ ] Resource implementation
-- [ ] Prompt implementation
-- [ ] MCP Inspector testing
+### Phase 1: MCP基盤 + 静的知識
+- [x] プロジェクト構造
+- [x] MCP SDK統合
+- [x] Toolスタブ（search_api, validate_handler_queue）
+- [x] Resourceスタブ（API仕様、ハンドラ仕様）
+- [x] Knowledge Base構造
+- [ ] Tool実装
+- [ ] Resource実装
+- [ ] Prompt実装
+- [ ] MCP Inspectorテスト
 
-### Phase 2: RAG Engine Integration
-- [ ] pgvector setup + schema
-- [ ] Document ingestion pipeline
-- [ ] Dual embedding (Jina v4 + Voyage-code-3)
-- [ ] `semantic_search` tool
-- [ ] Hybrid search (BM25 + vector)
-- [ ] Re-ranking (Cross-Encoder)
-- [ ] Search quality evaluation
+### Phase 2: RAGエンジン統合
+- [ ] pgvectorセットアップ + スキーマ定義
+- [ ] ドキュメント取込みパイプライン
+- [ ] デュアルEmbedding（Jina v4 + Voyage-code-3）
+- [ ] `semantic_search` ツール
+- [ ] ハイブリッド検索（BM25 + ベクトル検索）
+- [ ] リランキング（Cross-Encoder）
+- [ ] 検索品質評価
 
-### Phase 3: Full Tool Suite + Code Generation
-- [ ] `design_handler_queue` tool (RAG-powered)
-- [ ] `generate_code` tool (RAG-powered)
-- [ ] `generate_test` tool
-- [ ] `troubleshoot` tool
-- [ ] `analyze_migration` tool
-- [ ] Streamable HTTP transport
-- [ ] All Prompt templates
+### Phase 3: ツール拡充 + コード生成
+- [ ] `design_handler_queue` ツール（RAG連携）
+- [ ] `generate_code` ツール（RAG連携）
+- [ ] `generate_test` ツール
+- [ ] `troubleshoot` ツール
+- [ ] `analyze_migration` ツール
+- [ ] Streamable HTTPトランスポート
+- [ ] 全Promptテンプレート
 
-### Phase 4: Production Deployment
-- [ ] Docker Compose deployment
-- [ ] OAuth 2.0 authentication
-- [ ] Auto-update pipeline (GitHub webhook)
-- [ ] Monitoring & logging
-- [ ] IDE integration modules
+### Phase 4: 本番デプロイ
+- [ ] Docker Composeデプロイ
+- [ ] OAuth 2.0認証
+- [ ] 自動更新パイプライン（GitHub Webhook）
+- [ ] モニタリング・ログ
+- [ ] IDE統合モジュール
 
-## Documentation
+## ドキュメント
 
-| Document | Description |
+| ドキュメント | 内容 |
 |---|---|
-| [docs/overview.md](docs/overview.md) | Project vision, target users, feature overview |
-| [docs/architecture.md](docs/architecture.md) | RAG-enhanced architecture design, component diagrams, data model |
-| [docs/use-cases.md](docs/use-cases.md) | 12 use cases with sequence diagrams and I/O examples |
-| [docs/user-guide.md](docs/user-guide.md) | Setup, configuration, and usage guide |
-| [docs/decisions/](docs/decisions/) | Architecture Decision Records (ADRs) |
-| [docs/research/](docs/research/) | Research reports and analysis |
+| [docs/overview.md](docs/overview.md) | プロジェクトビジョン、対象ユーザー、機能概要 |
+| [docs/architecture.md](docs/architecture.md) | RAG強化型アーキテクチャ設計、コンポーネント図、データモデル |
+| [docs/use-cases.md](docs/use-cases.md) | 12ユースケース（シーケンス図・入出力例付き） |
+| [docs/user-guide.md](docs/user-guide.md) | セットアップ、設定、利用方法ガイド |
+| [docs/decisions/](docs/decisions/) | Architecture Decision Records（ADR） |
+| [docs/research/](docs/research/) | 調査レポート・分析資料 |
 
-## Related Resources
+## 関連リソース
 
-- [MCP Specification](https://spec.modelcontextprotocol.io/)
+- [MCP仕様](https://spec.modelcontextprotocol.io/)
 - [MCP Java SDK](https://github.com/modelcontextprotocol/java-sdk)
 - [Spring AI MCP](https://docs.spring.io/spring-ai/reference/api/mcp.html)
-- [Nablarch Official Docs](https://nablarch.github.io/)
+- [Nablarch公式ドキュメント](https://nablarch.github.io/)
 - [Nablarch GitHub](https://github.com/nablarch)
 - [pgvector](https://github.com/pgvector/pgvector)
 
-## License
+## ライセンス
 
 [Apache License 2.0](LICENSE)
