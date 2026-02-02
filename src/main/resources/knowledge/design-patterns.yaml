@@ -1,0 +1,507 @@
+# Nablarch Design Patterns
+# Nablarch-specific design patterns and best practices.
+# Version: 1.0 (Phase 1 Knowledge Base)
+# Reference: https://nablarch.github.io/docs/LATEST/doc/
+
+patterns:
+  - name: handler-queue-pattern
+    category: architecture
+    description: "ハンドラキューパターン。Nablarchの根幹アーキテクチャ。リクエスト処理を複数のハンドラによるパイプラインで実行する"
+    problem: "Webリクエスト処理において、認証・ログ・トランザクション管理等の横断的関心事を各業務ロジックに混在させると保守性が低下する"
+    solution: |
+      ハンドラ（Handler<I, O>インターフェース実装）をキュー形式で直列に連結し、
+      リクエストがキューを先頭から順に通過するパイプラインモデルを採用する。
+      各ハンドラは単一責務を持ち、前段の結果を受けて後段に渡す。
+      ハンドラの追加・削除・順序変更はXML設定で行え、コード変更なしに振る舞いを変更できる。
+    structure: |
+      Request → [Handler1] → [Handler2] → ... → [HandlerN] → Action
+                                                              ↓
+      Response ← [Handler1] ← [Handler2] ← ... ← [HandlerN] ← Result
+    code_example: |
+      // ハンドラインターフェース
+      public interface Handler<I, O> {
+          O handle(I input, ExecutionContext context);
+      }
+
+      // カスタムハンドラの例（ログ出力）
+      public class RequestLoggingHandler implements Handler<HttpRequest, HttpResponse> {
+          @Override
+          public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+              LOGGER.info("Request: {} {}", request.getMethod(), request.getRequestUri());
+              long start = System.currentTimeMillis();
+
+              // 後続ハンドラの実行
+              HttpResponse response = context.handleNext(request);
+
+              long elapsed = System.currentTimeMillis() - start;
+              LOGGER.info("Response: {} ({}ms)", response.getStatusCode(), elapsed);
+              return response;
+          }
+      }
+    related_patterns:
+      - action-class-pattern
+      - interceptor-pattern
+    applicable_app_types:
+      - web
+      - rest
+      - batch
+      - messaging
+    references:
+      - "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/index.html"
+
+  - name: action-class-pattern
+    category: action
+    description: "アクションクラスパターン。ハンドラキューの最内殻で業務ロジックを実行するクラス"
+    problem: "業務ロジックとフレームワーク処理を分離し、業務ロジックに集中できるようにしたい"
+    solution: |
+      アクションクラスは業務ロジックのみを記述し、横断的関心事（認証、ログ、トランザクション等）は
+      ハンドラキューのハンドラに委譲する。アクションメソッドはHttpRequest/ExecutionContextを受け取り、
+      HttpResponseまたはResultを返す。バリデーション・エラーハンドリングはインターセプタ（アノテーション）で宣言的に設定する。
+    structure: |
+      [ハンドラキュー] → PackageMapping → [ActionClass.method()]
+                                           ├── @InjectForm（バリデーション）
+                                           ├── @OnError（エラー遷移）
+                                           └── ビジネスロジック
+    code_example: |
+      // Webアクション
+      public class OrderAction {
+          @InjectForm(form = OrderForm.class, prefix = "form")
+          @OnError(type = ApplicationException.class,
+                   path = "/WEB-INF/view/order/input.jsp")
+          public HttpResponse doConfirm(HttpRequest request, ExecutionContext context) {
+              OrderForm form = context.getRequestScopedVar("form");
+              // ビジネスロジック：在庫チェック等
+              context.setRequestScopedVar("order", order);
+              return new HttpResponse("/WEB-INF/view/order/confirm.jsp");
+          }
+      }
+
+      // バッチアクション
+      public class DailyReportAction extends BatchAction<SqlRow> {
+          @Override
+          public DataReader<SqlRow> createReader(ExecutionContext ctx) {
+              return new DatabaseRecordReader()
+                  .setStatement(getSqlPStatement("SELECT_TARGET"));
+          }
+
+          @Override
+          public Result handle(SqlRow inputData, ExecutionContext ctx) {
+              // 1レコード分の処理
+              return new Result.Success();
+          }
+      }
+    related_patterns:
+      - handler-queue-pattern
+      - form-validation-pattern
+    applicable_app_types:
+      - web
+      - rest
+      - batch
+    references:
+      - "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/index.html"
+
+  - name: form-validation-pattern
+    category: validation
+    description: "フォームバリデーションパターン。Bean Validationアノテーションによる宣言的入力検証"
+    problem: "リクエストパラメータのバリデーションを各アクションメソッド内に記述すると、コードが冗長になり保守性が低下する"
+    solution: |
+      フォームクラス（POJO）にBean Validationアノテーションを付与し、
+      @InjectFormインターセプタで自動バリデーションを実行する。
+      バリデーションエラー時は@OnErrorで指定した遷移先に自動的に遷移する。
+      メッセージはプロパティファイルで外部化する。
+    structure: |
+      HttpRequest → @InjectForm → FormClass（バリデーション）
+                    ├── OK → ActionMethod実行
+                    └── NG → @OnError → エラー画面（ApplicationException）
+    code_example: |
+      // フォームクラス
+      public class UserRegistrationForm implements Serializable {
+          @Required(message = "{required.userName}")
+          @Length(max = 50, message = "{length.userName}")
+          private String userName;
+
+          @Required
+          @MailAddress
+          private String email;
+
+          @NumberRange(min = 0, max = 150)
+          private String age;
+
+          @Required
+          @SystemChar(charsetDef = "全角文字")
+          private String fullNameKanji;
+
+          @SystemChar(charsetDef = "半角カナ")
+          private String fullNameKana;
+
+          // getter/setter
+      }
+
+      // メッセージ定義（messages.properties）
+      // required.userName=ユーザー名は必須です
+      // length.userName=ユーザー名は{max}文字以内で入力してください
+    related_patterns:
+      - action-class-pattern
+      - inject-form-on-error
+    applicable_app_types:
+      - web
+      - rest
+
+  - name: universal-dao-pattern
+    category: data-access
+    description: "Universal DAOパターン。エンティティクラスベースの汎用データアクセス"
+    problem: "データベースアクセスコードがSQL文の組み立てやResultSetのマッピングで冗長になる"
+    solution: |
+      JPAアノテーション付きエンティティクラスを定義し、UniversalDaoの静的メソッドで
+      CRUD操作を行う。複雑なSQLは外部SQLファイルに定義し、SQL_IDで参照する。
+      これにより、定型的なDB操作のコード量を大幅に削減できる。
+    structure: |
+      ActionClass → UniversalDao.findAll/insert/update/delete
+                    ├── 単純CRUD → エンティティクラスから自動SQL生成
+                    └── 複雑検索 → 外部SQLファイル（Entity.sql）参照
+    code_example: |
+      // エンティティ定義
+      @Entity
+      @Table(name = "USER_TABLE")
+      public class User {
+          @Id
+          @Column(name = "USER_ID")
+          public Long userId;
+
+          @Column(name = "USER_NAME", nullable = false)
+          public String userName;
+
+          @Version
+          @Column(name = "VERSION")
+          public Long version;
+      }
+
+      // CRUD操作
+      // 全件取得
+      EntityList<User> all = UniversalDao.findAll(User.class);
+
+      // 主キー検索
+      User user = UniversalDao.findById(User.class, 1L);
+
+      // SQLファイル検索
+      Map<String, String> cond = Map.of("userName", "%田中%");
+      EntityList<User> result = UniversalDao.findAllBySqlFile(
+          User.class, "FIND_BY_NAME", cond);
+
+      // 挿入・更新・削除
+      UniversalDao.insert(user);
+      UniversalDao.update(user);
+      UniversalDao.delete(user);
+    related_patterns:
+      - sql-file-pattern
+      - exclusive-control-pattern
+    applicable_app_types:
+      - web
+      - rest
+      - batch
+      - messaging
+    references:
+      - "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database/universal_dao.html"
+
+  - name: sql-file-pattern
+    category: data-access
+    description: "外部SQLファイルパターン。SQLをJavaコードから分離し、エンティティクラスと同じパッケージに配置"
+    problem: "複雑なSQLをJava文字列として記述すると、可読性・保守性が低下する"
+    solution: |
+      SQLをエンティティクラスと同じパッケージに「エンティティ名.sql」として外部ファイル化する。
+      SQL_ID（名前付きSQL）で参照し、名前付きパラメータ（:paramName）でバインドする。
+      コメント構文（$if, $for）による動的SQLも利用可能。
+    structure: |
+      Entity.java → Entity.sql（同一パッケージ）
+                     ├── SQL_ID_1 = SELECT ...
+                     ├── SQL_ID_2 = UPDATE ...
+                     └── SQL_ID_3 = SELECT ... $if(...) ...
+    code_example: |
+      -- src/main/resources/com/example/entity/User.sql
+
+      -- 名前による検索
+      FIND_BY_NAME =
+      SELECT
+          USER_ID, USER_NAME, EMAIL, STATUS
+      FROM
+          USER_TABLE
+      WHERE
+          $if(userName) {USER_NAME LIKE :%userName%}
+          AND $if(status) {STATUS = :status}
+      ORDER BY
+          USER_ID
+
+      -- 件数取得
+      COUNT_ACTIVE =
+      SELECT COUNT(*) AS CNT
+      FROM USER_TABLE
+      WHERE STATUS = '1'
+
+      -- $if構文: パラメータが存在する場合のみ条件に含める
+      -- $for構文: IN句の動的生成に使用
+    related_patterns:
+      - universal-dao-pattern
+    applicable_app_types:
+      - web
+      - rest
+      - batch
+      - messaging
+
+  - name: exclusive-control-pattern
+    category: data-access
+    description: "排他制御パターン。楽観ロック（バージョン番号）と悲観ロック（SELECT FOR UPDATE）"
+    problem: "複数ユーザーが同時にデータを更新する場合、データの整合性が失われる可能性がある"
+    solution: |
+      楽観ロック: エンティティに@Versionカラムを追加し、更新時にバージョン不一致を検知する。
+      悲観ロック: SQLファイルでSELECT ... FOR UPDATEを使用し、行レベルロックを取得する。
+      一般的には楽観ロックをデフォルトとし、競合頻度が高い場合に悲観ロックを検討する。
+    structure: |
+      楽観ロック:
+        画面表示時: SELECT → version取得 → hidden保持
+        更新時: UPDATE ... WHERE version = :version → 不一致ならOptimisticLockException
+
+      悲観ロック:
+        SELECT ... FOR UPDATE → 行ロック取得 → 更新 → COMMIT → ロック解放
+    code_example: |
+      // 楽観ロック
+      @Entity
+      @Table(name = "ORDER_TABLE")
+      public class Order {
+          @Id
+          @Column(name = "ORDER_ID")
+          public Long orderId;
+
+          @Version
+          @Column(name = "VERSION")
+          public Long version;
+      }
+
+      // 更新処理
+      public HttpResponse doUpdate(HttpRequest request, ExecutionContext context) {
+          OrderForm form = context.getRequestScopedVar("form");
+          Order order = BeanUtil.createAndCopy(Order.class, form);
+          try {
+              UniversalDao.update(order);
+          } catch (OptimisticLockException e) {
+              throw new ApplicationException(
+                  MessageUtil.createMessage(MessageLevel.ERROR,
+                      "errors.optimisticLock"));
+          }
+          return new HttpResponse("redirect:///action/order/complete");
+      }
+    related_patterns:
+      - universal-dao-pattern
+    applicable_app_types:
+      - web
+      - rest
+
+  - name: double-submit-prevention-pattern
+    category: security
+    description: "二重送信防止パターン。トークンベースのCSRF対策と二重送信防止"
+    problem: "ブラウザの戻るボタンや再読み込みにより、同一フォームが複数回送信される可能性がある"
+    solution: |
+      入力画面表示時にサーバー側でトークンを生成し、HTMLのhiddenフィールドとセッションに保存する。
+      送信時にトークンの一致を検証し、一致しない場合（二重送信）はエラーとする。
+      @OnDoubleSubmissionアノテーションで宣言的に二重送信を検知できる。
+    structure: |
+      1. 入力画面表示: TokenUtil.setToken() → hidden + session
+      2. 送信時: @OnDoubleSubmission → token照合
+         ├── 一致 → 処理実行 → token無効化
+         └── 不一致 → エラー画面遷移
+    code_example: |
+      // 入力画面表示
+      public HttpResponse doInput(HttpRequest request, ExecutionContext context) {
+          TokenUtil.setToken(context);
+          return new HttpResponse("/WEB-INF/view/order/input.jsp");
+      }
+
+      // 送信処理
+      @OnDoubleSubmission(path = "/WEB-INF/view/common/doubleSubmitError.jsp",
+                           messageId = "errors.doubleSubmit")
+      public HttpResponse doRegister(HttpRequest request, ExecutionContext context) {
+          // 業務処理（トークン検証は自動）
+          return new HttpResponse("redirect:///action/order/complete");
+      }
+
+      // JSP側
+      // <n:form method="POST" action="/action/order/register">
+      //   <n:token />  <!-- トークンhiddenフィールド出力 -->
+      //   ...
+      // </n:form>
+    related_patterns:
+      - action-class-pattern
+      - session-store-access
+    applicable_app_types:
+      - web
+
+  - name: interceptor-pattern
+    category: handler
+    description: "インターセプタパターン。アノテーションベースのAOP的な横断処理"
+    problem: "バリデーション・権限チェック等の横断的関心事を各アクションメソッドに直接記述すると冗長になる"
+    solution: |
+      Nablarchのインターセプタ機構を使い、アクションメソッドにアノテーションを付与するだけで
+      横断的処理を宣言的に適用する。@InjectForm、@OnError、@OnDoubleSubmission等が標準提供されている。
+      カスタムインターセプタも作成可能。
+    structure: |
+      @Interceptor → Interceptorクラス.handle()
+                      ├── 前処理
+                      ├── context.handleNext() → アクションメソッド実行
+                      └── 後処理
+    code_example: |
+      // カスタムインターセプタの定義
+      @Target(ElementType.METHOD)
+      @Retention(RetentionPolicy.RUNTIME)
+      @Interceptor(AdminOnly.Impl.class)
+      public @interface AdminOnly {
+
+          class Impl extends Interceptor.Impl<HttpRequest, HttpResponse, AdminOnly> {
+              @Override
+              public HttpResponse handle(HttpRequest request, ExecutionContext context) {
+                  String userId = ThreadContext.getUserId();
+                  if (!isAdmin(userId)) {
+                      throw new HttpErrorResponse(403);
+                  }
+                  return getOriginalHandler().handle(request, context);
+              }
+          }
+      }
+
+      // 使用例
+      public class AdminAction {
+          @AdminOnly
+          public HttpResponse doManage(HttpRequest request, ExecutionContext context) {
+              // 管理者のみ実行可能な処理
+              return new HttpResponse("/WEB-INF/view/admin/manage.jsp");
+          }
+      }
+    related_patterns:
+      - handler-queue-pattern
+      - action-class-pattern
+    applicable_app_types:
+      - web
+      - rest
+
+  - name: file-download-pattern
+    category: action
+    description: "ファイルダウンロードパターン。StreamResponseを使ったバイナリファイルの送信"
+    problem: "CSV/Excel/PDFなどのファイルをブラウザにダウンロードさせたい"
+    solution: |
+      StreamResponseを使用してファイルコンテンツをHTTPレスポンスとして送信する。
+      Content-TypeとContent-Dispositionヘッダーを適切に設定する。
+      大容量ファイルの場合はストリーミング送信でメモリ効率を確保する。
+    structure: |
+      ActionMethod → StreamResponse(File or InputStream)
+                     ├── setContentType() → MIMEタイプ設定
+                     └── setContentDisposition() → ファイル名設定
+    code_example: |
+      // ファイルダウンロード
+      public HttpResponse doDownload(HttpRequest request, ExecutionContext context) {
+          String reportId = request.getParam("reportId")[0];
+
+          // CSV生成
+          File csvFile = generateCsvReport(reportId);
+
+          StreamResponse response = new StreamResponse(csvFile);
+          response.setContentType("text/csv; charset=UTF-8");
+          response.setContentDisposition(
+              "report_" + reportId + ".csv");
+          return response;
+      }
+
+      // InputStreamからのダウンロード（大容量対応）
+      public HttpResponse doDownloadLarge(HttpRequest request, ExecutionContext context) {
+          InputStream is = getBlobStream(request.getParam("fileId")[0]);
+
+          StreamResponse response = new StreamResponse(is);
+          response.setContentType("application/octet-stream");
+          response.setContentDisposition("data.bin");
+          return response;
+      }
+    related_patterns:
+      - action-class-pattern
+    applicable_app_types:
+      - web
+
+  - name: system-repository-pattern
+    category: architecture
+    description: "システムリポジトリパターン。XMLベースのDIコンテナとコンポーネント管理"
+    problem: "アプリケーションの設定やコンポーネントの依存関係をハードコーディングすると変更が困難になる"
+    solution: |
+      XMLベースのコンポーネント定義ファイルでDIコンテナを構成し、
+      SystemRepositoryを通じてコンポーネントを取得する。
+      環境ごとの設定差分はconfigファイルで管理し、コード変更なしに切り替え可能。
+    structure: |
+      component-configuration.xml
+        ├── <component> → Javaクラスのインスタンス定義
+        ├── <property> → プロパティのDI注入
+        ├── <config-file> → 設定値ファイル読み込み
+        └── <import> → 他XMLファイルの読み込み
+
+      Java側: SystemRepository.get("name") → コンポーネント取得
+    code_example: |
+      <!-- コンポーネント定義 -->
+      <component name="userService"
+                 class="com.example.service.UserService">
+        <property name="userDao" ref="userDao" />
+        <property name="mailSender" ref="mailSender" />
+      </component>
+
+      <!-- 設定値の参照 -->
+      <component name="apiClient" class="com.example.client.ApiClient">
+        <property name="baseUrl" value="${api.base.url}" />
+        <property name="timeout" value="${api.timeout}" />
+      </component>
+
+      <!-- Java側での取得 -->
+      UserService service = SystemRepository.get("userService");
+      String apiUrl = SystemRepository.getString("api.base.url");
+    related_patterns:
+      - handler-queue-pattern
+    applicable_app_types:
+      - web
+      - rest
+      - batch
+      - messaging
+    references:
+      - "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/repository.html"
+
+  - name: multi-db-pattern
+    category: data-access
+    description: "複数データベース接続パターン。異なるデータベースへの同時接続"
+    problem: "メインDBとは異なるDBに接続する必要がある（ログDB、参照専用DB等）"
+    solution: |
+      DbConnectionManagementHandlerとTransactionManagementHandlerを複数定義し、
+      connectionName属性で接続先を区別する。アクション内ではAppDbConnection.getTransactionByName()で
+      名前指定で接続を取得する。
+    structure: |
+      ハンドラキュー:
+        DbConnectionManagementHandler(default) → メインDB
+        DbConnectionManagementHandler(log)     → ログDB
+        TransactionManagementHandler(default)
+        TransactionManagementHandler(log)
+    code_example: |
+      <!-- 複数DB接続の設定 -->
+      <component name="dbConnectionManagementHandler"
+                 class="nablarch.common.handler.DbConnectionManagementHandler">
+        <property name="connectionFactory" ref="mainDataSource" />
+      </component>
+
+      <component name="logDbConnectionManagementHandler"
+                 class="nablarch.common.handler.DbConnectionManagementHandler">
+        <property name="connectionFactory" ref="logDataSource" />
+        <property name="connectionName" value="log" />
+      </component>
+
+      <!-- Java側での使用 -->
+      // デフォルト接続（メインDB）
+      UniversalDao.findAll(User.class);
+
+      // 名前指定接続（ログDB）
+      AppDbConnection logConn = DbConnectionContext.getConnection("log");
+      SqlPStatement stmt = logConn.prepareStatement("INSERT INTO ...");
+    related_patterns:
+      - universal-dao-pattern
+    applicable_app_types:
+      - web
+      - rest
+      - batch

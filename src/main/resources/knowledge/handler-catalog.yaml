@@ -1,99 +1,516 @@
 # Nablarch Handler Catalog
 # Standard handlers and their ordering constraints for each application type.
+# Version: 2.0 (Phase 1 Knowledge Base)
+# Reference: https://nablarch.github.io/docs/LATEST/doc/
 
 web:
-  description: "Web application handler queue"
+  description: "Webアプリケーション用ハンドラキュー"
   handlers:
     - name: HttpCharacterEncodingHandler
-      description: "Sets character encoding for HTTP requests/responses"
+      fqcn: "nablarch.fw.web.handler.HttpCharacterEncodingHandler"
+      description: "HTTPリクエスト/レスポンスの文字エンコーディングを設定する"
       order: 1
+      required: true
+      thread: main
+      constraints:
+        must_before:
+          - GlobalErrorHandler
+
     - name: GlobalErrorHandler
-      description: "Catches unhandled exceptions and returns error responses"
+      fqcn: "nablarch.fw.handler.GlobalErrorHandler"
+      description: "未処理の例外をキャッチし、エラーレスポンスを返す。全例外の最終キャッチポイント"
       order: 2
+      required: true
+      thread: main
+      constraints:
+        must_before:
+          - HttpResponseHandler
+
     - name: HttpResponseHandler
-      description: "Builds HTTP response from handler results"
+      fqcn: "nablarch.fw.web.handler.HttpResponseHandler"
+      description: "ハンドラの処理結果からHTTPレスポンスを構築する"
       order: 3
+      required: true
+      thread: main
+      constraints:
+        must_after:
+          - GlobalErrorHandler
+
     - name: SecureHandler
-      description: "Security-related header settings (CSRF, etc.)"
+      fqcn: "nablarch.fw.web.handler.SecureHandler"
+      description: "セキュリティ関連のHTTPヘッダー設定（CSRF対策、Content-Security-Policy等）"
       order: 4
-    - name: MultipartHandler
-      description: "Handles multipart form data (file uploads)"
+      required: true
+      thread: main
+
+    - name: HttpAccessLogHandler
+      fqcn: "nablarch.fw.web.handler.HttpAccessLogHandler"
+      description: "HTTPアクセスログを出力する"
       order: 5
-    - name: SessionStoreHandler
-      description: "Manages HTTP session store"
+      required: false
+      thread: main
+
+    - name: MultipartHandler
+      fqcn: "nablarch.fw.web.handler.multipart.MultipartHandler"
+      description: "マルチパートフォームデータ（ファイルアップロード）を処理する"
       order: 6
-    - name: DbConnectionManagementHandler
-      description: "Manages database connection lifecycle"
+      required: false
+      thread: main
+
+    - name: SessionStoreHandler
+      fqcn: "nablarch.common.web.session.SessionStoreHandler"
+      description: "HTTPセッションストアを管理する（DB/HIDDENストア対応）"
       order: 7
-    - name: TransactionManagementHandler
-      description: "Manages database transaction boundaries"
+      required: true
+      thread: main
+
+    - name: NormalizationHandler
+      fqcn: "nablarch.fw.web.handler.NormalizationHandler"
+      description: "リクエストパラメータの正規化（全角→半角変換等）を行う"
       order: 8
-    - name: DispatchHandler
-      description: "Routes requests to action classes based on URI"
+      required: false
+      thread: main
+
+    - name: ForwardingHandler
+      fqcn: "nablarch.fw.web.handler.ForwardingHandler"
+      description: "内部フォワードを処理する（フォワード先のハンドラキューを再実行）"
       order: 9
+      required: false
+      thread: main
+
+    - name: ThreadContextHandler
+      fqcn: "nablarch.common.handler.threadcontext.ThreadContextHandler"
+      description: "スレッドコンテキスト（ユーザーID、リクエストID、言語等）を設定する"
+      order: 10
+      required: true
+      thread: main
+      constraints:
+        must_before:
+          - DbConnectionManagementHandler
+
+    - name: ThreadContextClearHandler
+      fqcn: "nablarch.common.handler.threadcontext.ThreadContextClearHandler"
+      description: "処理完了後にスレッドコンテキストをクリアする"
+      order: 11
+      required: true
+      thread: main
+
+    - name: HttpErrorHandler
+      fqcn: "nablarch.fw.web.handler.HttpErrorHandler"
+      description: "HTTPエラーレスポンス（4xx, 5xx）のハンドリングとエラーページ遷移"
+      order: 12
+      required: false
+      thread: main
+
+    - name: DbConnectionManagementHandler
+      fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+      description: "データベース接続のライフサイクル（取得・解放）を管理する"
+      order: 13
+      required: true
+      thread: main
+      constraints:
+        must_before:
+          - TransactionManagementHandler
+
+    - name: TransactionManagementHandler
+      fqcn: "nablarch.common.handler.TransactionManagementHandler"
+      description: "データベーストランザクション境界（begin/commit/rollback）を管理する"
+      order: 14
+      required: true
+      thread: main
+      constraints:
+        must_after:
+          - DbConnectionManagementHandler
+
+    - name: PackageMapping
+      fqcn: "nablarch.integration.router.RoutesMapping"
+      description: "URIに基づいてリクエストをアクションクラスにルーティングする（DispatchHandler）"
+      order: 15
+      required: true
+      thread: main
 
 rest:
-  description: "RESTful web service handler queue"
+  description: "RESTful Webサービス用ハンドラキュー"
   handlers:
     - name: GlobalErrorHandler
-      description: "Catches unhandled exceptions and returns error responses"
+      fqcn: "nablarch.fw.handler.GlobalErrorHandler"
+      description: "未処理の例外をキャッチし、エラーレスポンスを返す"
       order: 1
-    - name: StatusCodeConvertHandler
-      description: "Converts internal status codes to HTTP status codes"
+      required: true
+      thread: main
+
+    - name: JaxRsResponseHandler
+      fqcn: "nablarch.fw.jaxrs.JaxRsResponseHandler"
+      description: "JAX-RSレスポンスオブジェクトをHTTPレスポンスに変換する"
       order: 2
-    - name: DbConnectionManagementHandler
-      description: "Manages database connection lifecycle"
+      required: true
+      thread: main
+      constraints:
+        must_after:
+          - GlobalErrorHandler
+
+    - name: StatusCodeConvertHandler
+      fqcn: "nablarch.fw.web.handler.StatusCodeConvertHandler"
+      description: "内部ステータスコードをHTTPステータスコードに変換する"
       order: 3
-    - name: TransactionManagementHandler
-      description: "Manages database transaction boundaries"
+      required: true
+      thread: main
+
+    - name: HttpAccessLogHandler
+      fqcn: "nablarch.fw.web.handler.HttpAccessLogHandler"
+      description: "HTTPアクセスログを出力する"
       order: 4
-    - name: DispatchHandler
-      description: "Routes requests to resource classes based on URI"
+      required: false
+      thread: main
+
+    - name: ThreadContextHandler
+      fqcn: "nablarch.common.handler.threadcontext.ThreadContextHandler"
+      description: "スレッドコンテキストを設定する"
       order: 5
+      required: true
+      thread: main
+
+    - name: ThreadContextClearHandler
+      fqcn: "nablarch.common.handler.threadcontext.ThreadContextClearHandler"
+      description: "スレッドコンテキストをクリアする"
+      order: 6
+      required: true
+      thread: main
+
+    - name: DbConnectionManagementHandler
+      fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+      description: "データベース接続のライフサイクルを管理する"
+      order: 7
+      required: true
+      thread: main
+      constraints:
+        must_before:
+          - TransactionManagementHandler
+
+    - name: TransactionManagementHandler
+      fqcn: "nablarch.common.handler.TransactionManagementHandler"
+      description: "データベーストランザクション境界を管理する"
+      order: 8
+      required: true
+      thread: main
+      constraints:
+        must_after:
+          - DbConnectionManagementHandler
+
+    - name: PackageMapping
+      fqcn: "nablarch.integration.router.RoutesMapping"
+      description: "URIに基づいてリクエストをリソースクラスにルーティングする"
+      order: 9
+      required: true
+      thread: main
 
 batch:
-  description: "Batch application handler queue"
+  description: "Nablarchバッチアプリケーション用ハンドラキュー（都度起動型）"
   handlers:
     - name: StatusCodeConvertHandler
-      description: "Converts process result status to exit code"
+      fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"
+      description: "処理結果ステータスを終了コードに変換する"
       order: 1
+      required: true
+      thread: main
+
     - name: GlobalErrorHandler
-      description: "Catches unhandled exceptions"
+      fqcn: "nablarch.fw.handler.GlobalErrorHandler"
+      description: "未処理の例外をキャッチする"
       order: 2
-    - name: DbConnectionManagementHandler
-      description: "Manages database connection lifecycle"
+      required: true
+      thread: main
+
+    - name: DuplicateProcessCheckHandler
+      fqcn: "nablarch.fw.handler.DuplicateProcessCheckHandler"
+      description: "同一バッチの多重起動を防止する"
       order: 3
-    - name: TransactionManagementHandler
-      description: "Manages database transaction boundaries"
+      required: false
+      thread: main
+
+    - name: DbConnectionManagementHandler
+      fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+      description: "データベース接続のライフサイクルを管理する（メインスレッド用）"
       order: 4
-    - name: LoopHandler
-      description: "Iterates over data records from DataReader"
+      required: true
+      thread: main
+      constraints:
+        must_before:
+          - TransactionManagementHandler
+          - MultiThreadExecutionHandler
+
+    - name: TransactionManagementHandler
+      fqcn: "nablarch.common.handler.TransactionManagementHandler"
+      description: "データベーストランザクション境界を管理する（メインスレッド用）"
       order: 5
-    - name: DataReadHandler
-      description: "Reads input data records"
+      required: true
+      thread: main
+      constraints:
+        must_after:
+          - DbConnectionManagementHandler
+
+    - name: RequestPathJavaPackageMapping
+      fqcn: "nablarch.fw.handler.RequestPathJavaPackageMapping"
+      description: "リクエストパスに基づいてアクションクラスを決定する"
       order: 6
-    - name: DispatchHandler
-      description: "Routes to action classes"
+      required: true
+      thread: main
+
+    - name: MultiThreadExecutionHandler
+      fqcn: "nablarch.fw.handler.MultiThreadExecutionHandler"
+      description: "マルチスレッド実行を制御する（サブスレッドの生成・管理）"
       order: 7
+      required: true
+      thread: main
+      constraints:
+        must_after:
+          - DbConnectionManagementHandler
+
+    - name: RetryHandler
+      fqcn: "nablarch.fw.handler.RetryHandler"
+      description: "一時的な障害でリトライ処理を行う"
+      order: 8
+      required: false
+      thread: sub
+
+    - name: DbConnectionManagementHandler_sub
+      fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+      description: "データベース接続のライフサイクルを管理する（サブスレッド用）"
+      order: 9
+      required: true
+      thread: sub
+
+    - name: LoopHandler
+      fqcn: "nablarch.fw.handler.LoopHandler"
+      description: "DataReaderからのデータレコードを反復処理する"
+      order: 10
+      required: true
+      thread: sub
+      constraints:
+        must_before:
+          - DataReadHandler
+
+    - name: TransactionManagementHandler_sub
+      fqcn: "nablarch.common.handler.TransactionManagementHandler"
+      description: "データベーストランザクション境界を管理する（サブスレッド用、レコード単位）"
+      order: 11
+      required: true
+      thread: sub
+
+    - name: DataReadHandler
+      fqcn: "nablarch.fw.handler.DataReadHandler"
+      description: "入力データレコードを読み取る"
+      order: 12
+      required: true
+      thread: sub
+      constraints:
+        must_after:
+          - LoopHandler
 
 messaging:
-  description: "Messaging (table queue) handler queue"
+  description: "テーブルキューイング型メッセージング用ハンドラキュー"
   handlers:
     - name: StatusCodeConvertHandler
-      description: "Converts process result status to exit code"
+      fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"
+      description: "処理結果ステータスを終了コードに変換する"
       order: 1
+      required: true
+      thread: main
+
     - name: GlobalErrorHandler
-      description: "Catches unhandled exceptions"
+      fqcn: "nablarch.fw.handler.GlobalErrorHandler"
+      description: "未処理の例外をキャッチする"
       order: 2
-    - name: RetryHandler
-      description: "Retries on transient failures"
+      required: true
+      thread: main
+
+    - name: DuplicateProcessCheckHandler
+      fqcn: "nablarch.fw.handler.DuplicateProcessCheckHandler"
+      description: "同一プロセスの多重起動を防止する"
       order: 3
-    - name: DbConnectionManagementHandler
-      description: "Manages database connection lifecycle"
+      required: false
+      thread: main
+
+    - name: ProcessStopHandler
+      fqcn: "nablarch.fw.handler.ProcessStopHandler"
+      description: "プロセスの停止要求を監視し、安全に停止する"
       order: 4
-    - name: TransactionManagementHandler
-      description: "Manages database transaction boundaries"
+      required: false
+      thread: main
+
+    - name: DbConnectionManagementHandler
+      fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+      description: "データベース接続のライフサイクルを管理する（メインスレッド用）"
       order: 5
-    - name: DispatchHandler
-      description: "Routes to action classes"
+      required: true
+      thread: main
+
+    - name: TransactionManagementHandler
+      fqcn: "nablarch.common.handler.TransactionManagementHandler"
+      description: "データベーストランザクション境界を管理する（メインスレッド用）"
       order: 6
+      required: true
+      thread: main
+
+    - name: RequestThreadLoopHandler
+      fqcn: "nablarch.fw.handler.RequestThreadLoopHandler"
+      description: "メッセージ受信のループ処理を行う（常駐型のメインループ）"
+      order: 7
+      required: true
+      thread: main
+      constraints:
+        must_before:
+          - MultiThreadExecutionHandler
+
+    - name: MultiThreadExecutionHandler
+      fqcn: "nablarch.fw.handler.MultiThreadExecutionHandler"
+      description: "マルチスレッド実行を制御する"
+      order: 8
+      required: true
+      thread: main
+
+    - name: RetryHandler
+      fqcn: "nablarch.fw.handler.RetryHandler"
+      description: "一時的な障害でリトライ処理を行う"
+      order: 9
+      required: true
+      thread: sub
+
+    - name: DbConnectionManagementHandler_sub
+      fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+      description: "データベース接続のライフサイクルを管理する（サブスレッド用）"
+      order: 10
+      required: true
+      thread: sub
+
+    - name: LoopHandler
+      fqcn: "nablarch.fw.handler.LoopHandler"
+      description: "データレコードを反復処理する"
+      order: 11
+      required: true
+      thread: sub
+
+    - name: TransactionManagementHandler_sub
+      fqcn: "nablarch.common.handler.TransactionManagementHandler"
+      description: "データベーストランザクション境界を管理する（サブスレッド用）"
+      order: 12
+      required: true
+      thread: sub
+
+    - name: DataReadHandler
+      fqcn: "nablarch.fw.handler.DataReadHandler"
+      description: "テーブルキューからメッセージを読み取る"
+      order: 13
+      required: true
+      thread: sub
+
+http-messaging:
+  description: "HTTP同期メッセージング用ハンドラキュー（外部システムからのHTTPリクエストを受信しメッセージとして処理）"
+  handlers:
+    - name: HttpCharacterEncodingHandler
+      fqcn: "nablarch.fw.web.handler.HttpCharacterEncodingHandler"
+      description: "HTTPリクエスト/レスポンスの文字エンコーディングを設定する"
+      order: 1
+      required: true
+      thread: main
+
+    - name: GlobalErrorHandler
+      fqcn: "nablarch.fw.handler.GlobalErrorHandler"
+      description: "未処理の例外をキャッチする"
+      order: 2
+      required: true
+      thread: main
+
+    - name: HttpResponseHandler
+      fqcn: "nablarch.fw.web.handler.HttpResponseHandler"
+      description: "ハンドラの処理結果からHTTPレスポンスを構築する"
+      order: 3
+      required: true
+      thread: main
+
+    - name: StatusCodeConvertHandler
+      fqcn: "nablarch.fw.web.handler.StatusCodeConvertHandler"
+      description: "内部ステータスコードをHTTPステータスコードに変換する"
+      order: 4
+      required: true
+      thread: main
+
+    - name: ThreadContextHandler
+      fqcn: "nablarch.common.handler.threadcontext.ThreadContextHandler"
+      description: "スレッドコンテキストを設定する"
+      order: 5
+      required: true
+      thread: main
+
+    - name: ThreadContextClearHandler
+      fqcn: "nablarch.common.handler.threadcontext.ThreadContextClearHandler"
+      description: "スレッドコンテキストをクリアする"
+      order: 6
+      required: true
+      thread: main
+
+    - name: DbConnectionManagementHandler
+      fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+      description: "データベース接続のライフサイクルを管理する"
+      order: 7
+      required: true
+      thread: main
+
+    - name: TransactionManagementHandler
+      fqcn: "nablarch.common.handler.TransactionManagementHandler"
+      description: "データベーストランザクション境界を管理する"
+      order: 8
+      required: true
+      thread: main
+
+    - name: PackageMapping
+      fqcn: "nablarch.fw.handler.RequestPathJavaPackageMapping"
+      description: "リクエストパスに基づいてアクションクラスを決定する"
+      order: 9
+      required: true
+      thread: main
+
+jakarta-batch:
+  description: "Jakarta Batch（JSR 352）対応バッチアプリケーション用ハンドラキュー"
+  handlers:
+    - name: StatusCodeConvertHandler
+      fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"
+      description: "処理結果ステータスを終了コードに変換する"
+      order: 1
+      required: true
+      thread: main
+
+    - name: GlobalErrorHandler
+      fqcn: "nablarch.fw.handler.GlobalErrorHandler"
+      description: "未処理の例外をキャッチする"
+      order: 2
+      required: true
+      thread: main
+
+    - name: DuplicateProcessCheckHandler
+      fqcn: "nablarch.fw.handler.DuplicateProcessCheckHandler"
+      description: "同一バッチの多重起動を防止する"
+      order: 3
+      required: false
+      thread: main
+
+    - name: DbConnectionManagementHandler
+      fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+      description: "データベース接続のライフサイクルを管理する"
+      order: 4
+      required: true
+      thread: main
+
+    - name: TransactionManagementHandler
+      fqcn: "nablarch.common.handler.TransactionManagementHandler"
+      description: "データベーストランザクション境界を管理する"
+      order: 5
+      required: true
+      thread: main
+
+    - name: RequestPathJavaPackageMapping
+      fqcn: "nablarch.fw.handler.RequestPathJavaPackageMapping"
+      description: "リクエストパスに基づいてバッチレットクラスを決定する"
+      order: 6
+      required: true
+      thread: main

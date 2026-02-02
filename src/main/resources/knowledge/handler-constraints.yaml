@@ -1,0 +1,232 @@
+# Nablarch Handler Constraints
+# Handler ordering rules and compatibility constraints.
+# Version: 1.0 (Phase 1 Knowledge Base)
+# Reference: https://nablarch.github.io/docs/LATEST/doc/
+
+constraints:
+  # ===== 共通ハンドラ =====
+  - handler: GlobalErrorHandler
+    fqcn: "nablarch.fw.handler.GlobalErrorHandler"
+    rule: must_be_outer
+    required_by_app_type:
+      - web
+      - rest
+      - batch
+      - messaging
+      - http-messaging
+      - jakarta-batch
+    reason: "全例外をキャッチするため、ハンドラキューの最外殻（または外殻に近い位置）に配置する必要がある。未処理例外がアプリケーション外に漏れるのを防ぐ"
+
+  - handler: DbConnectionManagementHandler
+    fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+    rule: relative_order
+    must_before:
+      - TransactionManagementHandler
+      - LoopHandler
+      - MultiThreadExecutionHandler
+    required_by_app_type:
+      - web
+      - rest
+      - batch
+      - messaging
+      - http-messaging
+      - jakarta-batch
+    reason: "DB接続の確立はトランザクション管理やデータ処理の前提条件。接続がない状態でトランザクションを開始できない"
+
+  - handler: TransactionManagementHandler
+    fqcn: "nablarch.common.handler.TransactionManagementHandler"
+    rule: relative_order
+    must_after:
+      - DbConnectionManagementHandler
+    must_before:
+      - PackageMapping
+      - RequestPathJavaPackageMapping
+      - DataReadHandler
+    required_by_app_type:
+      - web
+      - rest
+      - batch
+      - messaging
+      - http-messaging
+      - jakarta-batch
+    reason: "トランザクション管理はDB接続確立後、ビジネスロジック（アクション実行）の前に配置する。アクションの処理結果に応じてcommit/rollbackを制御する"
+
+  - handler: ThreadContextHandler
+    fqcn: "nablarch.common.handler.threadcontext.ThreadContextHandler"
+    rule: relative_order
+    must_before:
+      - DbConnectionManagementHandler
+      - TransactionManagementHandler
+    reason: "スレッドコンテキスト（ユーザーID、リクエストID等）はDB操作やログ出力で使用するため、それらの前に設定する必要がある"
+
+  - handler: ThreadContextClearHandler
+    fqcn: "nablarch.common.handler.threadcontext.ThreadContextClearHandler"
+    rule: relative_order
+    must_after:
+      - ThreadContextHandler
+    must_before:
+      - DbConnectionManagementHandler
+    reason: "ThreadContextHandlerで設定したコンテキスト情報を処理完了後にクリアする。スレッドプールの再利用時にコンテキストが残留するのを防ぐ"
+
+  # ===== Web系ハンドラ =====
+  - handler: HttpCharacterEncodingHandler
+    fqcn: "nablarch.fw.web.handler.HttpCharacterEncodingHandler"
+    rule: must_be_outer
+    required_by_app_type:
+      - web
+      - http-messaging
+    reason: "文字エンコーディングの設定は他のハンドラがリクエストパラメータを読む前に完了している必要がある。最外殻に配置"
+
+  - handler: HttpResponseHandler
+    fqcn: "nablarch.fw.web.handler.HttpResponseHandler"
+    rule: relative_order
+    must_after:
+      - GlobalErrorHandler
+    must_before:
+      - SecureHandler
+    required_by_app_type:
+      - web
+      - http-messaging
+    reason: "GlobalErrorHandlerの内側に配置し、エラー発生時のレスポンス構築も担当する。SecureHandlerより外側でレスポンスヘッダーを最終確定する"
+
+  - handler: SecureHandler
+    fqcn: "nablarch.fw.web.handler.SecureHandler"
+    rule: relative_order
+    must_after:
+      - HttpResponseHandler
+    required_by_app_type:
+      - web
+    reason: "セキュリティヘッダー（Content-Security-Policy, X-Frame-Options等）はレスポンス構築後に付加する"
+
+  - handler: SessionStoreHandler
+    fqcn: "nablarch.common.web.session.SessionStoreHandler"
+    rule: relative_order
+    must_before:
+      - DbConnectionManagementHandler
+    required_by_app_type:
+      - web
+    reason: "セッション管理はDB接続と独立して動作する場合がある（HIDDENストア等）。DB接続障害時もセッション情報にアクセスできるようにする"
+
+  - handler: MultipartHandler
+    fqcn: "nablarch.fw.web.handler.multipart.MultipartHandler"
+    rule: relative_order
+    must_before:
+      - SessionStoreHandler
+    reason: "マルチパートリクエストのパースはセッション管理やバリデーションの前に完了している必要がある"
+
+  - handler: NormalizationHandler
+    fqcn: "nablarch.fw.web.handler.NormalizationHandler"
+    rule: relative_order
+    must_before:
+      - DbConnectionManagementHandler
+    must_after:
+      - SessionStoreHandler
+    reason: "リクエストパラメータの正規化はバリデーションやDB操作の前に行う必要がある"
+
+  - handler: ForwardingHandler
+    fqcn: "nablarch.fw.web.handler.ForwardingHandler"
+    rule: conditional
+    reason: "内部フォワードが必要な場合のみ使用。セッション管理の後、DB接続管理の前に配置するのが一般的"
+
+  - handler: HttpAccessLogHandler
+    fqcn: "nablarch.fw.web.handler.HttpAccessLogHandler"
+    rule: relative_order
+    must_after:
+      - HttpResponseHandler
+    reason: "アクセスログにはレスポンス情報（ステータスコード等）を含めるため、HttpResponseHandlerの内側に配置"
+
+  # ===== REST系ハンドラ =====
+  - handler: JaxRsResponseHandler
+    fqcn: "nablarch.fw.jaxrs.JaxRsResponseHandler"
+    rule: relative_order
+    must_after:
+      - GlobalErrorHandler
+    required_by_app_type:
+      - rest
+    reason: "JAX-RSレスポンスの変換はGlobalErrorHandlerの内側で行う。例外発生時のエラーレスポンスもJSON形式に変換する"
+
+  - handler: StatusCodeConvertHandler
+    fqcn: "nablarch.fw.web.handler.StatusCodeConvertHandler"
+    rule: relative_order
+    must_after:
+      - JaxRsResponseHandler
+    required_by_app_type:
+      - rest
+    reason: "ステータスコード変換はJAX-RSレスポンス処理の後に行う"
+
+  # ===== バッチ系ハンドラ =====
+  - handler: DuplicateProcessCheckHandler
+    fqcn: "nablarch.fw.handler.DuplicateProcessCheckHandler"
+    rule: relative_order
+    must_after:
+      - GlobalErrorHandler
+    must_before:
+      - DbConnectionManagementHandler
+    reason: "多重起動チェックはDB接続の前に行い、不要なリソース確保を防ぐ"
+
+  - handler: MultiThreadExecutionHandler
+    fqcn: "nablarch.fw.handler.MultiThreadExecutionHandler"
+    rule: relative_order
+    must_after:
+      - DbConnectionManagementHandler
+      - TransactionManagementHandler
+    reason: "サブスレッドの生成はメインスレッドのDB接続/トランザクション確立後に行う。サブスレッドは独自のDB接続を持つ"
+
+  - handler: LoopHandler
+    fqcn: "nablarch.fw.handler.LoopHandler"
+    rule: relative_order
+    must_before:
+      - DataReadHandler
+    must_after:
+      - MultiThreadExecutionHandler
+    reason: "データの反復処理はマルチスレッド実行ハンドラの内側（サブスレッド内）で行う"
+
+  - handler: DataReadHandler
+    fqcn: "nablarch.fw.handler.DataReadHandler"
+    rule: must_be_inner
+    must_after:
+      - LoopHandler
+    reason: "データ読み取りはハンドラキューの最内殻に配置。LoopHandlerの内側でレコード単位の処理を行う"
+
+  - handler: RetryHandler
+    fqcn: "nablarch.fw.handler.RetryHandler"
+    rule: relative_order
+    must_before:
+      - LoopHandler
+    must_after:
+      - MultiThreadExecutionHandler
+    reason: "リトライはサブスレッド内でLoopHandlerの外側に配置。一時的な障害時にループ全体をリトライする"
+
+  - handler: ProcessStopHandler
+    fqcn: "nablarch.fw.handler.ProcessStopHandler"
+    rule: relative_order
+    must_before:
+      - RequestThreadLoopHandler
+    reason: "プロセス停止監視は常駐バッチのメインループの前に配置し、安全なシャットダウンを実現する"
+
+  - handler: RequestThreadLoopHandler
+    fqcn: "nablarch.fw.handler.RequestThreadLoopHandler"
+    rule: relative_order
+    must_before:
+      - MultiThreadExecutionHandler
+    required_by_app_type:
+      - messaging
+    reason: "メッセージ受信のメインループはマルチスレッド実行の前に配置。ループ内でサブスレッドを起動する"
+
+  # ===== ルーティング =====
+  - handler: PackageMapping
+    fqcn: "nablarch.integration.router.RoutesMapping"
+    rule: must_be_inner
+    required_by_app_type:
+      - web
+      - rest
+    reason: "リクエストルーティングはハンドラキューの最内殻に配置。全ハンドラを通過した後にアクションクラスにディスパッチする"
+
+  - handler: RequestPathJavaPackageMapping
+    fqcn: "nablarch.fw.handler.RequestPathJavaPackageMapping"
+    rule: must_be_inner
+    required_by_app_type:
+      - batch
+      - messaging
+      - jakarta-batch
+    reason: "リクエストパスによるクラス解決はハンドラキューの内側に配置。バッチ/メッセージングではメインスレッドの最後に配置"

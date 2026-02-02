@@ -1,0 +1,310 @@
+# Nablarch Module Catalog
+# Main modules (Maven artifacts) of the Nablarch framework.
+# Version: 1.0 (Phase 1 Knowledge Base)
+# Reference: https://github.com/nablarch
+
+modules:
+  # ===== Core =====
+  - name: nablarch-core
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core"
+    description: "Nablarchのコアモジュール。基本的なインターフェース・ユーティリティを提供"
+    category: core
+    key_classes:
+      - fqcn: "nablarch.fw.Handler"
+        description: "ハンドラインターフェース。全ハンドラの基底"
+      - fqcn: "nablarch.fw.ExecutionContext"
+        description: "実行コンテキスト。リクエストスコープ変数やハンドラキューを保持"
+      - fqcn: "nablarch.fw.Result"
+        description: "ハンドラの処理結果を表すクラス"
+    dependencies: []
+
+  - name: nablarch-core-repository
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-repository"
+    description: "DIコンテナ（システムリポジトリ）。XMLベースのコンポーネント定義とDI"
+    category: core
+    key_classes:
+      - fqcn: "nablarch.core.repository.SystemRepository"
+        description: "システムリポジトリ。コンポーネントの取得・設定値の取得"
+      - fqcn: "nablarch.core.repository.di.DiContainer"
+        description: "DIコンテナの実装クラス"
+    dependencies:
+      - nablarch-core
+
+  - name: nablarch-core-validation
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-validation"
+    description: "バリデーション機能。Bean ValidationおよびNablarch独自バリデーション"
+    category: core
+    key_classes:
+      - fqcn: "nablarch.core.validation.ee.Required"
+        description: "必須チェックアノテーション"
+      - fqcn: "nablarch.core.validation.ee.Length"
+        description: "文字列長チェックアノテーション"
+      - fqcn: "nablarch.core.validation.ee.NumberRange"
+        description: "数値範囲チェックアノテーション"
+      - fqcn: "nablarch.core.validation.ee.SystemChar"
+        description: "文字種チェックアノテーション"
+    dependencies:
+      - nablarch-core
+
+  - name: nablarch-core-message
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-message"
+    description: "メッセージ管理。エラーメッセージや業務メッセージの管理"
+    category: core
+    key_classes:
+      - fqcn: "nablarch.core.message.MessageUtil"
+        description: "メッセージ取得ユーティリティ"
+      - fqcn: "nablarch.core.message.ApplicationException"
+        description: "業務例外。バリデーションエラー等"
+    dependencies:
+      - nablarch-core
+
+  - name: nablarch-core-date
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-date"
+    description: "日付管理。業務日付・システム日付の取得"
+    category: core
+    key_classes:
+      - fqcn: "nablarch.core.date.BusinessDateUtil"
+        description: "業務日付取得ユーティリティ"
+      - fqcn: "nablarch.core.date.SystemTimeUtil"
+        description: "システム日時取得ユーティリティ"
+    dependencies:
+      - nablarch-core
+
+  # ===== Web =====
+  - name: nablarch-fw-web
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-web"
+    description: "Webアプリケーションフレームワーク。HTTPリクエスト/レスポンス処理、ハンドラキュー"
+    category: web
+    key_classes:
+      - fqcn: "nablarch.fw.web.HttpRequest"
+        description: "HTTPリクエスト"
+      - fqcn: "nablarch.fw.web.HttpResponse"
+        description: "HTTPレスポンス"
+      - fqcn: "nablarch.fw.web.handler.HttpCharacterEncodingHandler"
+        description: "文字エンコーディングハンドラ"
+      - fqcn: "nablarch.fw.web.handler.HttpResponseHandler"
+        description: "HTTPレスポンスハンドラ"
+      - fqcn: "nablarch.fw.web.handler.SecureHandler"
+        description: "セキュリティハンドラ"
+      - fqcn: "nablarch.fw.web.servlet.WebFrontController"
+        description: "Webフロントコントローラ（サーブレット）"
+    dependencies:
+      - nablarch-core
+      - nablarch-core-repository
+
+  - name: nablarch-fw-web-dbstore
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-web-dbstore"
+    description: "DBベースのセッションストア。セッション情報をデータベースに永続化"
+    category: web
+    key_classes:
+      - fqcn: "nablarch.common.web.session.SessionStoreHandler"
+        description: "セッションストアハンドラ"
+      - fqcn: "nablarch.common.web.session.SessionUtil"
+        description: "セッション操作ユーティリティ"
+    dependencies:
+      - nablarch-fw-web
+      - nablarch-common-jdbc
+
+  - name: nablarch-fw-jaxrs
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-jaxrs"
+    description: "JAX-RSサポート。RESTful Webサービスの構築"
+    category: web
+    key_classes:
+      - fqcn: "nablarch.fw.jaxrs.JaxRsResponseHandler"
+        description: "JAX-RSレスポンスハンドラ"
+      - fqcn: "nablarch.fw.jaxrs.BodyConvertHandler"
+        description: "リクエスト/レスポンスボディ変換ハンドラ"
+      - fqcn: "nablarch.fw.jaxrs.JaxRsHttpRequest"
+        description: "JAX-RS用HTTPリクエスト"
+    dependencies:
+      - nablarch-fw-web
+
+  # ===== Batch =====
+  - name: nablarch-fw-batch
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-batch"
+    description: "バッチアプリケーションフレームワーク。都度起動型・常駐型バッチの実行基盤"
+    category: batch
+    key_classes:
+      - fqcn: "nablarch.fw.action.BatchAction"
+        description: "バッチアクション基底クラス"
+      - fqcn: "nablarch.fw.handler.LoopHandler"
+        description: "データ反復処理ハンドラ"
+      - fqcn: "nablarch.fw.handler.MultiThreadExecutionHandler"
+        description: "マルチスレッド実行ハンドラ"
+      - fqcn: "nablarch.fw.handler.DataReadHandler"
+        description: "データ読み取りハンドラ"
+      - fqcn: "nablarch.fw.handler.ProcessResidentHandler"
+        description: "常駐バッチプロセスハンドラ"
+    dependencies:
+      - nablarch-core
+      - nablarch-core-repository
+
+  - name: nablarch-fw-batch-ee
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-batch-ee"
+    description: "Jakarta Batch（JSR 352）対応。jBatchランタイム上でNablarchバッチを実行"
+    category: batch
+    key_classes:
+      - fqcn: "nablarch.fw.batch.ee.listener.NablarchListenerExecutor"
+        description: "Nablarchリスナー実行制御"
+    dependencies:
+      - nablarch-fw-batch
+
+  # ===== Messaging =====
+  - name: nablarch-fw-messaging
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-messaging"
+    description: "メッセージングフレームワーク。MOM連携・テーブルキューイング"
+    category: messaging
+    key_classes:
+      - fqcn: "nablarch.fw.messaging.MessageSender"
+        description: "メッセージ送信クラス"
+      - fqcn: "nablarch.fw.messaging.SyncMessage"
+        description: "同期メッセージ"
+      - fqcn: "nablarch.fw.handler.RequestThreadLoopHandler"
+        description: "リクエストスレッドループハンドラ"
+    dependencies:
+      - nablarch-core
+      - nablarch-fw-batch
+
+  - name: nablarch-fw-messaging-http
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-messaging-http"
+    description: "HTTP同期メッセージング。HTTPリクエストをメッセージとして処理"
+    category: messaging
+    key_classes:
+      - fqcn: "nablarch.fw.messaging.handler.HttpMessagingRequestParsingHandler"
+        description: "HTTPメッセージングリクエストパースハンドラ"
+    dependencies:
+      - nablarch-fw-messaging
+      - nablarch-fw-web
+
+  # ===== Library =====
+  - name: nablarch-common-dao
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-dao"
+    description: "Universal DAO。エンティティクラスベースのデータベースアクセス"
+    category: library
+    key_classes:
+      - fqcn: "nablarch.common.dao.UniversalDao"
+        description: "汎用データアクセスオブジェクト。CRUD操作・SQLファイル検索"
+      - fqcn: "nablarch.common.dao.EntityList"
+        description: "エンティティリスト（ページネーション対応）"
+    dependencies:
+      - nablarch-common-jdbc
+
+  - name: nablarch-common-jdbc
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-jdbc"
+    description: "JDBC共通機能。DB接続管理・トランザクション管理"
+    category: library
+    key_classes:
+      - fqcn: "nablarch.common.handler.DbConnectionManagementHandler"
+        description: "DB接続管理ハンドラ"
+      - fqcn: "nablarch.common.handler.TransactionManagementHandler"
+        description: "トランザクション管理ハンドラ"
+    dependencies:
+      - nablarch-core
+
+  - name: nablarch-common-code
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-code"
+    description: "コード管理。マスタテーブルからのコード値管理"
+    category: library
+    key_classes:
+      - fqcn: "nablarch.common.code.CodeUtil"
+        description: "コード値取得ユーティリティ"
+      - fqcn: "nablarch.common.code.CodeManager"
+        description: "コードマネージャ（キャッシュ付き）"
+    dependencies:
+      - nablarch-core
+      - nablarch-common-jdbc
+
+  - name: nablarch-common-mail
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-mail"
+    description: "メール送信。テンプレートベースのメール送信機能"
+    category: library
+    key_classes:
+      - fqcn: "nablarch.common.mail.MailUtil"
+        description: "メール送信ユーティリティ"
+      - fqcn: "nablarch.common.mail.FreeTextMailContext"
+        description: "フリーテキストメールコンテキスト"
+      - fqcn: "nablarch.common.mail.TemplateMailContext"
+        description: "テンプレートメールコンテキスト"
+    dependencies:
+      - nablarch-core
+      - nablarch-common-jdbc
+
+  - name: nablarch-common-idgenerator
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-idgenerator"
+    description: "ID生成。採番テーブルベースのID発番機能"
+    category: library
+    key_classes:
+      - fqcn: "nablarch.common.idgenerator.IdGenerator"
+        description: "ID生成インターフェース"
+      - fqcn: "nablarch.common.idgenerator.TableIdGenerator"
+        description: "テーブルベースID生成実装"
+    dependencies:
+      - nablarch-core
+      - nablarch-common-jdbc
+
+  # ===== Testing =====
+  - name: nablarch-testing
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-testing"
+    description: "Nablarchテスティングフレームワーク。リクエスト単体テスト・Excelテストデータ"
+    category: testing
+    key_classes:
+      - fqcn: "nablarch.test.core.http.SimpleRestTestSupport"
+        description: "RESTリクエスト単体テストサポート"
+      - fqcn: "nablarch.test.core.db.DbAccessTestSupport"
+        description: "DBアクセステストサポート"
+      - fqcn: "nablarch.test.core.http.BasicHttpRequestTestTemplate"
+        description: "HTTP基本リクエストテストテンプレート"
+    dependencies:
+      - nablarch-core
+
+  # ===== Integration =====
+  - name: nablarch-router-adaptor
+    group_id: "com.nablarch.integration"
+    artifact_id: "nablarch-router-adaptor"
+    description: "ルーティングアダプタ。http-request-routerによるURLルーティング"
+    category: integration
+    key_classes:
+      - fqcn: "nablarch.integration.router.RoutesMapping"
+        description: "ルートマッピング（DispatchHandler）"
+    dependencies:
+      - nablarch-fw-web
+
+  - name: nablarch-web-thymeleaf-adaptor
+    group_id: "com.nablarch.integration"
+    artifact_id: "nablarch-web-thymeleaf-adaptor"
+    description: "Thymeleafテンプレートエンジンアダプタ。JSPの代替としてThymeleafを使用"
+    category: integration
+    key_classes:
+      - fqcn: "nablarch.integration.web.thymeleaf.ThymeleafResponseWriter"
+        description: "Thymeleafレスポンスライター"
+    dependencies:
+      - nablarch-fw-web
+
+  - name: nablarch-wmq-adaptor
+    group_id: "com.nablarch.integration"
+    artifact_id: "nablarch-wmq-adaptor"
+    description: "IBM MQアダプタ。WebSphere MQとの連携"
+    category: integration
+    key_classes:
+      - fqcn: "nablarch.integration.messaging.wmq.provider.WmqMessagingProvider"
+        description: "WebSphere MQメッセージングプロバイダ"
+    dependencies:
+      - nablarch-fw-messaging

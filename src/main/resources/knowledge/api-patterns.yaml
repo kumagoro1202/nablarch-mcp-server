@@ -1,73 +1,218 @@
 # Nablarch API Design Patterns
 # Common patterns and best practices for Nablarch development.
+# Version: 2.0 (Phase 1 Knowledge Base)
+# Reference: https://nablarch.github.io/docs/LATEST/doc/
 
 patterns:
+  # ===== Web =====
   - name: action-class
     category: web
-    description: "Standard action class pattern for handling HTTP requests"
+    description: "Webアプリケーションの標準アクションクラスパターン。HTTPリクエストを受け取り、ビジネスロジックを実行してレスポンスを返す"
+    fqcn: "nablarch.fw.web.HttpResponse"
+    related_patterns:
+      - inject-form-on-error
+      - form-validation
     example: |
       public class UserSearchAction {
           @InjectForm(form = UserSearchForm.class, prefix = "form")
           @OnError(type = ApplicationException.class, path = "/WEB-INF/view/user/search.jsp")
           public HttpResponse doSearch(HttpRequest request, ExecutionContext context) {
               UserSearchForm form = context.getRequestScopedVar("form");
-              // Business logic here
+              // ビジネスロジック
               return new HttpResponse("/WEB-INF/view/user/searchResult.jsp");
           }
       }
 
-  - name: form-validation
+  - name: inject-form-on-error
     category: web
-    description: "Form bean with validation annotations"
+    description: "InjectFormとOnErrorアノテーションの組み合わせパターン。バリデーションエラー時に元の画面に戻す"
+    fqcn: "nablarch.fw.web.interceptor.InjectForm"
+    related_patterns:
+      - action-class
+      - form-validation
     example: |
-      public class UserSearchForm {
-          @Required
-          @Length(max = 50)
-          private String userName;
+      @InjectForm(form = UserRegistrationForm.class, prefix = "form",
+                  initialize = "init")
+      @OnError(type = ApplicationException.class,
+               path = "/WEB-INF/view/user/registration.jsp")
+      public HttpResponse doRegister(HttpRequest request, ExecutionContext context) {
+          UserRegistrationForm form = context.getRequestScopedVar("form");
 
-          @NumberRange(min = 0, max = 150)
-          private String age;
+          // フォームからエンティティに変換
+          User user = new User();
+          BeanUtil.copy(form, user);
 
-          // getters and setters
+          UniversalDao.insert(user);
+          return new HttpResponse("redirect:///action/user/complete");
       }
 
-  - name: universal-dao
-    category: library
-    description: "Universal DAO for database access using entity classes"
+  - name: http-response-navigation
+    category: web
+    description: "HttpResponseを使った画面遷移パターン。JSPへのフォワードとリダイレクトの使い分け"
+    fqcn: "nablarch.fw.web.HttpResponse"
+    related_patterns:
+      - action-class
     example: |
-      // Search
-      EntityList<User> users = UniversalDao.findAllBySqlFile(User.class, "FIND_BY_NAME",
-          new Object[]{condition});
+      // フォワード（URLはそのまま）
+      return new HttpResponse("/WEB-INF/view/user/detail.jsp");
 
-      // Insert
-      UniversalDao.insert(user);
+      // リダイレクト（URLが変わる、POST-Redirect-GETパターン）
+      return new HttpResponse("redirect:///action/user/list");
 
-      // Update
-      UniversalDao.update(user);
+      // ステータスコード指定
+      return new HttpResponse(HttpResponse.Status.NOT_FOUND.getStatusCode());
 
-      // Delete
-      UniversalDao.delete(user);
-
-  - name: sql-file
-    category: library
-    description: "SQL file definition pattern (externalized SQL)"
+  - name: session-store-access
+    category: web
+    description: "SessionStoreを使ったセッション管理パターン。DBストアとHIDDENストアの使い分け"
+    fqcn: "nablarch.common.web.session.SessionUtil"
+    related_patterns:
+      - double-submit-prevention
     example: |
-      -- src/main/resources/com/example/entity/User.sql
-      FIND_BY_NAME =
-      SELECT
-          USER_ID,
-          USER_NAME,
-          EMAIL
-      FROM
-          USER_TABLE
-      WHERE
-          USER_NAME LIKE :%userName%
+      // セッションへの保存
+      SessionUtil.put(context, "user", userEntity);
 
+      // セッションからの取得
+      User user = SessionUtil.get(context, "user");
+
+      // セッションの削除
+      SessionUtil.delete(context, "user");
+
+      // セッションの無効化（ログアウト時）
+      SessionUtil.invalidate(context);
+
+  - name: double-submit-prevention
+    category: web
+    description: "二重送信防止パターン。トークンベースのCSRF・二重送信対策"
+    fqcn: "nablarch.common.web.token.TokenUtil"
+    related_patterns:
+      - session-store-access
+    example: |
+      // --- 入力画面表示時 ---
+      public HttpResponse doInput(HttpRequest request, ExecutionContext context) {
+          TokenUtil.setToken(context);  // トークン生成
+          return new HttpResponse("/WEB-INF/view/user/input.jsp");
+      }
+
+      // --- 確認画面からの登録処理 ---
+      @OnDoubleSubmission(path = "/WEB-INF/view/user/error.jsp")
+      public HttpResponse doRegister(HttpRequest request, ExecutionContext context) {
+          // トークン検証は@OnDoubleSubmissionが自動で行う
+          // ビジネスロジック
+          return new HttpResponse("redirect:///action/user/complete");
+      }
+
+  - name: file-download
+    category: web
+    description: "ファイルダウンロードパターン。StreamResponseを使ったファイル送信"
+    fqcn: "nablarch.fw.web.download.StreamResponse"
+    related_patterns:
+      - action-class
+    example: |
+      public HttpResponse doDownload(HttpRequest request, ExecutionContext context) {
+          String fileName = "report.csv";
+          File file = new File("/path/to/" + fileName);
+
+          StreamResponse response = new StreamResponse(file);
+          response.setContentType("text/csv; charset=UTF-8");
+          response.setContentDisposition(fileName);
+          return response;
+      }
+
+  # ===== REST =====
+  - name: rest-action
+    category: rest
+    description: "RESTfulリソースアクションパターン。JAX-RSアノテーションを使用したCRUD実装"
+    fqcn: "nablarch.fw.jaxrs.JaxRsHttpRequest"
+    related_patterns:
+      - universal-dao
+      - jaxrs-body-convert
+    example: |
+      @Produces(MediaType.APPLICATION_JSON)
+      @Consumes(MediaType.APPLICATION_JSON)
+      public class UsersAction {
+
+          @GET
+          public EntityList<UserResponse> findAll(HttpRequest request, ExecutionContext context) {
+              return UniversalDao.findAll(UserResponse.class);
+          }
+
+          @POST
+          @Valid
+          public HttpResponse create(HttpRequest request, ExecutionContext context) {
+              UserForm form = JaxRsHttpRequest.from(request).getRequest().readEntity(UserForm.class);
+              User user = BeanUtil.createAndCopy(User.class, form);
+              UniversalDao.insert(user);
+              return new HttpResponse(HttpResponse.Status.CREATED.getStatusCode());
+          }
+
+          @GET
+          @Path("/{userId}")
+          public UserResponse findById(HttpRequest request, ExecutionContext context) {
+              long userId = Long.parseLong(request.getParam("userId")[0]);
+              return UniversalDao.findById(UserResponse.class, userId);
+          }
+
+          @PUT
+          @Path("/{userId}")
+          @Valid
+          public HttpResponse update(HttpRequest request, ExecutionContext context) {
+              UserForm form = JaxRsHttpRequest.from(request).getRequest().readEntity(UserForm.class);
+              User user = BeanUtil.createAndCopy(User.class, form);
+              UniversalDao.update(user);
+              return new HttpResponse(HttpResponse.Status.OK.getStatusCode());
+          }
+
+          @DELETE
+          @Path("/{userId}")
+          public HttpResponse delete(HttpRequest request, ExecutionContext context) {
+              long userId = Long.parseLong(request.getParam("userId")[0]);
+              User user = UniversalDao.findById(User.class, userId);
+              UniversalDao.delete(user);
+              return new HttpResponse(HttpResponse.Status.NO_CONTENT.getStatusCode());
+          }
+      }
+
+  - name: jaxrs-body-convert
+    category: rest
+    description: "JAX-RSリクエスト/レスポンスボディの変換パターン。JacksonによるJSON変換"
+    fqcn: "nablarch.fw.jaxrs.BodyConvertHandler"
+    related_patterns:
+      - rest-action
+    example: |
+      // コンポーネント定義でBodyConverterを設定
+      // <component name="bodyConvertHandler"
+      //   class="nablarch.fw.jaxrs.BodyConvertHandler">
+      //   <property name="bodyConverters">
+      //     <list>
+      //       <component class="nablarch.integration.jaxrs.jackson.JacksonBodyConverter" />
+      //     </list>
+      //   </property>
+      // </component>
+
+      // Actionクラスでは自動変換
+      @Produces(MediaType.APPLICATION_JSON)
+      @Consumes(MediaType.APPLICATION_JSON)
+      public class ItemsAction {
+          @POST
+          @Valid
+          public ItemResponse create(HttpRequest request, ExecutionContext context) {
+              ItemForm form = JaxRsHttpRequest.from(request).getRequest().readEntity(ItemForm.class);
+              return new ItemResponse(item);
+          }
+      }
+
+  # ===== Batch =====
   - name: batch-action
     category: batch
-    description: "Standard batch action pattern with DataReader"
+    description: "標準バッチアクションパターン。DataReaderでデータを読み取り、handleメソッドでレコード単位に処理"
+    fqcn: "nablarch.fw.action.BatchAction"
+    related_patterns:
+      - sql-file
+      - universal-dao
     example: |
       public class UserImportAction extends BatchAction<SqlRow> {
+
           @Override
           public DataReader<SqlRow> createReader(ExecutionContext ctx) {
               return new DatabaseRecordReader()
@@ -76,28 +221,387 @@ patterns:
 
           @Override
           public Result handle(SqlRow inputData, ExecutionContext ctx) {
-              // Process each record
+              User user = new User();
+              user.setUserName(inputData.getString("USER_NAME"));
+              user.setEmail(inputData.getString("EMAIL"));
+              user.setStatus("1");
+
+              UniversalDao.insert(user);
+
+              inputData.put("STATUS", "PROCESSED");
+              getSqlPStatement("UPDATE_STATUS").executeUpdateByMap(inputData);
+
               return new Result.Success();
           }
       }
 
-  - name: rest-action
-    category: rest
-    description: "RESTful resource action pattern"
+  - name: resident-batch
+    category: batch
+    description: "常駐バッチパターン。ProcessResidentHandlerを使用してメッセージキューを定期的にポーリング"
+    fqcn: "nablarch.fw.handler.ProcessResidentHandler"
+    related_patterns:
+      - batch-action
     example: |
-      @Produces(MediaType.APPLICATION_JSON)
-      @Consumes(MediaType.APPLICATION_JSON)
-      public class UsersAction {
-          @GET
-          public EntityList<User> findAll(HttpRequest request, ExecutionContext context) {
-              return UniversalDao.findAll(User.class);
+      // 常駐バッチ用アクション
+      public class MailSendBatchAction extends BatchAction<SqlRow> {
+
+          @Override
+          public DataReader<SqlRow> createReader(ExecutionContext ctx) {
+              return new DatabaseRecordReader()
+                  .setStatement(getSqlPStatement("SELECT_UNSENT_MAIL"));
           }
 
-          @POST
-          @Valid
-          public HttpResponse create(HttpRequest request, ExecutionContext context) {
-              User user = JacksonBodyConverter.read(request, User.class);
-              UniversalDao.insert(user);
-              return new HttpResponse(HttpResponse.Status.CREATED.getStatusCode());
+          @Override
+          public Result handle(SqlRow inputData, ExecutionContext ctx) {
+              MailUtil.send(inputData);
+              return new Result.Success();
           }
+      }
+
+      // ハンドラキューにProcessResidentHandlerを追加
+      // <component class="nablarch.fw.handler.ProcessResidentHandler">
+      //   <property name="dataWatchInterval" value="5000" />
+      // </component>
+
+  # ===== Library =====
+  - name: universal-dao
+    category: library
+    description: "Universal DAOによるデータベースアクセスパターン。エンティティクラスを使ったCRUD操作"
+    fqcn: "nablarch.common.dao.UniversalDao"
+    related_patterns:
+      - sql-file
+      - entity-class
+    example: |
+      // 全件検索
+      EntityList<User> users = UniversalDao.findAll(User.class);
+
+      // 主キー検索
+      User user = UniversalDao.findById(User.class, userId);
+
+      // SQLファイルによる条件検索
+      Map<String, String> condition = new HashMap<>();
+      condition.put("userName", "%田中%");
+      EntityList<User> users = UniversalDao.findAllBySqlFile(
+          User.class, "FIND_BY_NAME", condition);
+
+      // 挿入
+      UniversalDao.insert(user);
+
+      // バッチ挿入
+      UniversalDao.batchInsert(userList);
+
+      // 更新
+      UniversalDao.update(user);
+
+      // 削除
+      UniversalDao.delete(user);
+
+  - name: sql-file
+    category: library
+    description: "外部SQLファイルパターン。SQLをJavaコードの外に定義し、名前で参照する"
+    fqcn: "nablarch.common.dao.UniversalDao"
+    related_patterns:
+      - universal-dao
+    example: |
+      -- src/main/resources/com/example/entity/User.sql
+
+      FIND_BY_NAME =
+      SELECT
+          USER_ID,
+          USER_NAME,
+          EMAIL,
+          STATUS
+      FROM
+          USER_TABLE
+      WHERE
+          USER_NAME LIKE :%userName%
+      AND
+          STATUS = :status
+
+      COUNT_BY_STATUS =
+      SELECT
+          COUNT(*) AS CNT
+      FROM
+          USER_TABLE
+      WHERE
+          STATUS = :status
+
+  - name: form-validation
+    category: library
+    description: "フォームバリデーションパターン。Bean ValidationアノテーションまたはNablarch独自バリデーション"
+    fqcn: "nablarch.core.validation.ee.Required"
+    related_patterns:
+      - action-class
+      - inject-form-on-error
+    example: |
+      // Bean Validation（Jakarta EE標準）
+      public class UserRegistrationForm implements Serializable {
+
+          @Required
+          @Length(max = 50)
+          private String userName;
+
+          @Required
+          @MailAddress
+          private String email;
+
+          @NumberRange(min = 0, max = 150)
+          private String age;
+
+          @Required
+          @SystemChar(charsetDef = "全角文字")
+          private String fullName;
+
+          // getter/setter
+      }
+
+  - name: system-repository
+    category: library
+    description: "SystemRepositoryによるコンポーネント取得パターン。DIコンテナからオブジェクトを取得する"
+    fqcn: "nablarch.core.repository.SystemRepository"
+    related_patterns:
+      - component-definition
+    example: |
+      // コンポーネントの取得（名前指定）
+      MailSender mailSender = SystemRepository.get("mailSender");
+
+      // 設定値の取得
+      String dbUrl = SystemRepository.getString("db.url");
+
+  - name: exclusive-control
+    category: library
+    description: "排他制御パターン。楽観ロック（バージョン番号）と悲観ロック（SELECT FOR UPDATE）"
+    fqcn: "nablarch.common.dao.UniversalDao"
+    related_patterns:
+      - universal-dao
+    example: |
+      // --- 楽観ロック（バージョン番号方式） ---
+      @Entity
+      @Table(name = "USER_TABLE")
+      public class User {
+          @Id
+          @Column(name = "USER_ID")
+          public Long userId;
+
+          @Version
+          @Column(name = "VERSION")
+          public Long version;
+      }
+
+      // 更新時にバージョン不一致で OptimisticLockException が発生
+      try {
+          UniversalDao.update(user);
+      } catch (OptimisticLockException e) {
+          throw new ApplicationException(
+              MessageUtil.createMessage(MessageLevel.ERROR, "errors.optimisticLock"));
+      }
+
+  - name: code-manager
+    category: library
+    description: "CodeManagerによるコード値管理パターン。マスタテーブルからコード値を取得・変換"
+    fqcn: "nablarch.common.code.CodeUtil"
+    related_patterns:
+      - system-repository
+    example: |
+      // コード値の名称取得
+      String statusName = CodeUtil.getName("C0001", "01");
+      // → "有効"
+
+      // コード値一覧の取得
+      List<String> values = CodeUtil.getValues("C0001");
+
+      // コード値の存在チェック
+      boolean exists = CodeUtil.contains("C0001", "01");
+
+  - name: message-sender
+    category: messaging
+    description: "MessageSenderによるMOMメッセージ送信パターン。外部システムへのメッセージ送受信"
+    fqcn: "nablarch.fw.messaging.MessageSender"
+    related_patterns:
+      - resident-batch
+    example: |
+      // 同期メッセージ送信
+      SyncMessage response = MessageSender.sendSync(
+          new SyncMessage("TARGET_QUEUE")
+              .addDataRecord(dataRecord));
+
+      // 応答データの取得
+      Map<String, Object> responseData = response.getDataRecord();
+
+  - name: mail-sender
+    category: library
+    description: "MailSenderによるメール送信パターン。テンプレートベースのメール送信"
+    fqcn: "nablarch.common.mail.MailUtil"
+    related_patterns:
+      - resident-batch
+    example: |
+      // メール送信リクエストの登録
+      MailRequester requester = MailUtil.getMailRequester();
+
+      FreeTextMailContext mail = new FreeTextMailContext();
+      mail.setSubject("登録完了のお知らせ");
+      mail.setMailBody("ユーザー登録が完了しました。");
+      mail.setFrom("system@example.com");
+      mail.addTo("user@example.com");
+      mail.setCharset("UTF-8");
+
+      requester.requestToSend(mail);
+
+      // テンプレートメール
+      TemplateMailContext templateMail = new TemplateMailContext();
+      templateMail.setTemplateId("MAIL_TEMPLATE_001");
+      templateMail.setLang("ja");
+      templateMail.addTo("user@example.com");
+      templateMail.setVariable("userName", "田中太郎");
+
+      requester.requestToSend(templateMail);
+
+  - name: numbering-util
+    category: library
+    description: "IDジェネレータによる採番パターン。シーケンス番号の発番"
+    fqcn: "nablarch.common.idgenerator.IdGenerator"
+    related_patterns:
+      - universal-dao
+    example: |
+      // 採番テーブルからIDを取得
+      String newId = IdGeneratorUtil.generateId("USER_ID_SEQ");
+
+  - name: date-util
+    category: library
+    description: "DateUtilによる日付操作パターン。業務日付の取得と操作"
+    fqcn: "nablarch.core.date.BusinessDateUtil"
+    related_patterns:
+      - system-repository
+    example: |
+      // 業務日付の取得（システム日付ではなく業務日付テーブルから）
+      String businessDate = BusinessDateUtil.getDate();
+      // → "20260202"
+
+      // セグメント指定の業務日付
+      String settlementDate = BusinessDateUtil.getDate("SETTLEMENT");
+
+  # ===== Testing =====
+  - name: request-unit-test
+    category: testing
+    description: "リクエスト単体テストパターン。HTTPリクエストをシミュレートしたアクションクラスのテスト"
+    fqcn: "nablarch.test.core.http.SimpleRestTestSupport"
+    related_patterns:
+      - action-class
+      - rest-action
+    example: |
+      public class UsersActionTest extends SimpleRestTestSupport {
+
+          @Test
+          public void testFindAll() {
+              HttpResponse response = sendRequest(
+                  get("/api/users"));
+              assertStatusCode("200", response);
+          }
+
+          @Test
+          public void testCreate() {
+              HttpResponse response = sendRequest(
+                  post("/api/users")
+                      .setBody("{\"userName\":\"田中\",\"email\":\"tanaka@example.com\"}"));
+              assertStatusCode("201", response);
+          }
+      }
+
+  - name: excel-test-data
+    category: testing
+    description: "Excelテストデータパターン。Nablarch Testing Frameworkでのテストデータ管理"
+    fqcn: "nablarch.test.core.db.DbAccessTestSupport"
+    related_patterns:
+      - request-unit-test
+    example: |
+      public class UserSearchActionTest extends DbAccessTestSupport {
+
+          @Test
+          public void testSearch() {
+              // Excelファイルからテストデータをセットアップ
+              // src/test/resources/com/example/action/UserSearchActionTest/testSearch.xlsx
+              execute("testSearch");
+          }
+      }
+
+  # ===== Config =====
+  - name: component-definition
+    category: config
+    description: "コンポーネント定義XMLパターン。Nablarch DIコンテナの設定"
+    fqcn: "nablarch.core.repository.di.DiContainer"
+    related_patterns:
+      - system-repository
+      - handler-queue-xml
+    example: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <component-configuration
+          xmlns="http://tis.co.jp/nablarch/component-configuration"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration">
+
+        <component name="mailSender"
+                   class="nablarch.common.mail.MailSender">
+          <property name="mailSessionConfig">
+            <component class="nablarch.common.mail.MailSessionConfig">
+              <property name="host" value="${mail.smtp.host}" />
+              <property name="port" value="${mail.smtp.port}" />
+            </component>
+          </property>
+        </component>
+
+        <config-file file="common.config" />
+        <config-file file="env.config" />
+      </component-configuration>
+
+  - name: handler-queue-xml
+    category: config
+    description: "ハンドラキューXML定義パターン。アプリケーションのハンドラキューをXMLで設定"
+    fqcn: "nablarch.fw.HandlerQueueManager"
+    related_patterns:
+      - component-definition
+    example: |
+      <component name="webFrontController"
+                 class="nablarch.fw.web.servlet.WebFrontController">
+        <property name="handlerQueue">
+          <list>
+            <component class="nablarch.fw.web.handler.HttpCharacterEncodingHandler">
+              <property name="defaultEncoding" value="UTF-8" />
+            </component>
+            <component class="nablarch.fw.handler.GlobalErrorHandler" />
+            <component class="nablarch.fw.web.handler.HttpResponseHandler" />
+            <component class="nablarch.fw.web.handler.SecureHandler" />
+            <component-ref name="sessionStoreHandler" />
+            <component-ref name="dbConnectionManagementHandler" />
+            <component-ref name="transactionManagementHandler" />
+            <component-ref name="packageMapping" />
+          </list>
+        </property>
+      </component>
+
+  - name: entity-class
+    category: library
+    description: "エンティティクラスパターン。JPAアノテーションを使用したテーブルマッピング"
+    fqcn: "nablarch.common.dao.EntityUtil"
+    related_patterns:
+      - universal-dao
+      - sql-file
+    example: |
+      @Entity
+      @Table(name = "USER_TABLE")
+      public class User {
+
+          @Id
+          @Column(name = "USER_ID", length = 10)
+          @GeneratedValue(strategy = GenerationType.AUTO)
+          public Long userId;
+
+          @Column(name = "USER_NAME", length = 50, nullable = false)
+          public String userName;
+
+          @Column(name = "EMAIL", length = 100, nullable = false)
+          public String email;
+
+          @Version
+          @Column(name = "VERSION")
+          public Long version;
       }
