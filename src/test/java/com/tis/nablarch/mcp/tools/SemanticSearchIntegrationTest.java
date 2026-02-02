@@ -1,6 +1,7 @@
 package com.tis.nablarch.mcp.tools;
 
 import com.tis.nablarch.mcp.TestConfig;
+import com.tis.nablarch.mcp.rag.ingestion.OfficialDocsIngester;
 import com.tis.nablarch.mcp.rag.rerank.Reranker;
 import com.tis.nablarch.mcp.rag.search.BM25SearchService;
 import com.tis.nablarch.mcp.rag.search.HybridSearchService;
@@ -53,6 +54,10 @@ class SemanticSearchIntegrationTest {
 
     @MockitoBean
     private Reranker reranker;
+
+    @MockitoBean
+    @SuppressWarnings("unused")
+    private OfficialDocsIngester officialDocsIngester;
 
     /**
      * テスト用の検索結果を生成する。
