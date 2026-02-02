@@ -1,0 +1,22 @@
+services:
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: nablarch-mcp-pgvector
+    environment:
+      POSTGRES_DB: nablarch_mcp
+      POSTGRES_USER: nablarch
+      POSTGRES_PASSWORD: nablarch_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgvector-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nablarch -d nablarch_mcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  pgvector-data:
