@@ -1,0 +1,250 @@
+# Nablarch Error Catalog
+# Common errors, causes, and solutions for Nablarch development.
+# Version: 1.0 (Phase 1 Knowledge Base)
+# Reference: https://nablarch.github.io/docs/LATEST/doc/
+
+errors:
+  # ===== Handler Queue Errors =====
+  - id: "ERR-001"
+    category: handler
+    error_message: "java.lang.ClassCastException: Cannot cast handler result"
+    cause: "ハンドラキューの順序が不正。前段のハンドラが返す型と後段のハンドラが期待する型が一致しない"
+    solution: |
+      1. ハンドラキューの順序を確認する
+      2. handler-catalog.yaml の推奨順序に従って並べ替える
+      3. 特に DbConnectionManagementHandler → TransactionManagementHandler の順序を確認
+    related_handlers:
+      - DbConnectionManagementHandler
+      - TransactionManagementHandler
+    severity: critical
+
+  - id: "ERR-002"
+    category: handler
+    error_message: "nablarch.fw.NoMoreHandlerException: handler queue is empty"
+    cause: "ハンドラキューにディスパッチャ（PackageMapping/RoutesMapping）が設定されていないか、アクションクラスが見つからない"
+    solution: |
+      1. ハンドラキューの最後にPackageMappingまたはRoutesMappingが設定されているか確認
+      2. アクションクラスのパッケージがマッピング設定と一致しているか確認
+      3. URLパターンとアクションクラスのマッピングを確認
+    related_handlers:
+      - PackageMapping
+      - RequestPathJavaPackageMapping
+    severity: critical
+
+  - id: "ERR-003"
+    category: handler
+    error_message: "Handler queue is not properly configured for application type"
+    cause: "アプリケーションタイプに必要なハンドラが不足している。例：バッチにLoopHandlerがない"
+    solution: |
+      1. handler-catalog.yaml でアプリケーションタイプの推奨ハンドラキューを確認
+      2. required: true のハンドラが全て含まれているか確認
+      3. 特にGlobalErrorHandler、DbConnectionManagementHandler、TransactionManagementHandlerは必須
+    severity: critical
+
+  # ===== Database Errors =====
+  - id: "ERR-004"
+    category: database
+    error_message: "java.sql.SQLException: Connection is not available"
+    cause: "DbConnectionManagementHandlerが設定されていないか、データソースの設定が不正"
+    solution: |
+      1. ハンドラキューにDbConnectionManagementHandlerが含まれているか確認
+      2. コンポーネント定義のデータソース設定を確認:
+         - JDBCのURL、ユーザー名、パスワードが正しいか
+         - データベースが起動しているか
+         - コネクションプールの設定が適切か
+      3. env.config のDB接続設定を確認
+    related_handlers:
+      - DbConnectionManagementHandler
+    related_modules:
+      - nablarch-common-jdbc
+    severity: critical
+
+  - id: "ERR-005"
+    category: database
+    error_message: "nablarch.common.dao.NoDataException"
+    cause: "UniversalDao.findByIdで指定した主キーに該当するレコードが存在しない"
+    solution: |
+      1. 検索条件（主キー値）が正しいか確認
+      2. findByIdの代わりにfindAllBySqlFileで存在チェックを行う
+      3. try-catchでNoDataExceptionをハンドリングし、適切なエラーメッセージを返す:
+         try {
+             User user = UniversalDao.findById(User.class, userId);
+         } catch (NoDataException e) {
+             throw new HttpErrorResponse(404);
+         }
+    related_modules:
+      - nablarch-common-dao
+    severity: error
+
+  - id: "ERR-006"
+    category: database
+    error_message: "javax.persistence.OptimisticLockException"
+    cause: "楽観ロックの競合。他のトランザクションが先にレコードを更新し、バージョン番号が不一致"
+    solution: |
+      1. エンティティに@Versionアノテーションが正しく設定されているか確認
+      2. 更新前にfindByIdで最新のエンティティを取得しているか確認
+      3. OptimisticLockExceptionをcatchし、ユーザーに再取得を促すメッセージを表示:
+         catch (OptimisticLockException e) {
+             throw new ApplicationException(
+                 MessageUtil.createMessage(MessageLevel.ERROR, "errors.optimisticLock"));
+         }
+    related_modules:
+      - nablarch-common-dao
+    severity: error
+
+  - id: "ERR-007"
+    category: database
+    error_message: "SQL file not found: ENTITY_NAME#SQL_ID"
+    cause: "SQLファイルが所定のパスに存在しないか、SQL_IDが不正"
+    solution: |
+      1. SQLファイルの配置パスを確認: src/main/resources/<エンティティのFQCN>.sql
+         例: com.example.entity.User → src/main/resources/com/example/entity/User.sql
+      2. SQLファイル内のSQL_IDが正しいか確認（大文字小文字を区別）
+      3. SQL_IDの記法: 「SQL_ID =」で始まり、次のSQL_IDまたはファイル末尾まで
+    related_modules:
+      - nablarch-common-dao
+    severity: error
+
+  # ===== Validation Errors =====
+  - id: "ERR-008"
+    category: validation
+    error_message: "nablarch.core.message.ApplicationException: validation error"
+    cause: "フォームバリデーションエラー。@Required、@Length等のバリデーションに失敗"
+    solution: |
+      1. フォームクラスのバリデーションアノテーションを確認
+      2. @OnErrorでエラー遷移先を指定しているか確認
+      3. JSPでバリデーションエラーメッセージを表示する設定を確認:
+         <n:errors filter="all" />
+      4. メッセージ定義ファイルにエラーメッセージが定義されているか確認
+    related_modules:
+      - nablarch-core-validation
+    severity: warning
+
+  - id: "ERR-009"
+    category: validation
+    error_message: "java.lang.IllegalArgumentException: charset definition not found"
+    cause: "@SystemCharアノテーションで指定した文字種定義が見つからない"
+    solution: |
+      1. コンポーネント定義でcharsetDefMapが設定されているか確認
+      2. @SystemChar(charsetDef = "xxx") の "xxx" がcharsetDefMapに定義されているか確認
+      3. 設定例:
+         <component name="charsetDefMap" class="...">
+           <property name="charsetDef">
+             <map>
+               <entry key="全角文字" value="..." />
+               <entry key="半角英数" value="..." />
+             </map>
+           </property>
+         </component>
+    related_modules:
+      - nablarch-core-validation
+    severity: error
+
+  # ===== Configuration Errors =====
+  - id: "ERR-010"
+    category: config
+    error_message: "nablarch.core.repository.di.ComponentCreationException"
+    cause: "コンポーネント定義XMLのパースエラーまたはコンポーネントのインスタンス化に失敗"
+    solution: |
+      1. XMLの構文エラーがないか確認（閉じタグ、属性値のクォート等）
+      2. classで指定したFQCNが正しいか（クラスパスに存在するか）
+      3. propertyの名前がJavaBeanの命名規約に従っているか
+      4. 循環参照がないか確認
+      5. 必須プロパティが設定されているか確認
+    severity: critical
+
+  - id: "ERR-011"
+    category: config
+    error_message: "Component not found: [component-name]"
+    cause: "SystemRepository.getで指定したコンポーネント名が定義されていない"
+    solution: |
+      1. コンポーネント定義XMLでname属性が正しく設定されているか確認
+      2. コンポーネント定義XMLが読み込まれているか確認（web.xmlのcontext-param）
+      3. import先のXMLファイルが正しいパスで指定されているか確認
+      4. 設定値の場合: config-file要素でプロパティファイルが読み込まれているか確認
+    related_modules:
+      - nablarch-core-repository
+    severity: critical
+
+  - id: "ERR-012"
+    category: config
+    error_message: "web.xml: No listener class found / Filter initialization failed"
+    cause: "web.xmlのリスナーまたはフィルタ設定が不正"
+    solution: |
+      1. web.xmlのlistener-class/filter-classが正しいFQCNか確認:
+         - リスナー: nablarch.fw.web.servlet.NablarchServletContextListener
+         - フィルタ: nablarch.fw.web.servlet.RepositoryBasedWebFrontController
+      2. コンポーネント定義XMLのパスがcontext-paramで正しく指定されているか確認:
+         <context-param>
+           <param-name>di.config</param-name>
+           <param-value>web-boot.xml</param-value>
+         </context-param>
+    severity: critical
+
+  # ===== Batch Errors =====
+  - id: "ERR-013"
+    category: batch
+    error_message: "nablarch.fw.handler.DuplicateProcessException"
+    cause: "同一バッチプロセスが既に実行中。DuplicateProcessCheckHandlerによる多重起動検知"
+    solution: |
+      1. 同一バッチが既に実行中でないか確認（プロセス一覧）
+      2. 前回の実行が異常終了してロックが残っている場合、プロセス管理テーブルをクリアする
+      3. DuplicateProcessCheckHandlerを使用しない場合はハンドラキューから削除
+    related_handlers:
+      - DuplicateProcessCheckHandler
+    severity: error
+
+  - id: "ERR-014"
+    category: batch
+    error_message: "DataReader returned null / No data to process"
+    cause: "バッチアクションのcreateReaderが返すDataReaderからデータが取得できない"
+    solution: |
+      1. DataReaderのSQLが正しいか確認
+      2. 処理対象データが存在するか確認（ステータス条件等）
+      3. DatabaseRecordReaderのsetStatementでSQLステートメント名が正しいか確認
+      4. これはエラーではなく正常な「処理対象なし」の場合もある
+    related_handlers:
+      - DataReadHandler
+    related_modules:
+      - nablarch-fw-batch
+    severity: warning
+
+  # ===== General Errors =====
+  - id: "ERR-015"
+    category: general
+    error_message: "java.lang.IllegalStateException: ThreadContext has not been set"
+    cause: "ThreadContextHandlerが設定されていないか、設定される前にスレッドコンテキストにアクセスしている"
+    solution: |
+      1. ハンドラキューにThreadContextHandlerが含まれているか確認
+      2. ThreadContextHandlerの位置がDbConnectionManagementHandlerの前にあるか確認
+      3. ThreadContextClearHandlerも併せて設定されているか確認
+    related_handlers:
+      - ThreadContextHandler
+      - ThreadContextClearHandler
+    severity: error
+
+  - id: "ERR-016"
+    category: general
+    error_message: "nablarch.fw.web.HttpErrorResponse: HTTP 404"
+    cause: "リクエストに対応するアクションクラスまたはリソースが見つからない"
+    solution: |
+      1. URLとアクションクラスのマッピングを確認
+      2. RoutesMapping（routes.xml）のルート定義を確認
+      3. アクションクラスのパッケージ名が正しいか確認
+      4. RequestPathJavaPackageMappingの場合、ベースパッケージの設定を確認
+    related_handlers:
+      - PackageMapping
+      - RequestPathJavaPackageMapping
+    severity: warning
+
+  - id: "ERR-017"
+    category: general
+    error_message: "java.lang.NoClassDefFoundError: nablarch/..."
+    cause: "必要なNablarchモジュールがクラスパスに含まれていない"
+    solution: |
+      1. build.gradleまたはpom.xmlに必要なNablarchモジュールが依存関係として含まれているか確認
+      2. module-catalog.yamlでモジュール名とartifactIdを確認
+      3. Nablarchのバージョンが統一されているか確認（BOM使用推奨）
+      4. 依存関係の例:
+         implementation("com.nablarch.framework:nablarch-fw-web:6u3")
+    severity: critical
