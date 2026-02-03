@@ -107,6 +107,20 @@
             <version>1.18.3</version>
         </dependency>
 
+        <!-- Phase 2.5: Local ONNX Embedding Models (BGE-M3, CodeSage) -->
+        <!-- ONNX Runtime for CPU inference -->
+        <dependency>
+            <groupId>com.microsoft.onnxruntime</groupId>
+            <artifactId>onnxruntime</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+        <!-- DJL HuggingFace Tokenizer for text preprocessing -->
+        <dependency>
+            <groupId>ai.djl.huggingface</groupId>
+            <artifactId>tokenizers</artifactId>
+            <version>0.31.1</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

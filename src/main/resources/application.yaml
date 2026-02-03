@@ -36,6 +36,25 @@ nablarch:
     knowledge:
       base-path: classpath:knowledge/
     embedding:
+      # 使用するプロバイダ: local（推奨・無償）または api（従量課金）
+      provider: local
+      # ローカルONNXモデル設定（provider: local の場合に使用）
+      local:
+        document:
+          model-name: BAAI/bge-m3
+          model-path: ${EMBEDDING_MODEL_PATH:/opt/models/bge-m3}/model.onnx
+          tokenizer-path: ${EMBEDDING_MODEL_PATH:/opt/models/bge-m3}
+          dimensions: 1024
+          max-tokens: 512
+          batch-size: 32
+        code:
+          model-name: codesage/codesage-small-v2
+          model-path: ${EMBEDDING_MODEL_PATH:/opt/models/codesage-small-v2}/model.onnx
+          tokenizer-path: ${EMBEDDING_MODEL_PATH:/opt/models/codesage-small-v2}
+          dimensions: 1024
+          max-tokens: 512
+          batch-size: 32
+      # API設定（provider: api の場合に使用）
       jina:
         api-key: ${JINA_API_KEY:}
         model: jina-embeddings-v4

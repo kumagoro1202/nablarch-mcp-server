@@ -3,6 +3,8 @@ package com.tis.nablarch.mcp.embedding;
 import com.tis.nablarch.mcp.embedding.config.EmbeddingProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -18,8 +20,14 @@ import java.util.stream.Collectors;
  *
  * <p>ドキュメント用Embeddingモデル。3.8Bパラメータ、89言語対応、32Kコンテキスト。
  * OpenAI互換のHTTP APIを呼び出し、1024次元のベクトルを生成する。</p>
+ *
+ * <h3>有効化条件</h3>
+ * <p>{@code nablarch.mcp.embedding.provider=api} の場合に有効化される。
+ * ローカルモデル（BGE-M3）への移行により、通常はlocalを推奨する。</p>
  */
 @Component
+@Qualifier("document")
+@ConditionalOnProperty(name = "nablarch.mcp.embedding.provider", havingValue = "api")
 public class JinaEmbeddingClient implements EmbeddingClient {
 
     private static final Logger logger = LoggerFactory.getLogger(JinaEmbeddingClient.class);
