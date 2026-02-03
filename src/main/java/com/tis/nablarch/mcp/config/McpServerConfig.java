@@ -6,8 +6,15 @@ import com.tis.nablarch.mcp.prompts.ExplainHandlerPrompt;
 import com.tis.nablarch.mcp.prompts.MigrationGuidePrompt;
 import com.tis.nablarch.mcp.prompts.ReviewConfigPrompt;
 import com.tis.nablarch.mcp.prompts.SetupHandlerQueuePrompt;
+import com.tis.nablarch.mcp.resources.AntipatternResourceProvider;
+import com.tis.nablarch.mcp.resources.ApiResourceProvider;
+import com.tis.nablarch.mcp.resources.ConfigResourceProvider;
+import com.tis.nablarch.mcp.resources.ExampleResourceProvider;
 import com.tis.nablarch.mcp.resources.GuideResourceProvider;
 import com.tis.nablarch.mcp.resources.HandlerResourceProvider;
+import com.tis.nablarch.mcp.resources.PatternResourceProvider;
+import com.tis.nablarch.mcp.resources.VersionResourceProvider;
+import com.tis.nablarch.mcp.tools.DesignHandlerQueueTool;
 import com.tis.nablarch.mcp.tools.SearchApiTool;
 import com.tis.nablarch.mcp.tools.SemanticSearchTool;
 import com.tis.nablarch.mcp.tools.ValidateHandlerQueueTool;
@@ -18,6 +25,7 @@ import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -25,94 +33,190 @@ import java.util.function.Function;
 /**
  * MCPサーバ構成クラス。
  *
- * <p>MCPツール、リソース、プロンプトをサーバに登録する。
- * Phase 1ではSTIOトランスポートを使用する。</p>
+ * <p>MCPツール、リソース、プロンプトをサーバに登録する。</p>
  */
 @Configuration
 public class McpServerConfig {
 
     /**
-     * Registers MCP tools as Spring AI tool callbacks.
-     *
-     * @param searchApiTool             the API search tool
-     * @param validateHandlerQueueTool  the handler queue validation tool
-     * @return tool callback provider for MCP server auto-configuration
+     * MCPツールをSpring AIツールコールバックとして登録する。
      */
     @Bean
     public ToolCallbackProvider nablarchTools(
             SearchApiTool searchApiTool,
             ValidateHandlerQueueTool validateHandlerQueueTool,
-            SemanticSearchTool semanticSearchTool) {
+            SemanticSearchTool semanticSearchTool,
+            DesignHandlerQueueTool designHandlerQueueTool) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(searchApiTool, validateHandlerQueueTool, semanticSearchTool)
+                .toolObjects(searchApiTool, validateHandlerQueueTool,
+                        semanticSearchTool, designHandlerQueueTool)
                 .build();
     }
 
     /**
-     * NablarchハンドラカタログおよびガイドのMCPリソースを登録する。
+     * NablarchのMCPリソースを登録する。
      *
-     * <p>6種のハンドラリソースと6種のガイドリソース（計12リソース）を登録する。</p>
-     *
-     * @param handlerProvider ハンドラリソースプロバイダ
-     * @param guideProvider ガイドリソースプロバイダ
-     * @return MCPサーバ自動構成用のリソース仕様リスト
+     * <p>Phase 1: handler (6) + guide (6) = 12リソース</p>
+     * <p>Phase 3: api + pattern + example + config + antipattern + version</p>
      */
     @Bean
     public List<McpServerFeatures.SyncResourceSpecification> nablarchResources(
             HandlerResourceProvider handlerProvider,
-            GuideResourceProvider guideProvider) {
-        return List.of(
-            createHandlerResourceSpec("web", "Nablarch Web Handler Catalog",
-                "Web application handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("rest", "Nablarch REST Handler Catalog",
-                "REST application handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("batch", "Nablarch Batch Handler Catalog",
-                "Batch application handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("messaging", "Nablarch Messaging Handler Catalog",
-                "Messaging application handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("http-messaging",
-                "Nablarch HTTP Messaging Handler Catalog",
-                "HTTP messaging handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("jakarta-batch",
-                "Nablarch Jakarta Batch Handler Catalog",
-                "Jakarta Batch handler specifications and ordering constraints",
-                handlerProvider),
-            createGuideResourceSpec("setup", "Nablarch Setup Guide",
-                "Nablarch project setup and configuration guide", guideProvider),
-            createGuideResourceSpec("testing", "Nablarch Testing Guide",
-                "Nablarch testing patterns and best practices guide", guideProvider),
-            createGuideResourceSpec("validation", "Nablarch Validation Guide",
-                "Nablarch validation patterns and design guide", guideProvider),
-            createGuideResourceSpec("database", "Nablarch Database Guide",
-                "Nablarch database access patterns and configuration guide",
-                guideProvider),
-            createGuideResourceSpec("handler-queue",
-                "Nablarch Handler Queue Guide",
-                "Nablarch handler queue architecture and configuration guide",
-                guideProvider),
-            createGuideResourceSpec("error-handling",
-                "Nablarch Error Handling Guide",
-                "Nablarch common errors and troubleshooting guide", guideProvider)
-        );
+            GuideResourceProvider guideProvider,
+            ApiResourceProvider apiProvider,
+            PatternResourceProvider patternProvider,
+            ExampleResourceProvider exampleProvider,
+            ConfigResourceProvider configProvider,
+            AntipatternResourceProvider antipatternProvider,
+            VersionResourceProvider versionProvider) {
+
+        List<McpServerFeatures.SyncResourceSpecification> resources = new ArrayList<>();
+
+        // Phase 1: handler (6)
+        resources.add(createHandlerResourceSpec("web", "Nablarch Web Handler Catalog",
+            "Webアプリケーション用ハンドラキュー仕様", handlerProvider));
+        resources.add(createHandlerResourceSpec("rest", "Nablarch REST Handler Catalog",
+            "RESTアプリケーション用ハンドラキュー仕様", handlerProvider));
+        resources.add(createHandlerResourceSpec("batch", "Nablarch Batch Handler Catalog",
+            "バッチアプリケーション用ハンドラキュー仕様", handlerProvider));
+        resources.add(createHandlerResourceSpec("messaging", "Nablarch Messaging Handler Catalog",
+            "メッセージングアプリケーション用ハンドラキュー仕様", handlerProvider));
+        resources.add(createHandlerResourceSpec("http-messaging",
+            "Nablarch HTTP Messaging Handler Catalog",
+            "HTTPメッセージング用ハンドラキュー仕様", handlerProvider));
+        resources.add(createHandlerResourceSpec("jakarta-batch",
+            "Nablarch Jakarta Batch Handler Catalog",
+            "Jakarta Batch用ハンドラキュー仕様", handlerProvider));
+
+        // Phase 1: guide (6)
+        resources.add(createGuideResourceSpec("setup", "Nablarch Setup Guide",
+            "Nablarchプロジェクト設定ガイド", guideProvider));
+        resources.add(createGuideResourceSpec("testing", "Nablarch Testing Guide",
+            "Nablarchテストパターンガイド", guideProvider));
+        resources.add(createGuideResourceSpec("validation", "Nablarch Validation Guide",
+            "Nablarchバリデーションガイド", guideProvider));
+        resources.add(createGuideResourceSpec("database", "Nablarch Database Guide",
+            "Nablarchデータベースアクセスガイド", guideProvider));
+        resources.add(createGuideResourceSpec("handler-queue", "Nablarch Handler Queue Guide",
+            "Nablarchハンドラキューガイド", guideProvider));
+        resources.add(createGuideResourceSpec("error-handling", "Nablarch Error Handling Guide",
+            "Nablarchエラーハンドリングガイド", guideProvider));
+
+        // Phase 3: api (モジュール一覧)
+        resources.add(new McpServerFeatures.SyncResourceSpecification(
+            new McpSchema.Resource("nablarch://api", "Nablarch API Module List",
+                "Nablarchモジュール一覧", "application/json", null),
+            (exchange, request) -> new McpSchema.ReadResourceResult(
+                List.of(new McpSchema.TextResourceContents(
+                    request.uri(), "application/json", apiProvider.getModuleList())))
+        ));
+
+        // Phase 3: pattern (一覧)
+        resources.add(new McpServerFeatures.SyncResourceSpecification(
+            new McpSchema.Resource("nablarch://pattern", "Nablarch Design Pattern Catalog",
+                "Nablarch設計パターンカタログ", "text/markdown", null),
+            (exchange, request) -> new McpSchema.ReadResourceResult(
+                List.of(new McpSchema.TextResourceContents(
+                    request.uri(), "text/markdown", patternProvider.getPatternList())))
+        ));
+
+        // Phase 3: example (一覧)
+        resources.add(new McpServerFeatures.SyncResourceSpecification(
+            new McpSchema.Resource("nablarch://example", "Nablarch Example Catalog",
+                "Nablarchサンプルアプリケーション一覧", "application/json", null),
+            (exchange, request) -> new McpSchema.ReadResourceResult(
+                List.of(new McpSchema.TextResourceContents(
+                    request.uri(), "application/json", exampleProvider.getExampleList())))
+        ));
+
+        // Phase 3: config (一覧)
+        resources.add(new McpServerFeatures.SyncResourceSpecification(
+            new McpSchema.Resource("nablarch://config", "Nablarch Config Template Catalog",
+                "Nablarch XML設定テンプレート一覧", "text/markdown", null),
+            (exchange, request) -> new McpSchema.ReadResourceResult(
+                List.of(new McpSchema.TextResourceContents(
+                    request.uri(), "text/markdown", configProvider.getTemplateList())))
+        ));
+
+        // Phase 3: antipattern (一覧)
+        resources.add(new McpServerFeatures.SyncResourceSpecification(
+            new McpSchema.Resource("nablarch://antipattern", "Nablarch Antipattern Catalog",
+                "Nablarchアンチパターンカタログ", "text/markdown", null),
+            (exchange, request) -> new McpSchema.ReadResourceResult(
+                List.of(new McpSchema.TextResourceContents(
+                    request.uri(), "text/markdown", antipatternProvider.getAntipatternList())))
+        ));
+
+        // Phase 3: version
+        resources.add(new McpServerFeatures.SyncResourceSpecification(
+            new McpSchema.Resource("nablarch://version", "Nablarch Version Info",
+                "Nablarchバージョン情報", "application/json", null),
+            (exchange, request) -> new McpSchema.ReadResourceResult(
+                List.of(new McpSchema.TextResourceContents(
+                    request.uri(), "application/json", versionProvider.getVersionInfo())))
+        ));
+
+        // 各リソースの個別エンドポイントを動的に登録
+        for (String moduleKey : apiProvider.getValidModuleKeys()) {
+            final String mk = moduleKey;
+            resources.add(new McpServerFeatures.SyncResourceSpecification(
+                new McpSchema.Resource("nablarch://api/" + moduleKey, "API: " + moduleKey,
+                    moduleKey + "モジュールのクラス一覧", "application/json", null),
+                (exchange, request) -> new McpSchema.ReadResourceResult(
+                    List.of(new McpSchema.TextResourceContents(
+                        request.uri(), "application/json", apiProvider.getClassList(mk))))
+            ));
+        }
+
+        for (String name : patternProvider.getValidPatternNames()) {
+            final String n = name;
+            resources.add(new McpServerFeatures.SyncResourceSpecification(
+                new McpSchema.Resource("nablarch://pattern/" + name, "Pattern: " + name,
+                    name + "パターン", "text/markdown", null),
+                (exchange, request) -> new McpSchema.ReadResourceResult(
+                    List.of(new McpSchema.TextResourceContents(
+                        request.uri(), "text/markdown", patternProvider.getPatternDetail(n))))
+            ));
+        }
+
+        for (String type : exampleProvider.getValidExampleTypes()) {
+            final String t = type;
+            resources.add(new McpServerFeatures.SyncResourceSpecification(
+                new McpSchema.Resource("nablarch://example/" + type, "Example: " + type,
+                    type + "サンプル", "application/json", null),
+                (exchange, request) -> new McpSchema.ReadResourceResult(
+                    List.of(new McpSchema.TextResourceContents(
+                        request.uri(), "application/json", exampleProvider.getExampleDetail(t))))
+            ));
+        }
+
+        for (String name : configProvider.getValidTemplateNames()) {
+            final String n = name;
+            resources.add(new McpServerFeatures.SyncResourceSpecification(
+                new McpSchema.Resource("nablarch://config/" + name, "Config: " + name,
+                    name + "設定テンプレート", "application/xml", null),
+                (exchange, request) -> new McpSchema.ReadResourceResult(
+                    List.of(new McpSchema.TextResourceContents(
+                        request.uri(), "application/xml", configProvider.getTemplate(n))))
+            ));
+        }
+
+        for (String name : antipatternProvider.getValidAntipatternNames()) {
+            final String n = name;
+            resources.add(new McpServerFeatures.SyncResourceSpecification(
+                new McpSchema.Resource("nablarch://antipattern/" + name, "Antipattern: " + name,
+                    name + "アンチパターン", "text/markdown", null),
+                (exchange, request) -> new McpSchema.ReadResourceResult(
+                    List.of(new McpSchema.TextResourceContents(
+                        request.uri(), "text/markdown", antipatternProvider.getAntipatternDetail(n))))
+            ));
+        }
+
+        return resources;
     }
 
     /**
      * Nablarch開発支援用のMCP Promptを登録する。
-     *
-     * <p>6種のPromptテンプレートを登録し、各Promptクラスに処理を委譲する。</p>
-     *
-     * @param setupHandlerQueuePrompt ハンドラキュー構成Prompt
-     * @param createActionPrompt アクションクラス生成Prompt
-     * @param reviewConfigPrompt XML設定レビューPrompt
-     * @param explainHandlerPrompt ハンドラ説明Prompt
-     * @param migrationGuidePrompt 移行ガイドPrompt
-     * @param bestPracticesPrompt ベストプラクティスPrompt
-     * @return MCP Server自動構成用のPrompt仕様リスト
      */
     @Bean
     public List<McpServerFeatures.SyncPromptSpecification> nablarchPrompts(
@@ -180,15 +284,6 @@ public class McpServerConfig {
         );
     }
 
-    /**
-     * Prompt仕様を生成するヘルパーメソッド。
-     *
-     * @param name Prompt名
-     * @param description Promptの説明
-     * @param arguments 引数定義のリスト
-     * @param handler 実行処理を担うPromptクラスのexecuteメソッド参照
-     * @return MCP Prompt仕様
-     */
     private static McpServerFeatures.SyncPromptSpecification promptSpec(
             String name, String description, List<McpSchema.PromptArgument> arguments,
             Function<Map<String, String>, McpSchema.GetPromptResult> handler) {
@@ -204,14 +299,6 @@ public class McpServerConfig {
         );
     }
 
-    /**
-     * Prompt引数定義を生成するヘルパーメソッド。
-     *
-     * @param name 引数名
-     * @param description 引数の説明
-     * @param required 必須フラグ
-     * @return MCP Prompt引数
-     */
     private static McpSchema.PromptArgument arg(String name, String description, boolean required) {
         return new McpSchema.PromptArgument(name, description, required);
     }
