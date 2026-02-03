@@ -10,6 +10,8 @@ import com.tis.nablarch.mcp.resources.GuideResourceProvider;
 import com.tis.nablarch.mcp.resources.HandlerResourceProvider;
 import com.tis.nablarch.mcp.tools.CodeGenerationTool;
 import com.tis.nablarch.mcp.tools.DesignHandlerQueueTool;
+import com.tis.nablarch.mcp.tools.OptimizeHandlerQueueTool;
+import com.tis.nablarch.mcp.tools.RecommendPatternTool;
 import com.tis.nablarch.mcp.tools.SearchApiTool;
 import com.tis.nablarch.mcp.tools.SemanticSearchTool;
 import com.tis.nablarch.mcp.tools.ValidateHandlerQueueTool;
@@ -35,22 +37,21 @@ public class McpServerConfig {
 
     /**
      * MCPツールをSpring AIツールコールバックとして登録する。
-     *
-     * @param searchApiTool             API検索ツール
-     * @param validateHandlerQueueTool  ハンドラキュー検証ツール
-     * @param semanticSearchTool        セマンティック検索ツール
-     * @param codeGenerationTool        コード生成ツール
-     * @return MCPサーバ自動構成用のツールコールバックプロバイダ
      */
     @Bean
     public ToolCallbackProvider nablarchTools(
             SearchApiTool searchApiTool,
             ValidateHandlerQueueTool validateHandlerQueueTool,
             SemanticSearchTool semanticSearchTool,
-            CodeGenerationTool codeGenerationTool) {
+            CodeGenerationTool codeGenerationTool,
+            DesignHandlerQueueTool designHandlerQueueTool,
+            RecommendPatternTool recommendPatternTool,
+            OptimizeHandlerQueueTool optimizeHandlerQueueTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(searchApiTool, validateHandlerQueueTool,
-                        semanticSearchTool, codeGenerationTool)
+                        semanticSearchTool, codeGenerationTool,
+                        designHandlerQueueTool, recommendPatternTool,
+                        optimizeHandlerQueueTool)
                 .build();
     }
 

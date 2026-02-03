@@ -346,6 +346,30 @@ public class NablarchKnowledgeBase {
         return Collections.unmodifiableSet(handlerCatalog.keySet());
     }
 
+    /**
+     * 全デザインパターンエントリを取得する。
+     *
+     * <p>RecommendPatternToolがパターン推薦のために使用する。</p>
+     *
+     * @return 全デザインパターンのリスト（変更不可）
+     */
+    public List<DesignPatternEntry> getAllDesignPatterns() {
+        return Collections.unmodifiableList(designPatterns);
+    }
+
+    /**
+     * 名前でデザインパターンエントリを取得する。
+     *
+     * @param name パターン名
+     * @return パターンエントリ、見つからない場合はnull
+     */
+    public DesignPatternEntry getDesignPatternEntry(String name) {
+        return designPatterns.stream()
+                .filter(d -> d.name.equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+    }
+
     // ========== 内部: YAMLロード ==========
 
     private <T> T loadYaml(String filename, TypeReference<T> typeRef) throws IOException {
