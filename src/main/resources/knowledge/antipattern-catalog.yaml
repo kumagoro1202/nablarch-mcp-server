@@ -1,0 +1,112 @@
+# Nablarch Antipattern Catalog
+# Nablarch開発でよく見られるアンチパターンと修正方法
+# Version: 1.0
+# WBS: 3.2.12 (subtask_072)
+
+antipatterns:
+  - name: action-instance-field
+    category: thread-safety
+    severity: critical
+    title: "アクションクラスのインスタンスフィールド"
+    description: "アクションクラスにインスタンスフィールドを定義するアンチパターン"
+    problem: |
+      Nablarchのアクションクラスはシングルトンスコープで管理される。
+      インスタンスフィールドを持つと、複数リクエスト間で値が共有され、
+      スレッドセーフティが破壊される。
+    bad_example: |
+      public class UserAction {
+          private String cachedValue;  // NG: インスタンスフィールド
+          public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+              cachedValue = req.getParam("name")[0];
+              return new HttpResponse("/result.jsp");
+          }
+      }
+    good_example: |
+      public class UserAction {
+          public HttpResponse handle(HttpRequest req, ExecutionContext ctx) {
+              String value = req.getParam("name")[0];  // OK: ローカル変数
+              ctx.setRequestScopedVar("name", value);
+              return new HttpResponse("/result.jsp");
+          }
+      }
+    fix_strategy: "インスタンスフィールドをローカル変数またはExecutionContextのリクエストスコープに移動する"
+    related_patterns:
+      - action-class-pattern
+    references:
+      - "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/nablarch/policy.html"
+
+  - name: direct-sql-execution
+    category: data-access
+    severity: warning
+    title: "直接SQL実行（UniversalDao未使用）"
+    description: "DbAccessSupportのsearch/update等を直接使用するアンチパターン"
+    problem: "UniversalDaoを使用せず、低レベルAPIで直接SQL操作を行うと保守性が低下する"
+    bad_example: "SqlResultSet result = search(\"SELECT_USERS\", condition);"
+    good_example: "List<User> result = UniversalDao.findAllBySqlFile(User.class, \"SELECT_USERS\", condition);"
+    fix_strategy: "DbAccessSupportからUniversalDaoへ移行する"
+    related_patterns:
+      - dao-pattern
+    references: []
+
+  - name: missing-transaction-handler
+    category: handler-queue
+    severity: critical
+    title: "トランザクションハンドラの欠落"
+    description: "ハンドラキューにTransactionManagementHandlerを含めずにDB操作を行うアンチパターン"
+    problem: "トランザクション管理なしのDB操作は、障害時のデータ不整合を引き起こす"
+    bad_example: "DbConnectionManagementHandlerのみでTransactionManagementHandlerなし"
+    good_example: "DbConnectionManagementHandler + TransactionManagementHandlerをセットで配置"
+    fix_strategy: "DbConnectionManagementHandlerの直後にTransactionManagementHandlerを追加する"
+    related_patterns:
+      - handler-queue-pattern
+    references: []
+
+  - name: handler-order-violation
+    category: handler-queue
+    severity: critical
+    title: "ハンドラ順序違反"
+    description: "ハンドラキューの順序制約に違反した構成"
+    problem: "ハンドラには厳密な順序制約があり、違反は実行時エラーを引き起こす"
+    bad_example: "TransactionManagementHandler → DbConnectionManagementHandler（順序逆）"
+    good_example: "DbConnectionManagementHandler → TransactionManagementHandler"
+    fix_strategy: "handler-catalog.yamlの順序制約を参照し、正しい順序でハンドラを配置する"
+    related_patterns:
+      - handler-queue-pattern
+    references: []
+
+  - name: form-entity-confusion
+    category: architecture
+    severity: warning
+    title: "FormとEntityの混同"
+    description: "入力フォームとDBエンティティを同一クラスで表現するアンチパターン"
+    problem: "FormとEntityは責務が異なる。混同すると変更に弱い設計になる"
+    bad_example: "@Entity public class User { @Required private String name; }"
+    good_example: "public class UserForm { @Required private String name; } @Entity public class User { private String name; }"
+    fix_strategy: "Formクラス（入力用）とEntityクラス（DB用）を分離する"
+    related_patterns:
+      - form-validation-pattern
+    references: []
+
+  - name: session-overuse
+    category: web
+    severity: warning
+    title: "セッションの過剰使用"
+    description: "本来リクエストスコープで十分なデータをセッションに格納するアンチパターン"
+    problem: "セッションにデータを過剰に格納すると、メモリ消費が増大する"
+    bad_example: "SessionUtil.put(ctx, \"searchResult\", largeList);"
+    good_example: "ctx.setRequestScopedVar(\"searchResult\", largeList);"
+    fix_strategy: "表示用データはリクエストスコープ、画面遷移に必要な最小限のみセッションに"
+    related_patterns: []
+    references: []
+
+  - name: exception-swallowing
+    category: error-handling
+    severity: critical
+    title: "例外の握りつぶし"
+    description: "例外をキャッチして何もせず握りつぶすアンチパターン"
+    problem: "例外を握りつぶすと、エラーの原因究明が困難になる"
+    bad_example: "try { ... } catch (Exception e) { /* 何もしない */ }"
+    good_example: "try { ... } catch (DuplicateKeyException e) { throw new ApplicationException(...); }"
+    fix_strategy: "想定内の例外は業務例外に変換、想定外は上位に伝播させる"
+    related_patterns: []
+    references: []

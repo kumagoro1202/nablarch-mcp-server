@@ -1,0 +1,114 @@
+# Nablarch Example Catalog
+# サンプルアプリケーションの構成・コードテンプレート
+# Version: 1.0
+# WBS: 3.2.10 (subtask_072)
+
+examples:
+  - type: rest-api
+    description: "NablarchによるRESTful API サンプル"
+    app_type: rest
+    reference_repo: "https://github.com/nablarch/nablarch-example-rest"
+    handler_queue_type: rest
+    key_patterns:
+      - "JAX-RSアノテーション（@Produces, @Consumes）"
+      - "UniversalDaoによるCRUD"
+      - "BeanValidationによる入力バリデーション"
+    files:
+      - path: "src/main/java/com/example/action/PersonAction.java"
+        language: java
+        description: "REST APIアクションクラス（CRUD操作）"
+        content: |
+          package com.example.action;
+
+          import jakarta.ws.rs.*;
+          import jakarta.ws.rs.core.MediaType;
+          import nablarch.common.dao.UniversalDao;
+          import nablarch.fw.web.HttpRequest;
+          import nablarch.fw.ExecutionContext;
+          import com.example.entity.Person;
+
+          @Path("/persons")
+          @Produces(MediaType.APPLICATION_JSON)
+          public class PersonAction {
+              @GET
+              public java.util.List<Person> findAll(HttpRequest req, ExecutionContext ctx) {
+                  return UniversalDao.findAll(Person.class);
+              }
+              @POST
+              public Person create(HttpRequest req, ExecutionContext ctx) {
+                  Person person = new Person();
+                  UniversalDao.insert(person);
+                  return person;
+              }
+          }
+      - path: "src/main/java/com/example/entity/Person.java"
+        language: java
+        description: "Entityクラス"
+        content: |
+          package com.example.entity;
+          import jakarta.persistence.*;
+          @Entity @Table(name = "PERSON")
+          public class Person {
+              @Id @Column(name = "PERSON_ID")
+              private Long personId;
+              @Column(name = "NAME")
+              private String name;
+          }
+
+  - type: web-crud
+    description: "Nablarch Webアプリケーション サンプル（CRUD画面）"
+    app_type: web
+    reference_repo: "https://github.com/nablarch/nablarch-example-web"
+    handler_queue_type: web
+    key_patterns:
+      - "JSPによる画面表示"
+      - "フォームバリデーション"
+    files:
+      - path: "src/main/java/com/example/action/UserAction.java"
+        language: java
+        description: "Webアクションクラス"
+        content: |
+          package com.example.action;
+          import nablarch.fw.web.*;
+          public class UserAction {
+              public HttpResponse list(HttpRequest req, nablarch.fw.ExecutionContext ctx) {
+                  return new HttpResponse("/WEB-INF/view/user/list.jsp");
+              }
+          }
+
+  - type: batch-db
+    description: "Nablarchバッチアプリケーション サンプル"
+    app_type: batch
+    reference_repo: "https://github.com/nablarch/nablarch-example-batch-ee"
+    handler_queue_type: batch
+    key_patterns:
+      - "DatabaseItemReaderによるDB読み込み"
+      - "チャンク処理"
+    files:
+      - path: "src/main/java/com/example/batch/ImportBatch.java"
+        language: java
+        description: "バッチ処理クラス"
+        content: |
+          package com.example.batch;
+          import jakarta.batch.api.chunk.*;
+          public class ImportBatchReader implements ItemReader {
+              public Object readItem() { return null; }
+          }
+
+  - type: messaging-mom
+    description: "Nablarchメッセージング サンプル"
+    app_type: messaging
+    reference_repo: "https://github.com/nablarch/nablarch-example-mom-testing-common"
+    handler_queue_type: messaging
+    key_patterns:
+      - "メッセージ受信ハンドラ"
+      - "非同期処理"
+    files:
+      - path: "src/main/java/com/example/action/MessageAction.java"
+        language: java
+        description: "メッセージ受信アクション"
+        content: |
+          package com.example.action;
+          public class MessageAction {
+              public void handle() {}
+          }

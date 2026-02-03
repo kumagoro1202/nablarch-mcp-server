@@ -69,15 +69,14 @@ public class DefaultCodeGenerator implements CodeGenerator {
         conventions.add("アクションクラスはシングルトン — インスタンスフィールド禁止");
 
         try {
-            List<NablarchKnowledgeBase.SearchResult> results =
-                    knowledgeBase.search("Nablarch " + type + " " + appType + " 規約", 3);
-            for (NablarchKnowledgeBase.SearchResult result : results) {
+            List<String> results =
+                    knowledgeBase.search("Nablarch " + type + " " + appType + " 規約", null);
+            for (String result : results) {
                 // 検索結果からコンテンツの先頭を抽出（規約として追加）
-                String snippet = result.content();
-                if (snippet != null && !snippet.isEmpty()) {
-                    String convention = snippet.length() > 100
-                            ? snippet.substring(0, 100) + "..."
-                            : snippet;
+                if (result != null && !result.isEmpty()) {
+                    String convention = result.length() > 100
+                            ? result.substring(0, 100) + "..."
+                            : result;
                     conventions.add(convention);
                 }
             }

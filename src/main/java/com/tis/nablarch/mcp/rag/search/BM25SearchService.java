@@ -159,7 +159,8 @@ public class BM25SearchService {
      * @return サニタイズ済みトークン
      */
     private String sanitizeToken(String token) {
-        return token.replaceAll("[&|!():<>'\"\\\\]", "").trim();
+        String result = token.replaceAll("<[^>]*>", "");
+        return result.replaceAll("[&|!():'\"\\\\]", "").trim();
     }
 
     /**
