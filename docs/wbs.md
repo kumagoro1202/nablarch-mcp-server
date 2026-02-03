@@ -2,7 +2,7 @@
 
 > **作成日**: 2026-02-02
 > **作成者**: ashigaru8（subtask_037 / cmd_023 Part3）
-> **ステータス**: Phase 1-2 完了 / Phase 3-4 計画段階
+> **ステータス**: Phase 1-2 完了 / Phase 3 進行中（70%）/ Phase 4 未着手
 > **根拠文書**: architecture.md, use-cases.md, overview.md, ADR-001
 
 ---
@@ -159,41 +159,41 @@
 | WBS番号 | タスク名 | 成果物 | 依存タスク | 並列可否 | 状態 |
 |---------|---------|--------|-----------|---------|------|
 | **3.1** | **設計** | | | | |
-| 3.1.1 | design_handler_queue Tool設計 | 詳細設計書（RAG連携フロー、ハンドラ順序制約ロジック、XML生成） | Phase 2完了 | — | 未着手 |
-| 3.1.2 | generate_code Tool設計 | 詳細設計書（コード生成テンプレート: action/form/sql/entity/handler/interceptor） | Phase 2完了 | ‖ 3.1.1 | 未着手 |
-| 3.1.3 | generate_test Tool設計 | 詳細設計書（Nablarchテストフレームワーク対応: JUnit5 + Excelテストデータ） | Phase 2完了 | ‖ 3.1.1 | 未着手 |
-| 3.1.4 | troubleshoot Tool設計 | 詳細設計書（エラーメッセージ解析、RAGからの解決策検索フロー） | Phase 2完了 | ‖ 3.1.1 | 未着手 |
-| 3.1.5 | analyze_migration Tool設計 | 詳細設計書（Nablarch 5→6移行パターンDB、コード解析ロジック） | Phase 2完了 | ‖ 3.1.1 | 未着手 |
-| 3.1.6 | recommend_pattern Tool設計 | 詳細設計書（パターンマッチングロジック、RAG検索+スコアリング） | Phase 2完了 | ‖ 3.1.1 | 未着手 |
-| 3.1.7 | optimize_handler_queue Tool設計 | 詳細設計書（XML解析、パフォーマンス/セキュリティ/正確性観点の最適化ルール） | Phase 2完了 | ‖ 3.1.1 | 未着手 |
-| 3.1.8 | 追加Resource URI設計（6種） | 6 Resource URI詳細設計（api/*, pattern/*, example/*, config/*, antipattern/*, version） | Phase 2完了 | ‖ 3.1.1 | 未着手 |
-| 3.1.9 | Streamable HTTPトランスポート設計 | Streamable HTTP設計書（エンドポイント `/mcp`、セッション管理、JSON-RPCマッピング） | Phase 2完了 | ‖ 3.1.1 | 未着手 |
+| 3.1.1 | design_handler_queue Tool設計 | 詳細設計書（RAG連携フロー、ハンドラ順序制約ロジック、XML生成） | Phase 2完了 | — | ✅完了 (PR #31) |
+| 3.1.2 | generate_code Tool設計 | 詳細設計書（コード生成テンプレート: action/form/sql/entity/handler/interceptor） | Phase 2完了 | ‖ 3.1.1 | ✅完了 (PR #29) |
+| 3.1.3 | generate_test Tool設計 | 詳細設計書（Nablarchテストフレームワーク対応: JUnit5 + Excelテストデータ） | Phase 2完了 | ‖ 3.1.1 | ✅完了 (PR #30) |
+| 3.1.4 | troubleshoot Tool設計 | 詳細設計書（エラーメッセージ解析、RAGからの解決策検索フロー） | Phase 2完了 | ‖ 3.1.1 | ✅完了 (PR #41) |
+| 3.1.5 | analyze_migration Tool設計 | 詳細設計書（Nablarch 5→6移行パターンDB、コード解析ロジック） | Phase 2完了 | ‖ 3.1.1 | ✅完了 (PR #41) |
+| 3.1.6 | recommend_pattern Tool設計 | 詳細設計書（パターンマッチングロジック、RAG検索+スコアリング） | Phase 2完了 | ‖ 3.1.1 | ✅完了 (PR #36) |
+| 3.1.7 | optimize_handler_queue Tool設計 | 詳細設計書（XML解析、パフォーマンス/セキュリティ/正確性観点の最適化ルール） | Phase 2完了 | ‖ 3.1.1 | ✅完了 (PR #36) |
+| 3.1.8 | 追加Resource URI設計（6種） | 6 Resource URI詳細設計（api/*, pattern/*, example/*, config/*, antipattern/*, version） | Phase 2完了 | ‖ 3.1.1 | ✅完了 (PR #32) |
+| 3.1.9 | Streamable HTTPトランスポート設計 | Streamable HTTP設計書（エンドポイント `/mcp`、セッション管理、JSON-RPCマッピング） | Phase 2完了 | ‖ 3.1.1 | ✅完了 (PR #34) |
 | **3.2** | **実装** | | | | |
-| **3.2.1** | **design_handler_queue Tool実装** | `DesignHandlerQueueTool.java`（RAG検索→ハンドラ順序制約適用→XML生成→制約検証）　UC1対応 | 3.1.1 | — | 未着手 |
-| **3.2.2** | **generate_code Tool実装** | `GenerateCodeTool.java`（RAG検索→テンプレート選択→コード生成: action/form/sql/entity/handler/interceptor）　UC3, UC12対応 | 3.1.2 | ‖ 3.2.1 | 未着手 |
-| 3.2.3 | generate_test Tool実装 | `GenerateTestTool.java`（RAG検索→テスト生成: JUnit5/Nablarch-Excel）　UC7対応 | 3.1.3 | ‖ 3.2.1 | 未着手 |
+| **3.2.1** | **design_handler_queue Tool実装** | `DesignHandlerQueueTool.java`（RAG検索→ハンドラ順序制約適用→XML生成→制約検証）　UC1対応 | 3.1.1 | — | ✅完了 (PR #38) |
+| **3.2.2** | **generate_code Tool実装** | `GenerateCodeTool.java`（RAG検索→テンプレート選択→コード生成: action/form/sql/entity/handler/interceptor）　UC3, UC12対応 | 3.1.2 | ‖ 3.2.1 | ✅完了 (PR #35) |
+| 3.2.3 | generate_test Tool実装 | `GenerateTestTool.java`（RAG検索→テスト生成: JUnit5/Nablarch-Excel）　UC7対応 | 3.1.3 | ‖ 3.2.1 | ❌ブロック中 |
 | 3.2.4 | troubleshoot Tool実装 | `TroubleshootTool.java`（エラー解析→RAG検索→解決策提示）　UC5対応 | 3.1.4 | ‖ 3.2.1 | 未着手 |
 | 3.2.5 | analyze_migration Tool実装 | `AnalyzeMigrationTool.java`（コード解析→5→6差分検出→修正提案）　UC9対応 | 3.1.5 | ‖ 3.2.1 | 未着手 |
-| 3.2.6 | recommend_pattern Tool実装 | `RecommendPatternTool.java`（要件解析→RAG検索→パターンスコアリング→推薦）　UC8対応 | 3.1.6 | ‖ 3.2.1 | 未着手 |
-| 3.2.7 | optimize_handler_queue Tool実装 | `OptimizeHandlerQueueTool.java`（XML解析→問題検出→最適化提案）　UC10対応 | 3.1.7 | ‖ 3.2.1 | 未着手 |
-| 3.2.8 | Resource実装: api/{module}/{class} | `ApiResourceProvider.java`（Javadoc構造化データ提供）　UC2対応 | 3.1.8, 2.2.8 | ‖ 3.2.1 | 未着手 |
-| 3.2.9 | Resource実装: pattern/{name} | `PatternResourceProvider.java`（デザインパターンカタログ提供）　UC8対応 | 3.1.8 | ‖ 3.2.8 | 未着手 |
-| 3.2.10 | Resource実装: example/{type} | `ExampleResourceProvider.java`（サンプルコード提供: rest-api/web-crud/batch-db/messaging-mom）　UC11, UC12対応 | 3.1.8 | ‖ 3.2.8 | 未着手 |
-| 3.2.11 | Resource実装: config/{name} | `ConfigResourceProvider.java`（XML設定テンプレート提供: web/rest/batch-component）　UC4対応 | 3.1.8 | ‖ 3.2.8 | 未着手 |
-| 3.2.12 | Resource実装: antipattern/{name} | `AntipatternResourceProvider.java`（アンチパターンと修正方法提供）　UC6対応 | 3.1.8 | ‖ 3.2.8 | 未着手 |
-| 3.2.13 | Resource実装: version | `VersionResourceProvider.java`（バージョン情報、対応プラットフォーム、モジュール一覧）　UC9対応 | 3.1.8 | ‖ 3.2.8 | 未着手 |
-| **3.2.14** | **Streamable HTTPトランスポート実装** | `StreamableHttpTransportConfig.java`（`/mcp` エンドポイント、セッション管理、SSEストリーミング） | 3.1.9 | ‖ 3.2.1 | 未着手 |
+| 3.2.6 | recommend_pattern Tool実装 | `RecommendPatternTool.java`（要件解析→RAG検索→パターンスコアリング→推薦）　UC8対応 | 3.1.6 | ‖ 3.2.1 | ✅完了 (PR #38) |
+| 3.2.7 | optimize_handler_queue Tool実装 | `OptimizeHandlerQueueTool.java`（XML解析→問題検出→最適化提案）　UC10対応 | 3.1.7 | ‖ 3.2.1 | ✅完了 (PR #38) |
+| 3.2.8 | Resource実装: api/{module}/{class} | `ApiResourceProvider.java`（Javadoc構造化データ提供）　UC2対応 | 3.1.8, 2.2.8 | ‖ 3.2.1 | ✅完了 (PR #38) |
+| 3.2.9 | Resource実装: pattern/{name} | `PatternResourceProvider.java`（デザインパターンカタログ提供）　UC8対応 | 3.1.8 | ‖ 3.2.8 | ✅完了 (PR #38) |
+| 3.2.10 | Resource実装: example/{type} | `ExampleResourceProvider.java`（サンプルコード提供: rest-api/web-crud/batch-db/messaging-mom）　UC11, UC12対応 | 3.1.8 | ‖ 3.2.8 | ✅完了 (PR #38) |
+| 3.2.11 | Resource実装: config/{name} | `ConfigResourceProvider.java`（XML設定テンプレート提供: web/rest/batch-component）　UC4対応 | 3.1.8 | ‖ 3.2.8 | ✅完了 (PR #38) |
+| 3.2.12 | Resource実装: antipattern/{name} | `AntipatternResourceProvider.java`（アンチパターンと修正方法提供）　UC6対応 | 3.1.8 | ‖ 3.2.8 | ✅完了 (PR #38) |
+| 3.2.13 | Resource実装: version | `VersionResourceProvider.java`（バージョン情報、対応プラットフォーム、モジュール一覧）　UC9対応 | 3.1.8 | ‖ 3.2.8 | ✅完了 (PR #38) |
+| **3.2.14** | **Streamable HTTPトランスポート実装** | `StreamableHttpTransportConfig.java`（`/mcp` エンドポイント、セッション管理、SSEストリーミング） | 3.1.9 | ‖ 3.2.1 | ✅完了 (PR #39) |
 | **3.3** | **テスト** | | | | |
-| 3.3.1 | ユニットテスト: design_handler_queue | `DesignHandlerQueueToolTest.java`（6アプリタイプ × 要件パターン） | 3.2.1 | — | 未着手 |
-| 3.3.2 | ユニットテスト: generate_code | `GenerateCodeToolTest.java`（6コードタイプ × 3アプリタイプ） | 3.2.2 | ‖ 3.3.1 | 未着手 |
-| 3.3.3 | ユニットテスト: generate_test | `GenerateTestToolTest.java`（4テストタイプ × 2フォーマット） | 3.2.3 | ‖ 3.3.1 | 未着手 |
-| 3.3.4 | ユニットテスト: troubleshoot | `TroubleshootToolTest.java`（代表的なNablarchエラーパターン） | 3.2.4 | ‖ 3.3.1 | 未着手 |
-| 3.3.5 | ユニットテスト: analyze_migration | `AnalyzeMigrationToolTest.java`（5→6移行パターン） | 3.2.5 | ‖ 3.3.1 | 未着手 |
-| 3.3.6 | ユニットテスト: recommend_pattern | `RecommendPatternToolTest.java`（パターン推薦ロジック） | 3.2.6 | ‖ 3.3.1 | 未着手 |
-| 3.3.7 | ユニットテスト: optimize_handler_queue | `OptimizeHandlerQueueToolTest.java`（3観点: performance/security/correctness） | 3.2.7 | ‖ 3.3.1 | 未着手 |
-| 3.3.8 | ユニットテスト: 追加Resources（6種） | 6 ResourceProviderテストクラス | 3.2.8〜3.2.13 | ‖ 3.3.1 | 未着手 |
+| 3.3.1 | ユニットテスト: design_handler_queue | `DesignHandlerQueueToolTest.java`（6アプリタイプ × 要件パターン） | 3.2.1 | — | ✅完了 (PR #38, 17件) |
+| 3.3.2 | ユニットテスト: generate_code | `GenerateCodeToolTest.java`（6コードタイプ × 3アプリタイプ） | 3.2.2 | ‖ 3.3.1 | ✅完了 (PR #40) |
+| 3.3.3 | ユニットテスト: generate_test | `GenerateTestToolTest.java`（4テストタイプ × 2フォーマット） | 3.2.3 | ‖ 3.3.1 | 未着手（3.2.3待ち） |
+| 3.3.4 | ユニットテスト: troubleshoot | `TroubleshootToolTest.java`（代表的なNablarchエラーパターン） | 3.2.4 | ‖ 3.3.1 | 未着手（3.2.4待ち） |
+| 3.3.5 | ユニットテスト: analyze_migration | `AnalyzeMigrationToolTest.java`（5→6移行パターン） | 3.2.5 | ‖ 3.3.1 | 未着手（3.2.5待ち） |
+| 3.3.6 | ユニットテスト: recommend_pattern | `RecommendPatternToolTest.java`（パターン推薦ロジック） | 3.2.6 | ‖ 3.3.1 | ✅完了 (PR #38, 22件) |
+| 3.3.7 | ユニットテスト: optimize_handler_queue | `OptimizeHandlerQueueToolTest.java`（3観点: performance/security/correctness） | 3.2.7 | ‖ 3.3.1 | ✅完了 (PR #38, 25件) |
+| 3.3.8 | ユニットテスト: 追加Resources（6種） | 6 ResourceProviderテストクラス | 3.2.8〜3.2.13 | ‖ 3.3.1 | ✅完了 (PR #42) |
 | **3.3.9** | **統合テスト: 全Tool E2E（MCP Inspector）** | 10 ToolのMCP Inspector経由E2Eテスト結果 | 3.2.1〜3.2.7, 3.3.1〜3.3.7 | — | 未着手 |
-| 3.3.10 | 統合テスト: Streamable HTTP | Streamable HTTPトランスポートテスト（リモート接続確認） | 3.2.14 | ‖ 3.3.9 | 未着手 |
+| 3.3.10 | 統合テスト: Streamable HTTP | Streamable HTTPトランスポートテスト（リモート接続確認） | 3.2.14 | ‖ 3.3.9 | ✅完了 (PR #42) |
 | **3.3.11** | **ユースケーステスト（全12 UC）** | 12ユースケースのシナリオテスト結果（use-cases.md記載のI/O例に基づく） | 3.3.9, 3.3.10 | — | 未着手 |
 | **3.4** | **ドキュメント** | | | | |
 | 3.4.1 | Tool API仕様書（全10 Tool） | `docs/api-spec.md` 更新（全Tool入出力スキーマ、使用例） | 3.3.9 | — | 未着手 |
@@ -616,9 +616,9 @@ graph LR
 |-------|----------|---------|--------|
 | Phase 1 | 28 | 28 | 100% |
 | Phase 2 | 34 | 34 | 100% |
-| Phase 3 | 0 | 37 | 0% |
+| Phase 3 | 26 | 37 | 70% |
 | Phase 4 | 0 | 28 | 0% |
-| **合計** | **62** | **127** | **49%** |
+| **合計** | **88** | **127** | **69%** |
 
 ### MCPプリミティブ対応表
 
