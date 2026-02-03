@@ -159,7 +159,9 @@ public class BM25SearchService {
      * @return サニタイズ済みトークン
      */
     private String sanitizeToken(String token) {
+        // まずジェネリック型パラメータ（<T>等）を除去
         String result = token.replaceAll("<[^>]*>", "");
+        // 次に特殊文字を除去（<と>は上で処理済みなので除外）
         return result.replaceAll("[&|!():'\"\\\\]", "").trim();
     }
 
