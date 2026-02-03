@@ -8,6 +8,8 @@ import com.tis.nablarch.mcp.prompts.ReviewConfigPrompt;
 import com.tis.nablarch.mcp.prompts.SetupHandlerQueuePrompt;
 import com.tis.nablarch.mcp.resources.GuideResourceProvider;
 import com.tis.nablarch.mcp.resources.HandlerResourceProvider;
+import com.tis.nablarch.mcp.tools.CodeGenerationTool;
+import com.tis.nablarch.mcp.tools.DesignHandlerQueueTool;
 import com.tis.nablarch.mcp.tools.SearchApiTool;
 import com.tis.nablarch.mcp.tools.SemanticSearchTool;
 import com.tis.nablarch.mcp.tools.ValidateHandlerQueueTool;
@@ -32,19 +34,23 @@ import java.util.function.Function;
 public class McpServerConfig {
 
     /**
-     * Registers MCP tools as Spring AI tool callbacks.
+     * MCPツールをSpring AIツールコールバックとして登録する。
      *
-     * @param searchApiTool             the API search tool
-     * @param validateHandlerQueueTool  the handler queue validation tool
-     * @return tool callback provider for MCP server auto-configuration
+     * @param searchApiTool             API検索ツール
+     * @param validateHandlerQueueTool  ハンドラキュー検証ツール
+     * @param semanticSearchTool        セマンティック検索ツール
+     * @param codeGenerationTool        コード生成ツール
+     * @return MCPサーバ自動構成用のツールコールバックプロバイダ
      */
     @Bean
     public ToolCallbackProvider nablarchTools(
             SearchApiTool searchApiTool,
             ValidateHandlerQueueTool validateHandlerQueueTool,
-            SemanticSearchTool semanticSearchTool) {
+            SemanticSearchTool semanticSearchTool,
+            CodeGenerationTool codeGenerationTool) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(searchApiTool, validateHandlerQueueTool, semanticSearchTool)
+                .toolObjects(searchApiTool, validateHandlerQueueTool,
+                        semanticSearchTool, codeGenerationTool)
                 .build();
     }
 
