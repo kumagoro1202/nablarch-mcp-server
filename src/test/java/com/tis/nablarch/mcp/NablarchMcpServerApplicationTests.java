@@ -8,11 +8,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Integration test for application context loading.
- *
- * <p>現在MCPトランスポートプロバイダがクラスパスにないため無効化。
- * Phase 2でHTTP/SSEトランスポートが追加されたら再有効化する。</p>
  */
-@Disabled("MCPトランスポートプロバイダがクラスパスにないため、Phase 2まで無効化")
+@Disabled("MCPトランスポートプロバイダがクラスパスにないため、Phase 3まで無効化")
 @SpringBootTest
 @ActiveProfiles("test")
 @Import(TestConfig.class)
