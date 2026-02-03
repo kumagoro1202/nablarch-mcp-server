@@ -41,6 +41,18 @@
             <artifactId>spring-ai-starter-mcp-server</artifactId>
         </dependency>
 
+        <!-- Phase 3: Spring AI MCP Server WebMVC (HTTP Streamable transport) -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+        </dependency>
+
+        <!-- Phase 3: Spring Boot Web for HTTP transport -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
