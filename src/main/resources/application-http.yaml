@@ -1,0 +1,35 @@
+# HTTPトランスポート用設定（httpプロファイル）
+# 起動方法: java -jar xxx.jar --spring.profiles.active=http
+
+spring:
+  main:
+    web-application-type: servlet
+  ai:
+    mcp:
+      server:
+        stdio: false
+
+server:
+  port: 8080
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+
+mcp:
+  http:
+    enabled: true
+    endpoint: /mcp
+    session:
+      timeout: 30m
+      max-sessions: 100
+    cors:
+      allowed-origins:
+        - "http://localhost:3000"
+        - "http://localhost:8080"
+      allow-credentials: true
+
+logging:
+  level:
+    root: INFO
+    com.tis.nablarch.mcp: DEBUG
