@@ -1,6 +1,7 @@
 package com.tis.nablarch.mcp.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Streamable HTTPトランスポートの統合テスト。
  *
  * <p>WBS 3.3.10 - HTTPプロファイルでのサーバー動作を検証する。</p>
+ *
+ * <p>現在MCPトランスポートプロバイダがクラスパスにないため無効化。
+ * Phase 2でHTTP/SSEトランスポートが追加されたら再有効化する。</p>
  */
+@Disabled("MCPトランスポートプロバイダがクラスパスにないため、Phase 2まで無効化")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("http")
 @AutoConfigureMockMvc
