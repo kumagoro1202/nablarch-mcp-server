@@ -440,6 +440,168 @@ class MigrationAnalysisToolTest {
     }
 
     @Nested
+    @DisplayName("追加パターン検出テスト")
+    class AdditionalPatternDetectionTest {
+
+        @Test
+        @DisplayName("javax.annotationをjakarta.annotationへの変更として検出する（BC-004）")
+        void detectsJavaxAnnotationToJakarta() {
+            // Arrange
+            String codeSnippet = """
+                import javax.annotation.PostConstruct;
+                import javax.annotation.PreDestroy;
+                import javax.annotation.Resource;
+
+                public class MyBean {
+                    @PostConstruct
+                    public void init() {}
+                }
+                """;
+
+            // Act
+            String result = tool.analyzeMigration(codeSnippet, "5", "6", null);
+
+            // Assert
+            assertTrue(result.contains("BC-004"));
+            assertTrue(result.contains("jakarta.annotation"));
+        }
+
+        @Test
+        @DisplayName("javax.annotation.processingは除外される（BC-004の例外）")
+        void excludesJavaxAnnotationProcessing() {
+            // Arrange
+            String codeSnippet = """
+                import javax.annotation.processing.Processor;
+                import javax.annotation.processing.AbstractProcessor;
+                """;
+
+            // Act
+            String result = tool.analyzeMigration(codeSnippet, "5", "6", null);
+
+            // Assert
+            assertFalse(result.contains("BC-004"));
+        }
+
+        @Test
+        @DisplayName("javax.injectをjakarta.injectへの変更として検出する（BC-009）")
+        void detectsJavaxInjectToJakarta() {
+            // Arrange
+            String codeSnippet = """
+                import javax.inject.Inject;
+                import javax.inject.Named;
+
+                public class MyService {
+                    @Inject
+                    private Repository repository;
+                }
+                """;
+
+            // Act
+            String result = tool.analyzeMigration(codeSnippet, "5", "6", null);
+
+            // Assert
+            assertTrue(result.contains("BC-009"));
+            assertTrue(result.contains("jakarta.inject"));
+        }
+
+        @Test
+        @DisplayName("非推奨Handlerを検出する（BC-010）")
+        void detectsDeprecatedHandlers() {
+            // Arrange
+            String codeSnippet = """
+                import nablarch.fw.web.handler.HttpAccessLogHandler;
+
+                public class MyHandler extends HttpAccessLogHandler {
+                }
+                """;
+
+            // Act
+            String result = tool.analyzeMigration(codeSnippet, "5", "6", null);
+
+            // Assert
+            assertTrue(result.contains("BC-010"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Propertiesコードタイプテスト")
+    class PropertiesCodeTypeTest {
+
+        @Test
+        @DisplayName("Propertiesファイルを正しく検出する")
+        void detectsPropertiesCode() {
+            // Arrange
+            String codeSnippet = """
+                nablarch.db.jdbcUrl=jdbc:h2:mem:test
+                nablarch.db.username=sa
+                nablarch.db.password=
+                nablarch.server.port=8080
+                """;
+
+            // Act
+            String result = tool.analyzeMigration(codeSnippet, "5", "6", null);
+
+            // Assert
+            assertTrue(result.contains("コードタイプ | Properties"));
+        }
+    }
+
+    @Nested
+    @DisplayName("境界値テスト")
+    class BoundaryValueTest {
+
+        @Test
+        @DisplayName("大量のimport文を含むコードを正しく分析する")
+        void handlesLargeNumberOfImports() {
+            // Arrange
+            StringBuilder sb = new StringBuilder();
+            sb.append("package com.example;\n\n");
+            for (int i = 0; i < 50; i++) {
+                sb.append("import javax.servlet.http.HttpServlet").append(i).append(";\n");
+            }
+            sb.append("\npublic class LargeClass {}\n");
+            String codeSnippet = sb.toString();
+
+            // Act
+            String result = tool.analyzeMigration(codeSnippet, "5", "6", null);
+
+            // Assert
+            assertTrue(result.contains("BC-001"));
+            assertTrue(result.contains("件"));
+        }
+
+        @Test
+        @DisplayName("1行のコードでも正しく分析する")
+        void handlesSingleLineCode() {
+            // Arrange
+            String codeSnippet = "import javax.servlet.http.HttpServlet;";
+
+            // Act
+            String result = tool.analyzeMigration(codeSnippet, "5", "6", null);
+
+            // Assert
+            assertTrue(result.contains("BC-001"));
+        }
+
+        @Test
+        @DisplayName("特殊文字を含むコードを正しく処理する")
+        void handlesSpecialCharacters() {
+            // Arrange
+            String codeSnippet = """
+                // コメント: javax.servlet
+                import javax.servlet.http.HttpServlet;
+                """;
+
+            // Act
+            String result = tool.analyzeMigration(codeSnippet, "5", "6", null);
+
+            // Assert
+            assertTrue(result.contains("BC-001"));
+            assertFalse(result.contains("エラー"));
+        }
+    }
+
+    @Nested
     @DisplayName("エッジケーステスト")
     class EdgeCaseTest {
 
