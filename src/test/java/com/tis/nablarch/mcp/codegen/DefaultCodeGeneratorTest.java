@@ -24,7 +24,7 @@ class DefaultCodeGeneratorTest {
     @BeforeEach
     void setUp() {
         generator = new DefaultCodeGenerator(knowledgeBase);
-        when(knowledgeBase.search(anyString(), anyInt())).thenReturn(List.of());
+        when(knowledgeBase.search(anyString(), anyString())).thenReturn(List.of());
     }
 
     @Nested
