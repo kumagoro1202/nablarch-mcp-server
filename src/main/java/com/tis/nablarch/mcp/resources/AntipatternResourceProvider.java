@@ -86,6 +86,7 @@ public class AntipatternResourceProvider {
     }
 
     private Map<String, Object> findAntipattern(String name) {
+        if (name == null) return null;
         for (Map<String, Object> ap : antipatterns) {
             if (name.equals(ap.get("name"))) return ap;
         }

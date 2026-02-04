@@ -83,6 +83,7 @@ public class PatternResourceProvider {
     }
 
     private Map<String, Object> findPattern(String name) {
+        if (name == null) return null;
         for (Map<String, Object> pattern : patterns) {
             if (name.equals(pattern.get("name"))) return pattern;
         }
