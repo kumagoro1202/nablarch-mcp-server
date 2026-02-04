@@ -2,7 +2,7 @@
 
 > **作成日**: 2026-02-02
 > **作成者**: ashigaru8（subtask_037 / cmd_023 Part3）
-> **ステータス**: Phase 1-2 完了 / Phase 3 進行中（76%）/ Phase 4 未着手
+> **ステータス**: Phase 1-2 完了 / Phase 3 完了（100%）/ Phase 4 未着手
 > **根拠文書**: architecture.md, use-cases.md, overview.md, ADR-001
 
 ---
@@ -172,8 +172,8 @@
 | **3.2.1** | **design_handler_queue Tool実装** | `DesignHandlerQueueTool.java`（RAG検索→ハンドラ順序制約適用→XML生成→制約検証）　UC1対応 | 3.1.1 | — | ✅完了 (PR #38) |
 | **3.2.2** | **generate_code Tool実装** | `GenerateCodeTool.java`（RAG検索→テンプレート選択→コード生成: action/form/sql/entity/handler/interceptor）　UC3, UC12対応 | 3.1.2 | ‖ 3.2.1 | ✅完了 (PR #35) |
 | 3.2.3 | generate_test Tool実装 | `GenerateTestTool.java`（RAG検索→テスト生成: JUnit5/Nablarch-Excel）　UC7対応 | 3.1.3 | ‖ 3.2.1 | ✅完了 (PR #44) |
-| 3.2.4 | troubleshoot Tool実装 | `TroubleshootTool.java`（エラー解析→RAG検索→解決策提示）　UC5対応 | 3.1.4 | ‖ 3.2.1 | 未着手 |
-| 3.2.5 | analyze_migration Tool実装 | `AnalyzeMigrationTool.java`（コード解析→5→6差分検出→修正提案）　UC9対応 | 3.1.5 | ‖ 3.2.1 | 未着手 |
+| 3.2.4 | troubleshoot Tool実装 | `TroubleshootTool.java`（エラー解析→RAG検索→解決策提示）　UC5対応 | 3.1.4 | ‖ 3.2.1 | ✅完了 (PR #57) |
+| 3.2.5 | analyze_migration Tool実装 | `AnalyzeMigrationTool.java`（コード解析→5→6差分検出→修正提案）　UC9対応 | 3.1.5 | ‖ 3.2.1 | ✅完了 (PR #55) |
 | 3.2.6 | recommend_pattern Tool実装 | `RecommendPatternTool.java`（要件解析→RAG検索→パターンスコアリング→推薦）　UC8対応 | 3.1.6 | ‖ 3.2.1 | ✅完了 (PR #38) |
 | 3.2.7 | optimize_handler_queue Tool実装 | `OptimizeHandlerQueueTool.java`（XML解析→問題検出→最適化提案）　UC10対応 | 3.1.7 | ‖ 3.2.1 | ✅完了 (PR #38) |
 | 3.2.8 | Resource実装: api/{module}/{class} | `ApiResourceProvider.java`（Javadoc構造化データ提供）　UC2対応 | 3.1.8, 2.2.8 | ‖ 3.2.1 | ✅完了 (PR #38) |
@@ -187,18 +187,18 @@
 | 3.3.1 | ユニットテスト: design_handler_queue | `DesignHandlerQueueToolTest.java`（6アプリタイプ × 要件パターン） | 3.2.1 | — | ✅完了 (PR #38, 17件) |
 | 3.3.2 | ユニットテスト: generate_code | `GenerateCodeToolTest.java`（6コードタイプ × 3アプリタイプ） | 3.2.2 | ‖ 3.3.1 | ✅完了 (PR #40) |
 | 3.3.3 | ユニットテスト: generate_test | `GenerateTestToolTest.java`（4テストタイプ × 2フォーマット） | 3.2.3 | ‖ 3.3.1 | ✅完了 (PR #44, 27件) |
-| 3.3.4 | ユニットテスト: troubleshoot | `TroubleshootToolTest.java`（代表的なNablarchエラーパターン） | 3.2.4 | ‖ 3.3.1 | 未着手（3.2.4待ち） |
-| 3.3.5 | ユニットテスト: analyze_migration | `AnalyzeMigrationToolTest.java`（5→6移行パターン） | 3.2.5 | ‖ 3.3.1 | 未着手（3.2.5待ち） |
+| 3.3.4 | ユニットテスト: troubleshoot | `TroubleshootToolTest.java`（代表的なNablarchエラーパターン） | 3.2.4 | ‖ 3.3.1 | ✅完了 (PR #58, 27件) |
+| 3.3.5 | ユニットテスト: analyze_migration | `AnalyzeMigrationToolTest.java`（5→6移行パターン） | 3.2.5 | ‖ 3.3.1 | ✅完了 (PR #59, 32件) |
 | 3.3.6 | ユニットテスト: recommend_pattern | `RecommendPatternToolTest.java`（パターン推薦ロジック） | 3.2.6 | ‖ 3.3.1 | ✅完了 (PR #38, 22件) |
 | 3.3.7 | ユニットテスト: optimize_handler_queue | `OptimizeHandlerQueueToolTest.java`（3観点: performance/security/correctness） | 3.2.7 | ‖ 3.3.1 | ✅完了 (PR #38, 25件) |
 | 3.3.8 | ユニットテスト: 追加Resources（6種） | 6 ResourceProviderテストクラス | 3.2.8〜3.2.13 | ‖ 3.3.1 | ✅完了 (PR #42) |
-| **3.3.9** | **統合テスト: 全Tool E2E（MCP Inspector）** | 10 ToolのMCP Inspector経由E2Eテスト結果 | 3.2.1〜3.2.7, 3.3.1〜3.3.7 | — | 未着手 |
+| **3.3.9** | **統合テスト: 全Tool E2E（MCP Inspector）** | 10 ToolのMCP Inspector経由E2Eテスト結果 | 3.2.1〜3.2.7, 3.3.1〜3.3.7 | — | ✅完了 (PR #61, 186件) |
 | 3.3.10 | 統合テスト: Streamable HTTP | Streamable HTTPトランスポートテスト（リモート接続確認） | 3.2.14 | ‖ 3.3.9 | ✅完了 (PR #42) |
-| **3.3.11** | **ユースケーステスト（全12 UC）** | 12ユースケースのシナリオテスト結果（use-cases.md記載のI/O例に基づく） | 3.3.9, 3.3.10 | — | 未着手 |
+| **3.3.11** | **ユースケーステスト（全12 UC）** | 12ユースケースのシナリオテスト結果（use-cases.md記載のI/O例に基づく） | 3.3.9, 3.3.10 | — | ✅完了 (PR #60, 194件関連) |
 | **3.4** | **ドキュメント** | | | | |
-| 3.4.1 | Tool API仕様書（全10 Tool） | `docs/api-spec.md` 更新（全Tool入出力スキーマ、使用例） | 3.3.9 | — | 未着手 |
-| 3.4.2 | Resource URI仕様書（全8 Resource） | `docs/api-spec.md` 更新（全Resource URIパターン、レスポンス例） | 3.2.8〜3.2.13 | ‖ 3.4.1 | 未着手 |
-| 3.4.3 | Streamable HTTP設定ガイド | `docs/user-guide.md` 更新（リモートモード設定手順） | 3.3.10 | ‖ 3.4.1 | 未着手 |
+| 3.4.1 | Tool API仕様書（全10 Tool） | `docs/api-spec.md` 更新（全Tool入出力スキーマ、使用例） | 3.3.9 | — | ✅完了 (PR #56) |
+| 3.4.2 | Resource URI仕様書（全8 Resource） | `docs/api-spec.md` 更新（全Resource URIパターン、レスポンス例） | 3.2.8〜3.2.13 | ‖ 3.4.1 | ✅完了 (PR #54) |
+| 3.4.3 | Streamable HTTP設定ガイド | `docs/user-guide.md` 更新（リモートモード設定手順） | 3.3.10 | ‖ 3.4.1 | ✅完了 (PR #53) |
 
 ---
 
