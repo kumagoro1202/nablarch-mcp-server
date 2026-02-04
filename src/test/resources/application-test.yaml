@@ -26,6 +26,7 @@ nablarch:
     knowledge:
       base-path: classpath:knowledge/
     embedding:
+      provider: api  # テスト環境ではONNXモデルを使用しない（モック化されるため）
       jina:
         api-key: test-jina-key
         model: jina-embeddings-v4

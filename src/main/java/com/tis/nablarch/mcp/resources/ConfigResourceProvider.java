@@ -79,6 +79,7 @@ public class ConfigResourceProvider {
     }
 
     private Map<String, Object> findTemplate(String name) {
+        if (name == null) return null;
         for (Map<String, Object> template : templates) {
             if (name.equals(template.get("name"))) return template;
         }
