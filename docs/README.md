@@ -1,15 +1,28 @@
 # nablarch-mcp-server ドキュメント
 
+> **詳細なドキュメント一覧は [INDEX.md](INDEX.md) を参照してください。**
+
+---
+
+## クイックスタート
+
+| 目的 | ドキュメント |
+|------|-------------|
+| プロジェクト概要を知る | [01-overview.md](01-overview.md) |
+| セットアップする | [07-setup-guide.md](07-setup-guide.md) |
+| 使い方を学ぶ | [08-user-guide.md](08-user-guide.md) |
+| アーキテクチャを理解する | [02-architecture.md](02-architecture.md) |
+
 ## 全体設計文書
 
-- [プロジェクト概要](overview.md) - ビジョン、対象ユーザー、機能概要
-- [アーキテクチャ設計書](architecture.md) - RAG-enhanced MCPサーバーの技術設計
-- [ユースケース集](use-cases.md) - 12のユースケースとシーケンス図
-- [ユーザーガイド](user-guide.md) - 設定方法、プロンプト例、FAQ
+- [01-overview.md](01-overview.md) - ビジョン、対象ユーザー、機能概要
+- [02-architecture.md](02-architecture.md) - RAG-enhanced MCPサーバーの技術設計
+- [03-use-cases.md](03-use-cases.md) - 12のユースケースとシーケンス図
+- [08-user-guide.md](08-user-guide.md) - 設定方法、プロンプト例、FAQ
 
 ## 設計文書（designs/）
 
-Phase 1-2の全設計書（WBS番号順）:
+Phase 1-3の全設計書（WBS番号順）:
 
 | # | 設計書 | Phase | WBS |
 |---|--------|-------|-----|
@@ -27,6 +40,7 @@ Phase 1-2の全設計書（WBS番号順）:
 | 12 | [リランキング設計](designs/12_reranking.md) | Phase 2 | 2.1.5 |
 | 13 | [semantic_search Tool設計](designs/13_semantic-search-tool.md) | Phase 2 | 2.1.6 |
 | 14 | [検索品質評価設計](designs/14_search-quality-evaluation.md) | Phase 2 | 2.1.7 |
+| 15-23 | [Phase 3 設計書](INDEX.md#designs) | Phase 3 | 3.x.x |
 
 ## 意思決定記録（ADR）
 
@@ -35,3 +49,9 @@ Phase 1-2の全設計書（WBS番号順）:
 ## 調査資料
 
 - [O-023: RAG×MCP関連性分析](research/O-023_nablarch_rag_mcp_analysis.md)
+- [O-024: Embeddingモデル移行調査](research/O-024_embedding-model-migration.md)
+
+## プロジェクト管理
+
+- [10-wbs.md](10-wbs.md) - Work Breakdown Structure
+- [11-progress.md](11-progress.md) - 進捗管理表
