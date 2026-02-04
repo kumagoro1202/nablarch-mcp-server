@@ -9,6 +9,7 @@ import com.tis.nablarch.mcp.rag.parser.HtmlDocumentParser;
 import com.tis.nablarch.mcp.rag.parser.ParsedDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
  * HTTP 429/5xxエラーに対しては指数バックオフでリトライする。</p>
  */
 @Service
+@ConditionalOnProperty(name = "nablarch.mcp.ingestion.enabled", havingValue = "true", matchIfMissing = false)
 public class OfficialDocsIngester implements DocumentIngester {
 
     private static final Logger logger = LoggerFactory.getLogger(OfficialDocsIngester.class);
