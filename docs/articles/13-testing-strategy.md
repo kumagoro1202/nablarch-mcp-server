@@ -41,7 +41,7 @@
 - JUnit 5の基本（`@Test`, `@BeforeEach`, `@Nested`, `@ExtendWith`）
 - Mockitoの基本（`@Mock`, `when().thenReturn()`, `verify()`）
 - Spring Boot Testの基本（`@SpringBootTest`, `@WebMvcTest`）
-- 記事05「アーキテクチャ概要」で解説したRAGパイプライン構成
+- 記事07「RAGパイプライン詳解」で解説したRAGパイプライン構成
 
 ---
 
@@ -943,14 +943,7 @@ graph LR
 
 ### 10.3 次の記事へ
 
-次回（記事14）では、**HTTP Transportの実装**を解説します：
-
-- Streamable HTTP Transportの仕組み
-- STDIOとHTTPの切り替え方法
-- リモートMCPサーバーとしての運用
-- Dockerfile + Docker Composeでのデプロイ
-
-これで、**Claude Desktopだけでなく、任意のHTTPクライアントからMCPサーバーを利用**できるようになります。
+次は、トラブルシューティングとロードマップを学びます。
 
 ---
 
@@ -958,8 +951,8 @@ graph LR
 
 ### 関連記事
 
-- [前の記事: 12. semantic_search Toolの実装](12-semantic-search-tool.md)
-- [次の記事: 14. HTTP Transportの実装](14-http-transport.md)
+- [前の記事: 12. 拡張ガイド](12-extension-guide.md)
+- [次の記事: 14. トラブルシューティングとロードマップ](14-troubleshooting-and-roadmap.md)
 
 ### 外部リンク
 

@@ -124,7 +124,7 @@ nablarch-mcp-serverの`pom.xml`では以下のように定義しています。
         <artifactId>spring-ai-starter-mcp-server</artifactId>
     </dependency>
 
-    <!-- HTTP Streamable Transport（Phase 3追加） -->
+    <!-- HTTP Streamable Transport（開発フェーズ3で追加） -->
     <dependency>
         <groupId>org.springframework.ai</groupId>
         <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
@@ -632,7 +632,7 @@ private static McpServerFeatures.SyncPromptSpecification promptSpec(
 
 ### HTTPトランスポートの有効化
 
-Phase 3で追加されたHTTPトランスポートは、`@Profile("http")`で有効化します。
+開発フェーズ3で追加されたHTTPトランスポート（※開発ロードマップ上のPhase 3）は、`@Profile("http")`で有効化します。
 
 **設定クラス例**:
 
@@ -751,16 +751,16 @@ public class McpCorsConfig {
 
 ### 次の記事で学ぶこと
 
-**次回（記事09）**: RAGエンジン統合 — pgvector + Embeddingでハイブリッド検索を実現
+**次回（第9回）**: 設定ファイル完全ガイド
 
-次の記事では、nablarch-mcp-serverのRAG（Retrieval-Augmented Generation）エンジンの実装を解説します。PostgreSQL pgvectorを使ったベクトル検索、BM25キーワード検索、Cross-Encoderリランキングを組み合わせたハイブリッド検索の仕組みを学びます。
+次の記事では、nablarch-mcp-serverの設定ファイル（application.yaml）の詳細と、プロファイル切り替え、環境別設定、トランスポート設定などを解説します。
 
 ---
 
 ## 関連リンク
 
-- **前の記事**: [記事07: 静的知識ベースとYAML設計](./07-static-knowledge-base-yaml.md)
-- **次の記事**: [記事09: RAGエンジン統合 — pgvector + Embedding](./09-rag-engine-integration.md)
+- **前の記事**: [記事07: RAGパイプライン詳解](./07-rag-pipeline-deep-dive.md)
+- **次の記事**: [記事09: 設定ファイル完全ガイド](./09-configuration-guide.md)
 - **公式ドキュメント**: [Spring AI MCP Server Documentation](https://docs.spring.io/spring-ai/reference/api/mcp.html)
 - **MCP仕様**: [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - **nablarch-mcp-server設計書**: [02_mcp-sdk-integration.md](../designs/02_mcp-sdk-integration.md)

@@ -283,7 +283,7 @@ MCPは2つのトランスポート方式をサポートします。
 | **STDIO** | ローカル開発 | 標準入出力（stdin/stdout）でJSON-RPCメッセージをやり取り |
 | **Streamable HTTP** | リモート/チーム共有 | HTTP/SSEでJSON-RPCメッセージをやり取り |
 
-Nablarch MCP Serverは、Phase 1でSTDIO、Phase 3でStreamable HTTPに対応予定です。
+Nablarch MCP Serverは、STDIOおよびStreamable HTTPに対応しています。
 
 ### 6.2 MCP SDK
 

@@ -346,11 +346,11 @@ nablarch-mcp-serverは、**10 Tools + 8 Resources + 6 Prompts** を提供しま�
 | # | Prompt名 | 説明 |
 |---|---------|------|
 | 1 | `setup-handler-queue` | ハンドラキュー設計支援（アプリタイプ別推奨構成） |
-| 2 | `create-web-app` | Webアプリケーション新規作成ガイド |
-| 3 | `create-rest-api` | RESTful API構築ガイド |
-| 4 | `create-batch` | バッチアプリケーション構築ガイド |
-| 5 | `review-code` | Nablarchコードレビュー（規約準拠チェック） |
-| 6 | `troubleshoot` | トラブルシューティング支援（段階的診断） |
+| 2 | `create-action` | アクション作成ガイド（アプリタイプ別スケルトン生成） |
+| 3 | `review-config` | XML設定ファイルレビュー（ハンドラ順序制約チェック） |
+| 4 | `explain-handler` | ハンドラ詳細解説（FQCN・スレッドモデル・順序制約） |
+| 5 | `migration-guide` | バージョン移行ガイド（Nablarch 5→6等） |
+| 6 | `best-practices` | ベストプラクティス参照（トピック別） |
 
 ### 6.4 知識ソース
 
@@ -415,6 +415,8 @@ gantt
     section Phase 4
     本番デプロイ                 :crit, p4, 2026-02-05, 2026-02-10
 ```
+
+**注**: ここでの「Phase 1-4」は**開発ロードマップ上のフェーズ**であり、アプリケーションの動作モードではありません。nablarch-mcp-serverは単一の構成で全機能が起動します。
 
 | Phase | 内容 | 完了日 | 成果物 |
 |-------|------|--------|--------|
@@ -485,23 +487,22 @@ graph TB
 
 ### 9.3 次の記事で学ぶこと
 
-次回の記事では、nablarch-mcp-serverの**アーキテクチャ設計**に深く踏み込みます。
+次はNablarchの基礎知識を学びます（第3A回: Nablarch入門）。
 
-- **RAG-enhanced MCPアーキテクチャ**の内部構造
-- **ハイブリッド検索（BM25 + ベクトル検索）**の仕組み
-- **デュアルEmbedding**戦略（ドキュメント用 vs コード用）
-- **MCPプロトコル層**の実装パターン
-- **Spring Boot統合**の詳細
+- **Nablarchフレームワーク**の基本概念と歴史
+- **ハンドラキュー**方式というNablarch独自のアーキテクチャ
+- **コンポーネント定義**とXML設定の基本
+- 後半の技術記事を読むための**前提知識**を固める
 
-技術的な深掘りをしたい方は、ぜひ次の記事に進んでください！
+Nablarchに馴染みがない方も、この記事を読めば後続の技術記事がスムーズに理解できます。
 
 ---
 
 ## ナビゲーション
 
-- **[← 前の記事: 01-はじめに](01-getting-started.md)**
-- **[→ 次の記事: 03-アーキテクチャ設計](03-architecture-design.md)**
-- **[📚 記事一覧に戻る](README.md)**
+- **[← 前の記事: 01-MCPとは何か](01-what-is-mcp.md)**
+- **[→ 次の記事: 03A-Nablarch入門](03A-nablarch-introduction.md)**
+- **[📚 記事一覧に戻る](INDEX.md)**
 
 ---
 
