@@ -751,16 +751,16 @@ public class McpCorsConfig {
 
 ### 次の記事で学ぶこと
 
-**次回（記事09）**: RAGエンジン統合 — pgvector + Embeddingでハイブリッド検索を実現
+**次回（第9回）**: 設定ファイル完全ガイド
 
-次の記事では、nablarch-mcp-serverのRAG（Retrieval-Augmented Generation）エンジンの実装を解説します。PostgreSQL pgvectorを使ったベクトル検索、BM25キーワード検索、Cross-Encoderリランキングを組み合わせたハイブリッド検索の仕組みを学びます。
+次の記事では、nablarch-mcp-serverの設定ファイル（application.yaml）の詳細と、プロファイル切り替え、環境別設定、トランスポート設定などを解説します。
 
 ---
 
 ## 関連リンク
 
-- **前の記事**: [記事07: ナレッジの構造化](./07-knowledge-structure.md)
-- **次の記事**: [記事09: Tool設計と実装パターン](./09-tool-design-patterns.md)
+- **前の記事**: [記事06: ナレッジの構造化](./06-knowledge-structure.md)
+- **次の記事**: [記事09: 設定ファイル完全ガイド](./09-configuration-guide.md)
 - **公式ドキュメント**: [Spring AI MCP Server Documentation](https://docs.spring.io/spring-ai/reference/api/mcp.html)
 - **MCP仕様**: [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - **nablarch-mcp-server設計書**: [02_mcp-sdk-integration.md](../designs/02_mcp-sdk-integration.md)

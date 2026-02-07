@@ -3,7 +3,7 @@
 > **シリーズ**: [Nablarch MCP Server 専門家育成シリーズ](./INDEX.md) 第12回
 > **難易度**: 上級
 > **所要時間**: 60分
-> **前提記事**: [09. Tool設計と実装パターン](./09-tool-design-patterns.md), [10. Resource/Prompt設計と実装パターン](./10-resource-prompt-patterns.md), [11. 設定ファイル完全ガイド](./11-configuration-guide.md)
+> **前提記事**: [10. Tool設計と実装パターン](./10-tool-design-patterns.md), [11. Resource/Prompt設計と実装パターン](./11-resource-prompt-patterns.md), [09. 設定ファイル完全ガイド](./09-configuration-guide.md)
 
 ---
 
@@ -1269,15 +1269,10 @@ public class ValidateFormTool {
 
 ### 次の記事
 
-次の記事「[13. テスト戦略](./13-testing-strategy.md)」では、810件のテストが守る品質の仕組みを学びます。
-
-- ログ設計とログレベル
-- メトリクス収集（Prometheus連携）
-- 障害発生時のトラブルシューティング
-- パフォーマンスチューニング
+次の記事「[第13回: テスト戦略](./13-testing-strategy.md)」では、810件のテストが守る品質の仕組みを学びます。
 
 ---
 
-**前の記事**: [11. 設定ファイル完全ガイド](./11-configuration-guide.md)
-**次の記事**: [13. テスト戦略](./13-testing-strategy.md)
+**前の記事**: [第11回: Resource/Prompt設計と実装パターン](./11-resource-prompt-patterns.md)
+**次の記事**: [第13回: テスト戦略](./13-testing-strategy.md)
 **シリーズTOC**: [INDEX.md](./INDEX.md)

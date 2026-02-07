@@ -1,4 +1,4 @@
-# 記事10: Resource/Prompt設計と実装パターン — 知識の公開とテンプレートの活用
+# 記事11: Resource/Prompt設計と実装パターン — 知識の公開とテンプレートの活用
 
 > **対象読者**: 中級〜上級者（MCP Tool実装経験者）
 > **前提知識**: [記事05: Tool実装パターン](05-tool-implementation-patterns.md)、[記事07: ハンドラキュー設計](07-handler-queue-design.md)、[記事08: 知識ベース設計](08-knowledge-base-design.md)
@@ -17,7 +17,7 @@
 - **6 Promptの設計**: 引数付きPromptと知識YAMLの統合
 - **Resource + Prompt連携**: ToolとResource/Promptの組み合わせ方
 
-前提知識として、記事05でToolの実装パターンを理解し、記事08で知識YAMLの構造を把握していることを前提とします。本記事ではToolとは異なる「受動的な知識提供」の実装方法を学びます。
+前提知識として、記事10でToolの実装パターンを理解していることを前提とします。本記事ではToolとは異なる「受動的な知識提供」の実装方法を学びます。
 
 ---
 
@@ -718,10 +718,10 @@ sequenceDiagram
 - Resource + Prompt + Tool の3つを組み合わせることで、AIは複雑なタスクを自律的に実行できる
 
 **次の記事へ**:
-- **前の記事**: [09: Tool設計と実装パターン](09-tool-design-patterns.md)
-- **次の記事**: [11: 設定ファイル完全ガイド](11-configuration-guide.md) — application.yamlからpom.xmlまで全設定を学びます
+- **前の記事**: [第10回: Tool設計と実装パターン](10-tool-design-patterns.md)
+- **次の記事**: [第12回: 拡張ガイド](12-extension-guide.md) — 新しいTool/Resource/Promptを実装します
 
-次の記事では、Tool/Resource/Promptの3つを統合した実践例を通して、Nablarch MCP Serverの全機能を活用する方法を学びます。
+次は拡張ガイドで実際に新しいTool/Resource/Promptを実装します。
 
 ---
 

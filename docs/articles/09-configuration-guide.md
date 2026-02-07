@@ -1,6 +1,6 @@
 # 設定ファイル完全ガイド — application.yaml から pom.xml まで
 
-> **nablarch-mcp-server 専門家育成シリーズ 第11回**
+> **nablarch-mcp-server 専門家育成シリーズ 第9回**
 >
 > **対象読者**: Spring Boot基礎知識があり、nablarch-mcp-serverのセットアップを完了している中級者
 >
@@ -595,21 +595,21 @@ nablarch:
 
 ### 次の記事への接続
 
-これで設定ファイルの全体を理解できました。次回は**本番運用**に必要な知識を学びます:
+これで設定ファイルの全体を理解できました。次回は**Tool設計と実装パターン**を学びます:
 
-- **Docker Compose での環境構築**
-- **CI/CDパイプライン設定**
-- **監視・ログ収集（Prometheus, Grafana）**
-- **バックアップ・リストア戦略**
+- **10個のToolの分類と役割**
+- **Tool実装の共通パターン**
+- **代表的なToolの内部実装**
+- **Tool間の連携パターン**
 
-本番環境でnablarch-mcp-serverを安全・効率的に運用するための実践的な手法を習得しましょう。
+nablarch-mcp-serverが提供するToolの設計思想と実装パターンを理解しましょう。
 
 ---
 
 ## 付録: 参考リンク
 
-- [前の記事: 10-resource-prompt-patterns.md](10-resource-prompt-patterns.md)
-- [次の記事: 12-extension-guide.md](12-extension-guide.md)
+- [前の記事: 第8回 Spring AI MCP Serverとの統合](08-spring-ai-mcp-integration.md)
+- [次の記事: 第10回 Tool設計と実装パターン](10-tool-design-patterns.md)
 - [README.md](../../README.md) - プロジェクト全体概要
 - [docs/07-setup-guide.md](../07-setup-guide.md) - セットアップガイド
 - [Spring Boot Reference](https://docs.spring.io/spring-boot/reference/) - 公式ドキュメント

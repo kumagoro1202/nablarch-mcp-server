@@ -1266,7 +1266,7 @@ MCP Toolは**AIの手足**です。適切に設計されたToolは、AIアシス
 
 ### 次の記事
 
-次回は「記事10: Resource設計と実装パターン」です。
+次回は「記事11: Resource設計と実装パターン」です。
 
 **学習内容**:
 - 8種類のResourceの役割と分類
@@ -1303,6 +1303,6 @@ Toolが「AIの手足」なら、**Resourceは「AIの記憶」**です。次回
 
 ---
 
-**前の記事**: [08. Spring AI MCP統合 — 実装と設計パターン](08-spring-ai-mcp-integration.md)
-**次の記事**: [10. Resource/Prompt設計と実装パターン](10-resource-prompt-patterns.md)
+**前の記事**: [09. 設定ファイル完全ガイド](09-configuration-guide.md)
+**次の記事**: [11. Resource/Prompt設計と実装パターン](11-resource-prompt-patterns.md)
 **目次に戻る**: [記事一覧](./INDEX.md)

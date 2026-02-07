@@ -4,6 +4,8 @@
 > **対象読者**: 中級者（Spring Boot、REST API、データベースの基礎知識がある方）
 > **前提記事**: [04. 使ってみよう — ハンズオン実践ガイド](./04-hands-on-usage.md)
 > **作成日**: 2026-02-07
+>
+> **Spring Bootの知識について**: この記事ではSpring Bootの概念（DI、Bean、AutoConfiguration等）が登場します。Spring Bootに馴染みがない方は、それぞれの用語が出てきた時に括弧内の説明を参照してください。
 
 ---
 
@@ -448,9 +450,9 @@ java -jar nablarch-mcp-server.jar --spring.profiles.active=http
 
 ## 5. トランスポート層
 
-### 5.1 STDIOトランスポート（Phase 1-2）
+### 5.1 STDIOトランスポート（ローカル開発用）
 
-ローカル開発用。AIツールの子プロセスとして起動。
+AIツールの子プロセスとして起動。
 
 ```
 ┌──────────────┐  stdin (JSON-RPC)  ┌──────────────────┐
@@ -485,7 +487,7 @@ java -jar nablarch-mcp-server.jar --spring.profiles.active=http
 }
 ```
 
-### 5.2 Streamable HTTP トランスポート（Phase 3）
+### 5.2 Streamable HTTP トランスポート（リモート/チーム共有用）
 
 リモートアクセス、チーム共有用。
 
