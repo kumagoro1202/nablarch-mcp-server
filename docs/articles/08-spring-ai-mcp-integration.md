@@ -759,8 +759,8 @@ public class McpCorsConfig {
 
 ## 関連リンク
 
-- **前の記事**: [記事07: 静的知識ベースとYAML設計](./07-static-knowledge-base-yaml.md)
-- **次の記事**: [記事09: RAGエンジン統合 — pgvector + Embedding](./09-rag-engine-integration.md)
+- **前の記事**: [記事07: ナレッジの構造化](./07-knowledge-structure.md)
+- **次の記事**: [記事09: Tool設計と実装パターン](./09-tool-design-patterns.md)
 - **公式ドキュメント**: [Spring AI MCP Server Documentation](https://docs.spring.io/spring-ai/reference/api/mcp.html)
 - **MCP仕様**: [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - **nablarch-mcp-server設計書**: [02_mcp-sdk-integration.md](../designs/02_mcp-sdk-integration.md)

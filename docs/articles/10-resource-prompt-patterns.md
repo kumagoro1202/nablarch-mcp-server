@@ -718,8 +718,8 @@ sequenceDiagram
 - Resource + Prompt + Tool の3つを組み合わせることで、AIは複雑なタスクを自律的に実行できる
 
 **次の記事へ**:
-- **前の記事**: [09: Tool統合テストとデバッグ](09-tool-integration-testing.md)
-- **次の記事**: [11: Tool/Resource/Prompt統合](11-tool-resource-prompt-integration.md) — 3つの機能を連携させた実践例を学びます
+- **前の記事**: [09: Tool設計と実装パターン](09-tool-design-patterns.md)
+- **次の記事**: [11: 設定ファイル完全ガイド](11-configuration-guide.md) — application.yamlからpom.xmlまで全設定を学びます
 
 次の記事では、Tool/Resource/Promptの3つを統合した実践例を通して、Nablarch MCP Serverの全機能を活用する方法を学びます。
 

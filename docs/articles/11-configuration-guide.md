@@ -608,8 +608,8 @@ nablarch:
 
 ## 付録: 参考リンク
 
-- [前の記事: 10_deployment-production.md](10-deployment-production.md)
-- [次の記事: 12_observability-monitoring.md](12-observability-monitoring.md)
+- [前の記事: 10-resource-prompt-patterns.md](10-resource-prompt-patterns.md)
+- [次の記事: 12-extension-guide.md](12-extension-guide.md)
 - [README.md](../../README.md) - プロジェクト全体概要
 - [docs/07-setup-guide.md](../07-setup-guide.md) - セットアップガイド
 - [Spring Boot Reference](https://docs.spring.io/spring-boot/reference/) - 公式ドキュメント

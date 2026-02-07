@@ -958,8 +958,8 @@ graph LR
 
 ### 関連記事
 
-- [前の記事: 12. semantic_search Toolの実装](12-semantic-search-tool.md)
-- [次の記事: 14. HTTP Transportの実装](14-http-transport.md)
+- [前の記事: 12. 拡張ガイド](12-extension-guide.md)
+- [次の記事: 14. トラブルシューティングとロードマップ](14-troubleshooting-and-roadmap.md)
 
 ### 外部リンク
 

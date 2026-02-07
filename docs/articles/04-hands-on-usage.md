@@ -1568,7 +1568,7 @@ graph TD
 ## 参考リンク
 
 - 📘 [記事03: セットアップガイド](./03-setup-guide.md)
-- 📘 [記事05: RAG検索の詳細](./05-rag-deep-dive.md)
+- 📘 [記事05: アーキテクチャ概要](./05-architecture-overview.md)
 - 📖 [API仕様書](../06-api-specification.md)
 - 📖 [ユースケース集](../03-use-cases.md)
 - 🔗 [Nablarch公式ドキュメント](https://nablarch.github.io/docs/)
@@ -1582,5 +1582,5 @@ graph TD
 
 <p align="center">
   <a href="./03-setup-guide.md">← 前の記事: セットアップガイド</a> |
-  <a href="./05-rag-deep-dive.md">次の記事: RAG検索の詳細 →</a>
+  <a href="./05-architecture-overview.md">次の記事: アーキテクチャ概要 →</a>
 </p>

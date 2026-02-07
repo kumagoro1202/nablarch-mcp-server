@@ -1304,5 +1304,5 @@ Toolが「AIの手足」なら、**Resourceは「AIの記憶」**です。次回
 ---
 
 **前の記事**: [08. Spring AI MCP統合 — 実装と設計パターン](08-spring-ai-mcp-integration.md)
-**次の記事**: [10. Resource設計と実装パターン](10-resource-design-patterns.md)
-**目次に戻る**: [記事一覧](../README.md#専門家育成シリーズ)
+**次の記事**: [10. Resource/Prompt設計と実装パターン](10-resource-prompt-patterns.md)
+**目次に戻る**: [記事一覧](./INDEX.md)

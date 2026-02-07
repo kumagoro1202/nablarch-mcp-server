@@ -25,7 +25,7 @@
 
 ### 次の記事
 
-この記事を読み終えたら、次は **[08-rag-engine.md](08-rag-engine.md)** へ進んでください。RAGエンジンによる動的知識検索を学びます。
+この記事を読み終えたら、次は **[08-spring-ai-mcp-integration.md](08-spring-ai-mcp-integration.md)** へ進んでください。Spring AI MCP Serverとの統合を学びます。
 
 ---
 
@@ -580,11 +580,19 @@ class HandlerCatalogTest {
 
 ### 次の記事へ
 
-静的知識の構造化が理解できたら、次は **動的知識（RAG）** の仕組みを学びましょう。
+静的知識の構造化が理解できたら、次は **Spring AI MCP統合** の仕組みを学びましょう。
 
-👉 **[08-rag-engine.md](08-rag-engine.md)** — RAGエンジンによる動的知識検索
+👉 **[08-spring-ai-mcp-integration.md](08-spring-ai-mcp-integration.md)** — Spring AI MCP Serverとの統合
 
-RAGエンジンがどのように公式ドキュメント・GitHubコード・Javadocを検索し、AIツールに提供するのかを詳しく解説します。
+MCP Java SDKとSpring Bootの統合実装パターンを詳しく解説します。
+
+---
+
+## ナビゲーション
+
+- **[← 前の記事: 06-RAGパイプライン詳解](06-rag-pipeline-deep-dive.md)**
+- **[→ 次の記事: 08-Spring AI MCP統合](08-spring-ai-mcp-integration.md)**
+- **[📚 記事一覧に戻る](INDEX.md)**
 
 ---
 

@@ -1,9 +1,9 @@
 # 拡張ガイド — 新しいTool・Resource・Promptを追加する方法
 
-> **シリーズ**: [Nablarch MCP Server 専門家育成シリーズ](./README.md) 第12回
+> **シリーズ**: [Nablarch MCP Server 専門家育成シリーズ](./INDEX.md) 第12回
 > **難易度**: 上級
 > **所要時間**: 60分
-> **前提記事**: [09. Tool設計の全て](./09-tool-design.md), [10. Resource設計の全て](./10-resource-design.md), [11. Prompt設計の全て](./11-prompt-design.md)
+> **前提記事**: [09. Tool設計と実装パターン](./09-tool-design-patterns.md), [10. Resource/Prompt設計と実装パターン](./10-resource-prompt-patterns.md), [11. 設定ファイル完全ガイド](./11-configuration-guide.md)
 
 ---
 
@@ -1269,7 +1269,7 @@ public class ValidateFormTool {
 
 ### 次の記事
 
-次の記事「[13. 運用・監視・トラブルシューティング](./13-operations-monitoring.md)」では、本番環境でのMCPサーバー運用について学びます。
+次の記事「[13. テスト戦略](./13-testing-strategy.md)」では、810件のテストが守る品質の仕組みを学びます。
 
 - ログ設計とログレベル
 - メトリクス収集（Prometheus連携）
@@ -1278,6 +1278,6 @@ public class ValidateFormTool {
 
 ---
 
-**前の記事**: [11. Prompt設計の全て](./11-prompt-design.md)
-**次の記事**: [13. 運用・監視・トラブルシューティング](./13-operations-monitoring.md)
-**シリーズTOC**: [README.md](./README.md)
+**前の記事**: [11. 設定ファイル完全ガイド](./11-configuration-guide.md)
+**次の記事**: [13. テスト戦略](./13-testing-strategy.md)
+**シリーズTOC**: [INDEX.md](./INDEX.md)

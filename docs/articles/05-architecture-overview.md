@@ -2,7 +2,7 @@
 
 > **シリーズ**: nablarch-mcp-server 専門家育成シリーズ 第5回（全14回）
 > **対象読者**: 中級者（Spring Boot、REST API、データベースの基礎知識がある方）
-> **前提記事**: [04-knowledge-base-content](./04-knowledge-base-content.md)
+> **前提記事**: [04. 使ってみよう — ハンズオン実践ガイド](./04-hands-on-usage.md)
 > **作成日**: 2026-02-07
 
 ---
@@ -45,7 +45,7 @@
 | **JSON** | 構造の読み書き |
 | **データベース** | SQL、テーブル、インデックスの基本 |
 
-これらの知識がない場合は、先に[初心者向けアーキテクチャ解説](../14-architecture-for-beginners.md)を読むことを推奨します。
+これらの知識がない場合は、先に[記事01: MCPとは何か](./01-what-is-mcp.md)から順に読むことを推奨します。
 
 ### 1.3 システム概要の再確認
 
@@ -755,7 +755,13 @@ com.tis.nablarch.mcp
 - **リランキングの効果**（Cross-Encoderの精度向上）
 - **PostgreSQL + pgvectorの設計**（インデックス、スキーマ）
 
-→ [次の記事: 06-rag-pipeline](./06-rag-pipeline.md)
+---
+
+## ナビゲーション
+
+- **[← 前の記事: 04-ハンズオン実践ガイド](04-hands-on-usage.md)**
+- **[→ 次の記事: 06-RAGパイプライン詳解](06-rag-pipeline-deep-dive.md)**
+- **[📚 記事一覧に戻る](INDEX.md)**
 
 ---
 

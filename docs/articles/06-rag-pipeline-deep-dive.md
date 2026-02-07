@@ -553,8 +553,8 @@ graph TB
 
 ## 参考リンク
 
-- [前の記事: 05-mcp-resource-catalog.md（MCP Resource カタログ）](./05-mcp-resource-catalog.md)
-- [次の記事: 07-handler-queue-auto-design.md（ハンドラキュー自動設計）](./07-handler-queue-auto-design.md)
+- [前の記事: 05-architecture-overview.md（アーキテクチャ概要）](./05-architecture-overview.md)
+- [次の記事: 07-knowledge-structure.md（ナレッジの構造化）](./07-knowledge-structure.md)
 - [RAGパイプライン技術仕様書（docs/04-rag-pipeline-spec.md）](../04-rag-pipeline-spec.md)
 - [検索品質評価レポート（docs/09-search-quality-report.md）](../09-search-quality-report.md)
 - [Jina AI Embeddings v4](https://jina.ai/embeddings/)

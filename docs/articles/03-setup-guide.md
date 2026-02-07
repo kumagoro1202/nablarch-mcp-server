@@ -1,9 +1,9 @@
 # ゼロから始めるセットアップ — 環境構築から動作確認まで
 
-> **シリーズ**: [Nablarch MCP Server 専門家育成シリーズ](./README.md) 第3回
+> **シリーズ**: [Nablarch MCP Server 専門家育成シリーズ](./INDEX.md) 第3回
 > **難易度**: 初級
 > **所要時間**: 30分
-> **前提記事**: [02. MCP仕様とNablarchの関係性](./02-mcp-and-nablarch.md)
+> **前提記事**: [02. nablarch-mcp-serverの全体像](./02-project-overview.md)
 
 ---
 
@@ -543,7 +543,7 @@ $ ./mvnw flyway:migrate
 $ java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar --spring.profiles.active=rag
 ```
 
-詳細は次の記事「[04. Phase 2モード（RAG）のセットアップ詳細](./04-phase2-setup.md)」で解説します。
+詳細は次の記事「[04. 使ってみよう — ハンズオン実践ガイド](./04-hands-on-usage.md)」で解説します。
 
 ---
 
@@ -679,9 +679,9 @@ graph LR
 
 | 記事 | 内容 |
 |------|------|
-| **[04. Phase 2モード（RAG）のセットアップ詳細](./04-phase2-setup.md)** | PostgreSQL + pgvector のセットアップ、RAG機能の有効化 |
-| **[05. 基本的な使い方 — Nablarchハンドラキューの設計](./05-basic-usage.md)** | ハンドラキュー設計の実践、`design_handler_queue` ツールの使い方 |
-| **[06. コード生成とテスト生成](./06-code-generation.md)** | `generate_code` / `generate_test` ツールの活用 |
+| **[04. 使ってみよう — ハンズオン実践ガイド](./04-hands-on-usage.md)** | 10 Tools × 8 Resources × 6 Promptsの実践ガイド |
+| **[05. アーキテクチャ概要](./05-architecture-overview.md)** | Spring Boot + MCP + RAGの三位一体 |
+| **[09. Tool設計と実装パターン](./09-tool-design-patterns.md)** | 10 Toolsの設計思想を読み解く |
 
 ---
 
@@ -700,9 +700,9 @@ graph LR
 
 ## 関連リンク
 
-- [前の記事: 02. MCP仕様とNablarchの関係性](./02-mcp-and-nablarch.md)
-- [次の記事: 04. Phase 2モード（RAG）のセットアップ詳細](./04-phase2-setup.md)
-- [シリーズ目次に戻る](./README.md)
+- [前の記事: 02. nablarch-mcp-serverの全体像](./02-project-overview.md)
+- [次の記事: 04. 使ってみよう — ハンズオン実践ガイド](./04-hands-on-usage.md)
+- [シリーズ目次に戻る](./INDEX.md)
 
 ---
 
