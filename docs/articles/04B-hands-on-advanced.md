@@ -740,7 +740,7 @@ graph TD
 - [記事04A: 使ってみよう基本編](./04A-hands-on-basic.md)
 - [記事05: アーキテクチャ概要](./05-architecture-overview.md)
 - [Nablarch公式ドキュメント](https://nablarch.github.io/docs/)
-- [GitHub: nablarch-mcp-server](https://github.com/kumanoGoro/nablarch-mcp-server)
+- [GitHub: nablarch-mcp-server](https://github.com/kumagoro1202/nablarch-mcp-server)
 
 ---
 

@@ -346,11 +346,11 @@ nablarch-mcp-serverは、**10 Tools + 8 Resources + 6 Prompts** を提供しま�
 | # | Prompt名 | 説明 |
 |---|---------|------|
 | 1 | `setup-handler-queue` | ハンドラキュー設計支援（アプリタイプ別推奨構成） |
-| 2 | `create-web-app` | Webアプリケーション新規作成ガイド |
-| 3 | `create-rest-api` | RESTful API構築ガイド |
-| 4 | `create-batch` | バッチアプリケーション構築ガイド |
-| 5 | `review-code` | Nablarchコードレビュー（規約準拠チェック） |
-| 6 | `troubleshoot` | トラブルシューティング支援（段階的診断） |
+| 2 | `create-action` | アクション作成ガイド（アプリタイプ別スケルトン生成） |
+| 3 | `review-config` | XML設定ファイルレビュー（ハンドラ順序制約チェック） |
+| 4 | `explain-handler` | ハンドラ詳細解説（FQCN・スレッドモデル・順序制約） |
+| 5 | `migration-guide` | バージョン移行ガイド（Nablarch 5→6等） |
+| 6 | `best-practices` | ベストプラクティス参照（トピック別） |
 
 ### 6.4 知識ソース
 

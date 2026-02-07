@@ -198,7 +198,7 @@ Tool/Resource/Promptの設計思想と実装パターンをマスターし、独
 - [Spring AI MCP SDK](https://docs.spring.io/spring-ai/reference/)
 
 ### コードリポジトリ
-- [GitHub: nablarch-mcp-server](https://github.com/kumanoGoro/nablarch-mcp-server)
+- [GitHub: nablarch-mcp-server](https://github.com/kumagoro1202/nablarch-mcp-server)
 
 ---
 

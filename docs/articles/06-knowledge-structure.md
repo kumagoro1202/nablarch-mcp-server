@@ -36,8 +36,8 @@ Nablarch MCP Serverは、**2層構造の知識ベース** を採用していま�
 ```mermaid
 graph TD
     A[AIツール] --> B[MCP Server]
-    B --> C[Phase 1: 静的知識<br/>YAML知識ファイル]
-    B --> D[Phase 2: 動的知識<br/>RAGエンジン]
+    B --> C[Layer 1: 静的知識<br/>YAML知識ファイル]
+    B --> D[Layer 2: 動的知識<br/>RAGエンジン]
 
     C --> C1[handler-catalog.yaml]
     C --> C2[api-patterns.yaml]
@@ -78,12 +78,12 @@ graph TD
 
 ### 1.3 なぜ2層構造なのか？
 
-**Phase 1（静的知識）の役割**:
+**Layer 1（静的知識）の役割**:
 - **確実に正しい情報** を提供する基盤
 - ハンドラキュー設計など、**間違えると動かない** 重要な知識
 - AIツールが最初に参照すべき「正解カタログ」
 
-**Phase 2（動的知識）の役割**:
+**Layer 2（動的知識）の役割**:
 - 静的知識ではカバーしきれない **広範囲な情報** を検索
 - 最新のベストプラクティス、詳細なドキュメント、実装例
 

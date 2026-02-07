@@ -1,7 +1,7 @@
 # 記事11: Resource/Prompt設計と実装パターン — 知識の公開とテンプレートの活用
 
 > **対象読者**: 中級〜上級者（MCP Tool実装経験者）
-> **前提知識**: [記事05: Tool実装パターン](05-tool-implementation-patterns.md)、[記事07: ハンドラキュー設計](07-handler-queue-design.md)、[記事08: 知識ベース設計](08-knowledge-base-design.md)
+> **前提知識**: [記事05: アーキテクチャ概要](05-architecture-overview.md)、[記事10: Tool設計と実装パターン](10-tool-design-patterns.md)
 > **所要時間**: 40分
 
 ---

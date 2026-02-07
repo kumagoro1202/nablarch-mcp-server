@@ -474,7 +474,7 @@ Recall@5 = 1.0  （上位5件に関連ドキュメントが1件以上存在）
 Recall@5 = 0.0  （上位5件に関連ドキュメントが存在しない）
 ```
 
-**Phase 2の実測値**
+**開発フェーズ2の実測値**（※開発ロードマップ上のPhase 2を指す）
 
 - Recall@5: **1.000**（全50クエリで上位5件に関連ドキュメントが存在）
 - Recall@10: **1.000**
@@ -491,12 +491,14 @@ rel_i: i番目の結果の関連度（0 or 1）
 IDCG@5: 理想的な順位の場合のDCG（最高値）
 ```
 
-**Phase 2の実測値**
+**開発フェーズ2の実測値**（※開発ロードマップ上のPhase 2を指す）
 
 - ハイブリッド検索: **NDCG@5 = 0.500**（関連が2位）
 - リランキング後: **NDCG@5 = 1.000**（関連が1位に昇格）
 
-### 実環境での目標値（Phase 3）
+### 実環境での目標値（開発フェーズ3）
+
+> **注**: 以下のPhase 1-3は開発ロードマップ上のフェーズを指します。
 
 | メトリクス | Phase 2（モック環境） | Phase 3目標（実環境） | Phase 1推定 |
 |-----------|---------------------|-------------------|----------|
@@ -504,7 +506,7 @@ IDCG@5: 理想的な順位の場合のDCG（最高値）
 | Recall@5 | 1.000（検証完了） | ≥ 0.80 | 0.40-0.50 |
 | NDCG@5 | 0.500（検証完了） | ≥ 0.70 | 0.30-0.40 |
 
-Phase 2ではメトリクス計算フレームワークの正常動作を検証しました。Phase 3では実際のNablarchドキュメントを取り込んだ環境で、目標値達成を目指します。
+開発フェーズ2ではメトリクス計算フレームワークの正常動作を検証しました。開発フェーズ3では実際のNablarchドキュメントを取り込んだ環境で、目標値達成を目指します。
 
 ---
 
@@ -547,14 +549,22 @@ graph TB
 
 ### 次の記事へ
 
-次回は「**Nablarchハンドラキュー自動設計**」を扱います。要件定義から最適なハンドラキュー構成を自動生成し、設定XMLまで出力する仕組みを学びます。
+次回は **Spring AI MCP Serverとの統合** を学びます。SDK の使い方、McpServerConfig によるBean登録パターン、Tool/Resource/Prompt実装の内部構造を解説します。
+
+---
+
+## ナビゲーション
+
+- **[← 前の記事: 06-ナレッジの構造化](06-knowledge-structure.md)**
+- **[→ 次の記事: 08-Spring AI MCP統合](08-spring-ai-mcp-integration.md)**
+- **[📚 記事一覧に戻る](INDEX.md)**
 
 ---
 
 ## 参考リンク
 
-- [前の記事: 05-architecture-overview.md（アーキテクチャ概要）](./05-architecture-overview.md)
-- [次の記事: 07-knowledge-structure.md（ナレッジの構造化）](./07-knowledge-structure.md)
+- [前の記事: 06-knowledge-structure.md（ナレッジの構造化）](./06-knowledge-structure.md)
+- [次の記事: 08-spring-ai-mcp-integration.md（Spring AI MCP統合）](./08-spring-ai-mcp-integration.md)
 - [RAGパイプライン技術仕様書（docs/04-rag-pipeline-spec.md）](../04-rag-pipeline-spec.md)
 - [検索品質評価レポート（docs/09-search-quality-report.md）](../09-search-quality-report.md)
 - [Jina AI Embeddings v4](https://jina.ai/embeddings/)

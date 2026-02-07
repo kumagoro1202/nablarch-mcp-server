@@ -331,7 +331,7 @@ Nablarch MCP Serverには、まだまだ強力な機能があります。
 - [記事04B: 使ってみよう応用編](./04B-hands-on-advanced.md)
 - [記事05: アーキテクチャ概要](./05-architecture-overview.md)
 - [Nablarch公式ドキュメント](https://nablarch.github.io/docs/)
-- [GitHub: nablarch-mcp-server](https://github.com/kumanoGoro/nablarch-mcp-server)
+- [GitHub: nablarch-mcp-server](https://github.com/kumagoro1202/nablarch-mcp-server)
 
 ---
 

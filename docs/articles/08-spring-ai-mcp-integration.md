@@ -124,7 +124,7 @@ nablarch-mcp-serverの`pom.xml`では以下のように定義しています。
         <artifactId>spring-ai-starter-mcp-server</artifactId>
     </dependency>
 
-    <!-- HTTP Streamable Transport（Phase 3追加） -->
+    <!-- HTTP Streamable Transport（開発フェーズ3で追加） -->
     <dependency>
         <groupId>org.springframework.ai</groupId>
         <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
@@ -632,7 +632,7 @@ private static McpServerFeatures.SyncPromptSpecification promptSpec(
 
 ### HTTPトランスポートの有効化
 
-Phase 3で追加されたHTTPトランスポートは、`@Profile("http")`で有効化します。
+開発フェーズ3で追加されたHTTPトランスポート（※開発ロードマップ上のPhase 3）は、`@Profile("http")`で有効化します。
 
 **設定クラス例**:
 
@@ -759,7 +759,7 @@ public class McpCorsConfig {
 
 ## 関連リンク
 
-- **前の記事**: [記事06: ナレッジの構造化](./06-knowledge-structure.md)
+- **前の記事**: [記事07: RAGパイプライン詳解](./07-rag-pipeline-deep-dive.md)
 - **次の記事**: [記事09: 設定ファイル完全ガイド](./09-configuration-guide.md)
 - **公式ドキュメント**: [Spring AI MCP Server Documentation](https://docs.spring.io/spring-ai/reference/api/mcp.html)
 - **MCP仕様**: [Model Context Protocol Specification](https://modelcontextprotocol.io/)

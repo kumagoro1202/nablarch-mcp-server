@@ -2,7 +2,7 @@
 
 > **シリーズ**: nablarch-mcp-server 専門家育成シリーズ 第5回（全14回）
 > **対象読者**: 中級者（Spring Boot、REST API、データベースの基礎知識がある方）
-> **前提記事**: [04. 使ってみよう — ハンズオン実践ガイド](./04-hands-on-usage.md)
+> **前提記事**: [04B. 使ってみよう 応用編](./04B-hands-on-advanced.md)
 > **作成日**: 2026-02-07
 >
 > **Spring Bootの知識について**: この記事ではSpring Bootの概念（DI、Bean、AutoConfiguration等）が登場します。Spring Bootに馴染みがない方は、それぞれの用語が出てきた時に括弧内の説明を参照してください。
@@ -749,20 +749,24 @@ com.tis.nablarch.mcp
 
 ### 8.3 次の記事で学ぶこと
 
-次の記事では、**RAGパイプラインの詳細**を深掘りします：
+次の記事では、アーキテクチャの中核である **RAG（Retrieval-Augmented Generation）** の基礎を学びます：
 
-- **Embeddingモデルの選定理由**（Jina v4 vs Voyage-code-3）
-- **チャンキング戦略**（ドキュメント、コード、Javadoc別）
-- **ハイブリッド検索の仕組み**（BM25 + ベクトル検索 + RRF）
-- **リランキングの効果**（Cross-Encoderの精度向上）
-- **PostgreSQL + pgvectorの設計**（インデックス、スキーマ）
+**[第5A回: RAG入門 — AIが「調べてから答える」仕組みを理解しよう](./05A-rag-introduction.md)**
+
+- **RAGとは何か** — LLMに外部知識を接続する仕組み
+- **なぜRAGが必要なのか** — LLMの3つの限界（知識カットオフ、ハルシネーション、社内知識の欠如）
+- **RAGの3ステップ** — Retrieve（検索）→ Augment（補強）→ Generate（生成）
+- **Embeddingとベクトル検索の基礎** — テキストを数値ベクトルに変換する仕組み
+- **nablarch-mcp-serverでのRAGの使われ方** — SemanticSearchToolとハイブリッド検索
+
+RAG初心者でも理解できるよう、平易に解説されています
 
 ---
 
 ## ナビゲーション
 
-- **[← 前の記事: 04-ハンズオン実践ガイド](04-hands-on-usage.md)**
-- **[→ 次の記事: 06-RAGパイプライン詳解](06-rag-pipeline-deep-dive.md)**
+- **[← 前の記事: 04B-使ってみよう応用編](04B-hands-on-advanced.md)**
+- **[→ 次の記事: 05A-RAG入門](05A-rag-introduction.md)**
 - **[📚 記事一覧に戻る](INDEX.md)**
 
 ---
