@@ -1,5 +1,9 @@
 # Nablarch MCP Server セットアップガイド
 
+> **対象読者**: 利用者（MCPサーバーを使いたい人）
+> **前提知識**: Java 17, Maven の基本知識
+> **概要**: MCPサーバーのインストールからビルド・動作確認までの手順
+
 Nablarch MCP Serverは、AIアシスタント（Claude等）がNablarchフレームワークの知識にアクセスし、
 開発支援を行うためのMCP（Model Context Protocol）サーバーです。
 

@@ -1,10 +1,8 @@
 # ベクトルDBスキーマドキュメント
 
-> **WBS**: 2.4.2
-> **ステータス**: 完了
-> **作成日**: 2026-02-02
-> **作成者**: ashigaru1 (subtask_061)
-> **関連**: architecture.md §4, hybrid-search.md, embedding-pipeline.md
+> **対象読者**: 開発者（DBスキーマを理解したい人）
+> **前提知識**: PostgreSQL, pgvectorの基本知識
+> **概要**: ベクトルDBスキーマ定義、インデックス設計、マイグレーション
 
 ---
 

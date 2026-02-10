@@ -1,9 +1,8 @@
 # Nablarch MCP Server — WBS（Work Breakdown Structure）
 
-> **作成日**: 2026-02-02
-> **作成者**: ashigaru8（subtask_037 / cmd_023 Part3）
-> **ステータス**: Phase 1-2 完了 / Phase 3 完了（100%）/ Phase 4 未着手
-> **根拠文書**: architecture.md, use-cases.md, overview.md, ADR-001
+> **対象読者**: プロジェクト管理者
+> **前提知識**: なし
+> **概要**: Phase 1〜4のWBS、依存関係図、クリティカルパス、リスク管理
 
 ---
 

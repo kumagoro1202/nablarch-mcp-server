@@ -1,8 +1,8 @@
 # Streamable HTTP Transport 設定ガイド
 
-> **バージョン**: 1.0
-> **対象**: nablarch-mcp-server Phase 3
-> **作成日**: 2026-02-04
+> **対象読者**: 利用者（リモート接続を設定したい人）
+> **前提知識**: MCPサーバーのセットアップ完了、HTTP/ネットワークの基本知識
+> **概要**: Streamable HTTPトランスポートの設定・運用ガイド
 > **関連設計書**: [23_streamable-http-transport.md](../designs/23_streamable-http-transport.md)
 
 ---
