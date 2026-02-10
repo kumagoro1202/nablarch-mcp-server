@@ -1,0 +1,186 @@
+# Nablarch Security & Session Catalog
+# 認証/認可 + セッションストア + CSRF防止 + 排他制御の知識
+# Version: 1.0
+# Reference: https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/
+# FQCN検証: 公式ドキュメント + Javadocで確認（2026-02-10）
+
+permission_check:
+  description: |
+    認可チェック機能。リクエストID（アクション＋メソッド）に対して、
+    ユーザの権限テーブルを参照し認可判定を行う。
+    PermissionCheckHandlerがハンドラキュー内で自動実行し、
+    PermissionUtilでプログラム的なチェックも可能。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-auth"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/authorization/permission_check.html"
+
+  core_classes:
+    - name: PermissionUtil
+      fqcn: "nablarch.common.permission.PermissionUtil"
+      description: "認可チェックユーティリティ。ThreadContextから権限情報を取得してチェック"
+      usage: |
+        // リクエストIDベースの認可チェック
+        Permission permission = PermissionUtil.getPermission();
+        if (permission.permit("/action/user/delete")) {
+            // 削除権限あり
+        }
+
+    - name: Permission
+      fqcn: "nablarch.common.permission.Permission"
+      description: "権限情報インターフェース。permit()で認可判定を実行"
+
+    - name: PermissionCheckHandler
+      fqcn: "nablarch.common.handler.permission.PermissionCheckHandler"
+      description: |
+        認可チェックハンドラ。ThreadContextからリクエストIDとユーザIDを取得し、
+        権限テーブルを参照して認可判定を行う。
+        認可失敗時はForbiddenを返却。
+
+  role_check:
+    description: |
+      アノテーションベースの認可チェック（ロールチェック）。
+      アクションメソッドに@CheckRoleを付与してロールベースの認可を宣言的に実行。
+    reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/authorization/role_check.html"
+
+session_store:
+  description: |
+    セッションストア機能。HTTPセッションの代わりに使用する独自のセッション管理。
+    DBストア（DBテーブルに永続化）とHIDDENストア（hiddenタグで画面間引き継ぎ）の
+    2種類のストアを提供し、用途に応じて使い分ける。
+    ステートレスアプリケーション構築を支援する。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-web"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/session_store.html"
+
+  core_classes:
+    - name: SessionUtil
+      fqcn: "nablarch.common.web.session.SessionUtil"
+      description: "セッション操作ユーティリティ。セッションストアへの読み書きを行う"
+      usage: |
+        // セッションに保存
+        SessionUtil.put(context, "user", userEntity);
+
+        // セッションから取得
+        User user = SessionUtil.get(context, "user");
+
+        // セッションから取得（存在しない場合null）
+        User user = SessionUtil.orNull(context, "user");
+
+        // セッションから削除
+        SessionUtil.delete(context, "user");
+
+        // セッション無効化（ログアウト時）
+        SessionUtil.invalidate(context);
+
+    - name: SessionStoreHandler
+      fqcn: "nablarch.common.web.session.SessionStoreHandler"
+      description: "セッションストアハンドラ。ハンドラキューに組み込んでセッションの読み込み/書き戻しを行う"
+
+    - name: SessionStore
+      fqcn: "nablarch.common.web.session.SessionStore"
+      description: "セッションストアの基底クラス。DBストア/HIDDENストアの共通インターフェース"
+
+  store_types:
+    - name: "DBストア"
+      description: "セッション情報をDBテーブルに永続化。複数APサーバー間での共有が可能"
+      use_case: "ログイン情報、業務データの一時保存など永続性が必要な場合"
+
+    - name: "HIDDENストア"
+      description: "セッション情報をHTTPレスポンスのhiddenタグに埋め込み。画面遷移で引き継ぎ"
+      use_case: "ウィザード形式の画面遷移、入力確認画面での一時保存"
+
+    - name: "Redisストア（Lettuceアダプタ）"
+      description: "Redisにセッションを保存。高速・スケーラブル"
+      module: "nablarch-lettuce-adaptor"
+
+  session_id:
+    description: |
+      セッションIDはCookie（デフォルト名: NABLARCH_SID、変更可能）で管理。
+      SessionStoreHandlerが自動的にセッションIDの発行・管理を行う。
+
+csrf:
+  description: |
+    CSRF（Cross-Site Request Forgery）防止機能。
+    トークンベースの二重サブミット防止とCSRFトークン検証を提供。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-fw-web"
+
+  core_classes:
+    - name: CsrfTokenUtil
+      fqcn: "nablarch.common.web.csrf.CsrfTokenUtil"
+      description: "CSRFトークン管理ユーティリティ"
+
+    - name: SecureHandler
+      fqcn: "nablarch.fw.web.handler.SecureHandler"
+      description: "セキュリティ関連HTTPヘッダー設定ハンドラ。Content-Security-Policy、X-Frame-Options等を設定"
+
+  double_submit_prevention:
+    description: |
+      二重サブミット防止機能。トークンベースの楽観的排他制御で実現。
+      画面表示時にトークンを発行し、サブミット時にサーバー側のトークンと照合する。
+    handler:
+      name: TokenVerificationHandler
+      fqcn: "nablarch.common.web.token.TokenVerificationHandler"
+      description: "トークン検証ハンドラ"
+    annotation:
+      name: "@OnDoubleSubmission"
+      fqcn: "nablarch.common.web.interceptor.OnDoubleSubmission"
+      description: "二重サブミット検知時の遷移先を指定するアノテーション"
+      example: |
+        @OnDoubleSubmission(path = "/WEB-INF/view/error/doubleSubmission.jsp")
+        public HttpResponse doRegister(HttpRequest request, ExecutionContext context) {
+            // 登録処理
+        }
+
+exclusive_control:
+  description: |
+    排他制御機能。DBを使用した楽観的排他制御と悲観的排他制御を提供。
+    楽観的排他制御はバージョン番号カラムによる更新競合検知、
+    悲観的排他制御はSELECT FOR UPDATEによるロックで実現。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-exclusivecontrol"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/exclusive_control.html"
+
+  core_classes:
+    - name: ExclusiveControlUtil
+      fqcn: "nablarch.common.exclusivecontrol.ExclusiveControlUtil"
+      description: "排他制御ユーティリティ"
+
+  types:
+    - name: "楽観的排他制御（Optimistic Lock）"
+      description: "バージョン番号カラムで更新競合を検知。UniversalDaoが自動対応"
+      usage: |
+        // エンティティにバージョンカラムを定義
+        @Table(name = "USER")
+        public class UserEntity {
+            @Version
+            private Long version;
+            // ...
+        }
+
+        // 更新時に自動バージョンチェック（競合時はOptimisticLockException）
+        UniversalDao.update(entity);
+
+    - name: "悲観的排他制御（Pessimistic Lock）"
+      description: "SELECT FOR UPDATEでレコードロック。更新完了までロック保持"
+
+service_availability:
+  description: |
+    サービス提供可否チェック機能。リクエストIDに対して
+    サービスの利用可否をDB管理し、メンテナンス時に特定機能を停止可能。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-auth"
+
+  core_classes:
+    - name: ServiceAvailabilityUtil
+      fqcn: "nablarch.common.availability.ServiceAvailabilityUtil"
+      description: "サービス提供可否チェックユーティリティ"
+
+    - name: ServiceAvailabilityCheckHandler
+      fqcn: "nablarch.common.handler.ServiceAvailabilityCheckHandler"
+      description: "サービス提供可否チェックハンドラ。利用不可時はServiceUnavailableを返却"

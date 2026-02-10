@@ -1,0 +1,119 @@
+# Nablarch Mail Catalog
+# メール送信機能の知識
+# Version: 1.0
+# Reference: https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/mail.html
+# FQCN検証: 公式ドキュメント + Javadocで確認（2026-02-10）
+
+mail:
+  description: |
+    メール送信機能。送信要求をDBに登録し、常駐バッチ（MailSender）が非同期に送信する。
+    テンプレートメール（DBテンプレート）とフリーフォーマットメールの2種類をサポート。
+    添付ファイル対応、宛先（TO/CC/BCC）管理、送信ステータス管理を含む。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-mail-sender"
+    additional:
+      - artifact_id: "nablarch-common-idgenerator"
+        description: "メール送信要求ID採番"
+      - artifact_id: "nablarch-common-idgenerator-jdbc"
+        description: "JDBC採番機能"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/mail.html"
+
+  core_classes:
+    - name: MailUtil
+      fqcn: "nablarch.common.mail.MailUtil"
+      description: "MailRequesterを取得するユーティリティ"
+      usage: |
+        MailRequester requester = MailUtil.getMailRequester();
+
+    - name: MailRequester
+      fqcn: "nablarch.common.mail.MailRequester"
+      description: "メール送信要求をDBに登録するクラス"
+      usage: |
+        MailRequester requester = MailUtil.getMailRequester();
+        String mailRequestId = requester.requestToSend(mailContext);
+
+    - name: TemplateMailContext
+      fqcn: "nablarch.common.mail.TemplateMailContext"
+      description: "テンプレートメールの送信要求。DBに登録されたテンプレートを使用"
+      usage: |
+        TemplateMailContext mail = new TemplateMailContext();
+        mail.setFrom("sender@example.com");
+        mail.addTo("recipient@example.com");
+        mail.addCc("cc@example.com");
+        mail.setSubject("件名");
+        mail.setTemplateId("TEMPLATE_001");
+        mail.setVariable("userName", "山田太郎");
+        mail.setVariable("orderNo", "ORD-001");
+        MailUtil.getMailRequester().requestToSend(mail);
+
+    - name: FreeTextMailContext
+      fqcn: "nablarch.common.mail.FreeTextMailContext"
+      description: "フリーフォーマットメールの送信要求。本文を直接指定"
+      usage: |
+        FreeTextMailContext mail = new FreeTextMailContext();
+        mail.setFrom("sender@example.com");
+        mail.addTo("recipient@example.com");
+        mail.setSubject("件名");
+        mail.setMailBody("メール本文");
+        MailUtil.getMailRequester().requestToSend(mail);
+
+    - name: AttachedFile
+      fqcn: "nablarch.common.mail.AttachedFile"
+      description: "メール添付ファイル"
+      usage: |
+        AttachedFile file = new AttachedFile("application/pdf", new File("report.pdf"));
+        mail.addAttachedFile(file);
+
+    - name: MailSender
+      fqcn: "nablarch.common.mail.MailSender"
+      description: "メール送信バッチアクション。常駐バッチとして動作し、未送信の要求を処理"
+
+  config_classes:
+    - name: MailRequestConfig
+      fqcn: "nablarch.common.mail.MailRequestConfig"
+      description: "送信要求時の設定（最大件名長、最大本文長等）"
+
+    - name: MailSessionConfig
+      fqcn: "nablarch.common.mail.MailSessionConfig"
+      description: "SMTP接続情報（ホスト、ポート、認証情報）"
+
+    - name: MailConfig
+      fqcn: "nablarch.common.mail.MailConfig"
+      description: "メール機能全般の設定（コード値、メッセージ定義）"
+
+  table_schemas:
+    - name: MailRequestTable
+      fqcn: "nablarch.common.mail.MailRequestTable"
+      description: "メール送信要求テーブルのスキーマ定義"
+
+    - name: MailRecipientTable
+      fqcn: "nablarch.common.mail.MailRecipientTable"
+      description: "メール宛先テーブルのスキーマ定義"
+
+    - name: MailAttachedFileTable
+      fqcn: "nablarch.common.mail.MailAttachedFileTable"
+      description: "メール添付ファイルテーブルのスキーマ定義"
+
+    - name: MailTemplateTable
+      fqcn: "nablarch.common.mail.MailTemplateTable"
+      description: "メールテンプレートテーブルのスキーマ定義"
+
+  adapters:
+    - name: "FreeMarkerアダプタ"
+      description: "FreeMarkerテンプレートエンジンでメール本文を生成"
+      module: "nablarch-mail-sender-freemarker"
+    - name: "Thymeleafアダプタ"
+      description: "Thymeleafテンプレートエンジンでメール本文を生成"
+      module: "nablarch-mail-sender-thymeleaf"
+    - name: "Velocityアダプタ"
+      description: "Velocityテンプレートエンジンでメール本文を生成"
+      module: "nablarch-mail-sender-velocity"
+
+  architecture:
+    description: |
+      メール送信のアーキテクチャ:
+      1. オンライン処理: MailRequesterでDB（送信要求テーブル）に登録
+      2. バッチ処理: MailSender常駐バッチがDBから未送信要求を取得→SMTP送信
+      3. ステータス管理: 未送信→処理中→送信成功/送信失敗をDBで管理
+      この非同期方式により、オンライン処理はメール送信の完了を待たずに応答可能。

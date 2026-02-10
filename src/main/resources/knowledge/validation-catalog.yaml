@@ -1,0 +1,187 @@
+# Nablarch Validation Catalog
+# Bean Validation + Nablarch独自バリデーションの知識
+# Version: 1.0
+# Reference: https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation/
+# FQCN検証: GitHub nablarch org ソースコード + 公式ドキュメントで確認（2026-02-10）
+
+bean_validation:
+  description: |
+    Jakarta Bean Validation（JSR 380）ベースのバリデーション機能。
+    Nablarch独自アノテーション（@Required, @Length, @SystemChar等）と
+    ドメインバリデーション機能を提供する。新規開発ではこちらを推奨。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-validation-ee"
+    additional:
+      - artifact_id: "nablarch-core-message"
+        description: "メッセージ管理と連携する場合"
+      - artifact_id: "nablarch-common-code"
+        description: "コード値バリデータ使用時"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation/bean_validation.html"
+
+  core_classes:
+    - name: ValidatorUtil
+      fqcn: "nablarch.core.validation.ee.ValidatorUtil"
+      description: "バリデーション実行ユーティリティ。validate()でバリデーションを実行"
+      usage: |
+        // 基本的なバリデーション実行
+        ValidatorUtil.validate(form);
+
+        // グループ指定バリデーション
+        ValidatorUtil.validateWithGroup(form, CreateGroup.class);
+
+    - name: DomainManager
+      fqcn: "nablarch.core.validation.ee.DomainManager"
+      description: "ドメインバリデーション管理。ドメイン定義Beanクラスを提供する"
+      usage: |
+        // DomainManager実装例
+        public class SampleDomainManager implements DomainManager<SampleDomainBean> {
+            @Override
+            public Class<SampleDomainBean> getDomainBean() {
+                return SampleDomainBean.class;
+            }
+        }
+
+    - name: NablarchMessageInterpolator
+      fqcn: "nablarch.core.validation.ee.NablarchMessageInterpolator"
+      description: "Nablarchメッセージ管理と連携するMessageInterpolator実装"
+
+    - name: BeanValidationStrategy
+      fqcn: "nablarch.common.web.validator.BeanValidationStrategy"
+      description: "Web自動バリデーション用ストラテジ。@InjectFormインターセプタと連携"
+
+  annotations:
+    - name: "@Required"
+      fqcn: "nablarch.core.validation.ee.Required"
+      description: "必須チェック。null・空文字を不可とする"
+      example: |
+        @Required
+        private String userName;
+
+    - name: "@Length"
+      fqcn: "nablarch.core.validation.ee.Length"
+      description: "文字列長チェック。最小・最大長を指定"
+      attributes:
+        - "min - 最小文字数（デフォルト0）"
+        - "max - 最大文字数"
+      example: |
+        @Length(max = 100)
+        private String userName;
+
+    - name: "@SystemChar"
+      fqcn: "nablarch.core.validation.ee.SystemChar"
+      description: "文字種チェック。許可する文字セットを定義名で指定"
+      attributes:
+        - "charsetDef - 文字セット定義名"
+      example: |
+        @SystemChar(charsetDef = "全角文字")
+        private String userName;
+
+    - name: "@NumberRange"
+      fqcn: "nablarch.core.validation.ee.NumberRange"
+      description: "数値範囲チェック。最小値・最大値を指定"
+      attributes:
+        - "min - 最小値"
+        - "max - 最大値"
+      example: |
+        @NumberRange(min = 0, max = 150)
+        private Integer age;
+
+    - name: "@Domain"
+      fqcn: "nablarch.core.validation.ee.Domain"
+      description: "ドメインバリデーション。ドメイン定義Beanのフィールドルールを継承"
+      example: |
+        @Domain("userName")
+        private String name;
+
+    - name: "@CodeValue"
+      fqcn: "nablarch.common.code.validator.ee.CodeValue"
+      description: "コード値バリデーション。コード管理テーブルに存在する値かチェック"
+      attributes:
+        - "codeId - コードID"
+        - "pattern - パターン名（省略時はデフォルト）"
+
+  charset_definitions:
+    description: "文字種バリデーション用の文字セット定義クラス群"
+    classes:
+      - name: RangedCharsetDef
+        fqcn: "nablarch.core.validation.validator.unicode.RangedCharsetDef"
+        description: "Unicodeコードポイント範囲で文字セットを定義"
+      - name: LiteralCharsetDef
+        fqcn: "nablarch.core.validation.validator.unicode.LiteralCharsetDef"
+        description: "リテラル文字列で文字セットを定義"
+      - name: CompositeCharsetDef
+        fqcn: "nablarch.core.validation.validator.unicode.CompositeCharsetDef"
+        description: "複数の文字セット定義を合成"
+
+  domain_validation:
+    description: |
+      ドメインバリデーションはバリデーションルールを「ドメイン」単位で管理する仕組み。
+      ドメインBean（バリデーションルール定義用Bean）を作成し、DomainManagerで管理する。
+      フォームクラスでは@Domainアノテーションでドメイン名を指定するだけで、
+      ドメインBeanに定義されたバリデーションルールが自動適用される。
+    example: |
+      // ドメイン定義Bean
+      public class SampleDomainBean {
+          @Required
+          @Length(max = 100)
+          @SystemChar(charsetDef = "全角文字")
+          String userName;
+
+          @Required
+          @Length(min = 7, max = 7)
+          @SystemChar(charsetDef = "半角数字")
+          String zipCode;
+      }
+
+      // フォームクラス（ドメイン参照）
+      public class UserForm {
+          @Domain("userName")
+          private String name;
+
+          @Domain("zipCode")
+          private String zip;
+      }
+
+  web_integration:
+    description: |
+      Webアプリケーションでは@InjectFormインターセプタと連携して自動バリデーションを実行する。
+      BeanValidationStrategyをコンポーネント設定で登録すると、
+      @InjectForm付きアクションメソッドで自動的にバリデーションが実行される。
+    config_example: |
+      <!-- コンポーネント定義（XML） -->
+      <component name="validationStrategy"
+                 class="nablarch.common.web.validator.BeanValidationStrategy" />
+
+nablarch_validation:
+  description: |
+    Nablarch独自のバリデーション機能。Bean Validation登場以前のレガシーAPI。
+    ValidationUtilを使用してバリデーションを実行する。
+    新規開発ではBean Validationの使用を推奨。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-validation"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation/nablarch_validation.html"
+  deprecated_note: "新規開発ではBean Validation（nablarch-core-validation-ee）を推奨"
+
+  core_classes:
+    - name: ValidationUtil
+      fqcn: "nablarch.core.validation.ValidationUtil"
+      description: "バリデーション実行ユーティリティ（独自バリデーション版）"
+
+    - name: ValidationManager
+      fqcn: "nablarch.core.validation.ValidationManager"
+      description: "バリデーション管理。バリデータ・コンバータの登録管理"
+
+    - name: ValidationContext
+      fqcn: "nablarch.core.validation.ValidationContext"
+      description: "バリデーション実行コンテキスト。バリデーション結果を保持"
+
+  annotations:
+    - name: "@ValidateFor"
+      fqcn: "nablarch.core.validation.ValidateFor"
+      description: "バリデーションメソッドを指定。フォームクラスのstaticメソッドに付与"
+
+    - name: "@PropertyName"
+      fqcn: "nablarch.core.validation.PropertyName"
+      description: "エラーメッセージ用のプロパティ表示名を指定"
