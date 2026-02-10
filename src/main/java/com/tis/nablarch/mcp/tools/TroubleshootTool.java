@@ -291,7 +291,7 @@ public class TroubleshootTool {
         // エラー分析セクション
         sb.append("## エラー分析\n\n");
         sb.append("| 項目 | 値 |\n");
-        sb.append("|------|----|n");
+        sb.append("|------|----|\n");
         sb.append("| カテゴリ | ").append(formatCategory(analysis.category)).append(" |\n");
         if (analysis.errorCode != null) {
             sb.append("| エラーコード | ").append(analysis.errorCode).append(" |\n");
