@@ -89,11 +89,14 @@ public class TroubleshootTool {
     public String troubleshoot(
             @ToolParam(description = "Error message text to analyze")
             String errorMessage,
-            @ToolParam(description = "Full stack trace (optional but recommended)")
+            @ToolParam(description = "Full stack trace (optional but recommended)",
+                    required = false)
             String stackTrace,
-            @ToolParam(description = "Nablarch error code (e.g., ERR-001) if available")
+            @ToolParam(description = "Nablarch error code (e.g., ERR-001) if available",
+                    required = false)
             String errorCode,
-            @ToolParam(description = "Environment info as JSON (e.g., app type, Nablarch version)")
+            @ToolParam(description = "Environment info as JSON (e.g., app type, Nablarch version)",
+                    required = false)
             String environment) {
 
         // 入力検証

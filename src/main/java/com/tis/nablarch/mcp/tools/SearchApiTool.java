@@ -39,7 +39,8 @@ public class SearchApiTool {
             + "Use this when you need to find Nablarch APIs for code generation.")
     public String searchApi(
             @ToolParam(description = "Search keyword (class name, method name, or concept)") String keyword,
-            @ToolParam(description = "Optional category filter: handler, library, web, batch, rest, messaging")
+            @ToolParam(description = "Optional category filter: handler, library, web, batch, rest, messaging",
+                    required = false)
             String category) {
         if (keyword == null || keyword.isBlank()) {
             return "検索キーワードを指定してください。";

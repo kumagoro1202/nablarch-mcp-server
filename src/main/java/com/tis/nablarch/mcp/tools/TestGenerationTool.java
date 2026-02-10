@@ -95,14 +95,18 @@ public class TestGenerationTool {
                     + "(web/REST request testing), batch (batch action), messaging (MOM messaging)")
             String testType,
             @ToolParam(description = "Output format: junit5 (default) or nablarch-excel "
-                    + "(includes Excel test data structure)")
+                    + "(includes Excel test data structure)",
+                    required = false)
             String format,
             @ToolParam(description = "Optional: natural language description of test cases "
-                    + "(e.g. 'normal registration, validation error, duplicate email')")
+                    + "(e.g. 'normal registration, validation error, duplicate email')",
+                    required = false)
             String testCases,
-            @ToolParam(description = "Include Excel test data structure: true (default) or false")
+            @ToolParam(description = "Include Excel test data structure: true (default) or false",
+                    required = false)
             String includeExcel,
-            @ToolParam(description = "Coverage target: minimal, standard (default), comprehensive")
+            @ToolParam(description = "Coverage target: minimal, standard (default), comprehensive",
+                    required = false)
             String coverageTarget) {
 
         // 入力検証
