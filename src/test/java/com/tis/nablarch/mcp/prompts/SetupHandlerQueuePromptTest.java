@@ -51,6 +51,8 @@ class SetupHandlerQueuePromptTest {
         McpSchema.GetPromptResult result = prompt.execute(Map.of("app_type", "messaging"));
         String text = ((McpSchema.TextContent) result.messages().get(0).content()).text();
         assertTrue(text.contains("messaging"));
+        assertTrue(text.contains("RequestThreadLoopHandler"));
+        assertTrue(text.contains("XML設定テンプレート"));
     }
 
     @Test
