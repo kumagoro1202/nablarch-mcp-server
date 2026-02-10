@@ -679,10 +679,13 @@ MCP Inspectorは、MCPサーバーの動作を対話的にテストできる公�
 #### 4.2.1 起動方法
 
 ```bash
+# WSL2上で実行
 npx @modelcontextprotocol/inspector java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
-ブラウザが自動的に開き、Inspector UIが表示されます。
+**WSL2環境での注意**: コマンド実行後、`Server running at http://localhost:5173` と表示されたら、**Windows側（ホスト側）のブラウザ**で `http://localhost:5173` を開いてください。最新のWSL2では自動的にポート転送されます。
+
+Inspector UIが表示されれば起動成功です。
 
 #### 4.2.2 Inspector UI の構成
 

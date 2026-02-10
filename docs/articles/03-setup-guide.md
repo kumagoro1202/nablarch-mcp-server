@@ -448,8 +448,11 @@ $ nano .mcp.json
 
 MCP InspectorはMCPサーバーをテストするためのブラウザベースのツールです。
 
+**WSL2環境での実行手順**:
+
 ```bash
-# 別のターミナルを開いて実行
+# WSL2上で別のターミナルを開いて実行
+$ cd ~/nablarch-mcp-server
 $ npx @modelcontextprotocol/inspector java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
@@ -462,7 +465,39 @@ Server running at http://localhost:5173
 Opening browser...
 ```
 
-ブラウザが自動的に開き、MCP Inspectorのインターフェースが表示されます。
+**ブラウザでのアクセス**:
+
+WSL2環境では、**Windows側（ホスト側）のブラウザ**で以下のURLを開いてください。
+
+```
+http://localhost:5173
+```
+
+最新のWSL2（Windows 11 + WSL 2.0以降）では、WSL2の`localhost`がWindows側に自動的に転送されるため、上記URLで直接アクセスできます。
+
+**トラブルシューティング**:
+
+もし `localhost:5173` でアクセスできない場合は、以下を試してください:
+
+1. **WSL2のIPアドレスを使用する**:
+   ```bash
+   # WSL2上でIPアドレスを確認
+   $ hostname -I | awk '{print $1}'
+   # 例: 172.24.112.5
+   ```
+   Windows側のブラウザで `http://172.24.112.5:5173` のようにアクセス
+
+2. **Windowsファイアウォールでポート5173を許可**:
+   - Windowsの設定 → プライバシーとセキュリティ → Windowsセキュリティ → ファイアウォールとネットワーク保護
+   - 詳細設定 → 受信の規則 → 新しい規則 → ポート 5173 を許可
+
+3. **ポート転送を手動設定** (古いWSL2環境の場合):
+   ```powershell
+   # PowerShell（管理者権限）で実行
+   netsh interface portproxy add v4tov4 listenport=5173 listenaddress=0.0.0.0 connectport=5173 connectaddress=<WSL2のIPアドレス>
+   ```
+
+ブラウザでMCP Inspectorのインターフェースが表示されれば成功です。
 
 ### Step 11: Tools の確認
 
@@ -631,9 +666,9 @@ java.io.FileNotFoundException: class path resource [knowledge/handler-catalog.ya
 $ ./mvnw clean package
 ```
 
-### エラー3: MCP Inspector でツールが表示されない
+### エラー3: MCP Inspector でツールが表示されない、またはブラウザでアクセスできない
 
-**症状**: MCP Inspector のToolsタブが空
+**症状1**: MCP Inspector のToolsタブが空
 
 **原因**: サーバーが正しく起動していない、またはMCP Inspectorのコマンドが間違っている
 
@@ -646,6 +681,40 @@ $ ps aux | grep nablarch-mcp-server
 # MCP Inspectorのコマンドを再確認
 $ npx @modelcontextprotocol/inspector java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
+
+**症状2**: WSL2環境でブラウザに `localhost:5173` でアクセスできない
+
+**原因**: WSL2とWindows間のポート転送が機能していない
+
+**対処法**:
+
+1. **WSL2のIPアドレスで直接アクセス**:
+   ```bash
+   # WSL2上でIPアドレスを取得
+   $ hostname -I | awk '{print $1}'
+   # 例: 172.24.112.5
+   ```
+   Windows側のブラウザで `http://172.24.112.5:5173` を開く
+
+2. **Windowsファイアウォールの確認**:
+   - Windowsセキュリティ → ファイアウォールとネットワーク保護 → 詳細設定
+   - 受信の規則でポート5173が許可されているか確認
+
+3. **WSL2の再起動**:
+   ```powershell
+   # PowerShell（管理者権限）で実行
+   wsl --shutdown
+   # その後、WSL2を再度起動
+   ```
+
+4. **ポート転送を手動設定** (古いWSL2環境):
+   ```powershell
+   # PowerShell（管理者権限）で実行
+   $wslip = (wsl hostname -I).Trim()
+   netsh interface portproxy add v4tov4 listenport=5173 listenaddress=0.0.0.0 connectport=5173 connectaddress=$wslip
+   # 確認
+   netsh interface portproxy show v4tov4
+   ```
 
 ### エラー4: Claude Desktop / Claude Code で接続できない
 

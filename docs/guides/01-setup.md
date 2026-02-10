@@ -100,19 +100,23 @@ java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 MCP Inspectorを使ってサーバーの動作を対話的に確認できます。
 
 ```bash
+# WSL2上で実行
 npx @modelcontextprotocol/inspector java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
-ブラウザが開き、Tools / Resources / Prompts の一覧と実行テストが可能です。
+**WSL2環境での注意**: コマンド実行後、Windows側（ホスト側）のブラウザで `http://localhost:5173` を開いてください。最新のWSL2では自動的にポート転送されます。`localhost` でアクセスできない場合は、`hostname -I | awk '{print $1}'` でWSL2のIPアドレスを確認し、そのIPでアクセスしてください。
+
+ブラウザでMCP Inspectorが開けば、Tools / Resources / Prompts の一覧と実行テストが可能です。
 
 ## 動作確認
 
 ### MCP Inspectorでの確認手順
 
-1. 上記コマンドでMCP Inspectorを起動
-2. 左メニューから **Tools** を選択 → `search_api`、`validate_handler_queue` が表示されることを確認
-3. 左メニューから **Resources** を選択 → 12個のリソースURIが表示されることを確認
-4. 左メニューから **Prompts** を選択 → 6個のプロンプトが表示されることを確認
+1. 上記コマンドでMCP Inspectorを起動（WSL2上）
+2. Windows側のブラウザで `http://localhost:5173` を開く
+3. 左メニューから **Tools** を選択 → `search_api`、`validate_handler_queue` が表示されることを確認
+4. 左メニューから **Resources** を選択 → 12個のリソースURIが表示されることを確認
+5. 左メニューから **Prompts** を選択 → 6個のプロンプトが表示されることを確認
 
 ### テストコマンド例
 

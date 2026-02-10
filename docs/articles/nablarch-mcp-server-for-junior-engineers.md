@@ -415,11 +415,19 @@ java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 MCP InspectorはMCPサーバーをテストするためのツールです。
 
 ```bash
-# npxでMCP Inspectorを起動
+# WSL2上でMCP Inspectorを起動
 npx @modelcontextprotocol/inspector java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
-ブラウザが自動で開きます。以下を確認しましょう。
+**WSL2環境での注意**:
+
+コマンド実行後、`Server running at http://localhost:5173` と表示されたら、**Windows側（ホスト側）のブラウザ**で以下のURLを開いてください。
+
+```
+http://localhost:5173
+```
+
+最新のWSL2では自動的にポート転送されるため、Windows側から `localhost:5173` でアクセスできます。もしアクセスできない場合は、WSL2のIPアドレス（`hostname -I | awk '{print $1}'` で確認）を使ってアクセスしてください。
 
 **確認項目：**
 
