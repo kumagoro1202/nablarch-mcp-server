@@ -57,7 +57,7 @@ class McpHttpPropertiesTest {
     @DisplayName("OriginValidationConfigのデフォルト値")
     void originValidationDefaults() {
         McpHttpProperties.OriginValidationConfig origin = new McpHttpProperties.OriginValidationConfig();
-        assertFalse(origin.isEnabled());
+        assertTrue(origin.isEnabled());
         assertTrue(origin.isAllowLocalhost());
     }
 }
