@@ -129,10 +129,11 @@ public class TestGenerationTool {
                     effectiveIncludeExcel, effectiveCoverage, nullIfBlank(testCases));
         } catch (Exception e) {
             log.error("generate_test実行中にエラーが発生: {}", e.getMessage(), e);
-            return "テストコードの生成に失敗しました: " + e.getMessage()
+            throw new RuntimeException(
+                    "テストコードの生成に失敗しました。入力パラメータを確認してください。"
                     + "\n\n手動でテストクラスを作成する場合は以下を参考にしてください:\n"
                     + "- search_api ツールで \"request-unit-test\" を検索\n"
-                    + "- nablarch://guide/testing リソースを参照";
+                    + "- nablarch://guide/testing リソースを参照");
         }
     }
 

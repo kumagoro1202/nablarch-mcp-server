@@ -122,7 +122,8 @@ public class SemanticSearchTool {
             return doSearch(query, filters, effectiveTopK, effectiveMode);
         } catch (Exception e) {
             log.error("semantic_search実行中にエラーが発生: {}", e.getMessage(), e);
-            return "検索中にエラーが発生しました。search_apiツールをお試しください。";
+            throw new RuntimeException(
+                    "検索中にエラーが発生しました。search_apiツールをお試しください。");
         }
     }
 

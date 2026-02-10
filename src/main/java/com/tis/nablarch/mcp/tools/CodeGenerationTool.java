@@ -100,7 +100,8 @@ public class CodeGenerationTool {
         } catch (Exception e) {
             log.error("コード生成でエラー: type={}, name={}, appType={}",
                     effectiveType, name, effectiveAppType, e);
-            return "コード生成中にエラーが発生しました: " + e.getMessage();
+            throw new RuntimeException(
+                    "コード生成中にエラーが発生しました。入力パラメータを確認してください。");
         }
 
         return formatResult(result);

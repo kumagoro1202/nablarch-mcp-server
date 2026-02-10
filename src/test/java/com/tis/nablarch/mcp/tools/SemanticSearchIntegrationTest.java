@@ -166,7 +166,7 @@ class SemanticSearchIntegrationTest {
     class FallbackIntegrationTests {
 
         @Test
-        @DisplayName("Reranker失敗時: HybridSearch結果がそのまま表示される")
+        @DisplayName("Reranker失敗時: RuntimeExceptionがスローされる（isError:true対応）")
         void rerankerFailureFallback() {
             List<SearchResult> bm25Results = createSearchResults("bm25", 3, 0.8);
             when(bm25SearchService.search(anyString(), any(), anyInt()))
@@ -176,13 +176,12 @@ class SemanticSearchIntegrationTest {
             when(reranker.rerank(anyString(), anyList(), anyInt()))
                     .thenThrow(new RuntimeException("Reranker API timeout"));
 
-            // SemanticSearchToolのエラーハンドリングがキャッチ
-            String result = semanticSearchTool.semanticSearch(
-                    "テストクエリ", null, null, null, null, null, null);
+            // isError:true対応: 例外がスローされることを検証
+            RuntimeException ex = assertThrows(RuntimeException.class,
+                    () -> semanticSearchTool.semanticSearch(
+                            "テストクエリ", null, null, null, null, null, null));
 
-            assertNotNull(result);
-            // エラーメッセージが返却される
-            assertTrue(result.contains("エラー") || result.contains("検索結果"));
+            assertTrue(ex.getMessage().contains("検索中にエラーが発生しました"));
         }
 
         @Test

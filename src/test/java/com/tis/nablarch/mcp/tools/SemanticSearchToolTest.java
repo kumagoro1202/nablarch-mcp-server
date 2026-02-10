@@ -223,14 +223,15 @@ class SemanticSearchToolTest {
         }
 
         @Test
-        @DisplayName("HybridSearchService例外時はエラーメッセージを返す")
-        void hybridSearchExceptionReturnsErrorMessage() {
+        @DisplayName("HybridSearchService例外時はRuntimeExceptionをスローする（isError:true対応）")
+        void hybridSearchExceptionThrowsRuntimeException() {
             when(hybridSearchService.search(anyString(), any(), anyInt(), any()))
                     .thenThrow(new RuntimeException("DB接続失敗"));
 
-            String result = tool.semanticSearch("クエリ", null, null, null, null, null, null);
+            RuntimeException ex = assertThrows(RuntimeException.class,
+                    () -> tool.semanticSearch("クエリ", null, null, null, null, null, null));
 
-            assertTrue(result.contains("検索中にエラーが発生しました"));
+            assertTrue(ex.getMessage().contains("検索中にエラーが発生しました"));
         }
 
         @Test
