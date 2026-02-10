@@ -177,7 +177,7 @@ templates:
                   <component class="nablarch.fw.jaxrs.ErrorResponseBuilder" />
                 </property>
               </component>
-              <component class="nablarch.fw.web.handler.StatusCodeConvertHandler" />
+              <component class="nablarch.fw.handler.StatusCodeConvertHandler" />
               <component-ref name="threadContextHandler" />
               <component-ref name="threadContextClearHandler" />
               <component-ref name="dbConnectionManagementHandler" />
@@ -272,9 +272,9 @@ templates:
           <!-- 4. セキュリティヘッダー -->
           <component class="nablarch.fw.web.handler.SecureHandler" />
           <!-- 5. アクセスログ（任意） -->
-          <component class="nablarch.fw.web.handler.HttpAccessLogHandler" />
+          <component class="nablarch.common.web.handler.HttpAccessLogHandler" />
           <!-- 6. マルチパート（任意、ファイルアップロード時） -->
-          <component class="nablarch.fw.web.handler.multipart.MultipartHandler" />
+          <component class="nablarch.fw.web.upload.MultipartHandler" />
           <!-- 7. セッション管理 -->
           <component-ref name="sessionStoreHandler" />
           <!-- 8. 正規化（任意） -->

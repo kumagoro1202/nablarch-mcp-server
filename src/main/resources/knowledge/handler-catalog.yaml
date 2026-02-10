@@ -44,14 +44,14 @@ web:
       thread: main
 
     - name: HttpAccessLogHandler
-      fqcn: "nablarch.fw.web.handler.HttpAccessLogHandler"
+      fqcn: "nablarch.common.web.handler.HttpAccessLogHandler"
       description: "HTTPアクセスログを出力する"
       order: 5
       required: false
       thread: main
 
     - name: MultipartHandler
-      fqcn: "nablarch.fw.web.handler.multipart.MultipartHandler"
+      fqcn: "nablarch.fw.web.upload.MultipartHandler"
       description: "マルチパートフォームデータ（ファイルアップロード）を処理する"
       order: 6
       required: false
@@ -150,14 +150,14 @@ rest:
           - GlobalErrorHandler
 
     - name: StatusCodeConvertHandler
-      fqcn: "nablarch.fw.web.handler.StatusCodeConvertHandler"
+      fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"
       description: "内部ステータスコードをHTTPステータスコードに変換する"
       order: 3
       required: true
       thread: main
 
     - name: HttpAccessLogHandler
-      fqcn: "nablarch.fw.web.handler.HttpAccessLogHandler"
+      fqcn: "nablarch.common.web.handler.HttpAccessLogHandler"
       description: "HTTPアクセスログを出力する"
       order: 4
       required: false
@@ -429,7 +429,7 @@ http-messaging:
       thread: main
 
     - name: StatusCodeConvertHandler
-      fqcn: "nablarch.fw.web.handler.StatusCodeConvertHandler"
+      fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"
       description: "内部ステータスコードをHTTPステータスコードに変換する"
       order: 4
       required: true
