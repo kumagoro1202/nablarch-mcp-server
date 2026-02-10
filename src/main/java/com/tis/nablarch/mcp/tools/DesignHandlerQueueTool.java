@@ -2,6 +2,7 @@ package com.tis.nablarch.mcp.tools;
 
 import com.tis.nablarch.mcp.knowledge.NablarchKnowledgeBase;
 import com.tis.nablarch.mcp.knowledge.model.HandlerConstraintEntry;
+import com.tis.nablarch.mcp.knowledge.model.HandlerEntry;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
@@ -15,14 +16,8 @@ import java.util.stream.Collectors;
  * <p>アプリケーションタイプと要件に基づいて、
  * 最適なハンドラキュー構成を設計し、XML設定を自動生成する。</p>
  *
- * <p>UC1（ハンドラキュー設計）に対応し、以下の機能を提供する：</p>
- * <ul>
- *   <li>アプリタイプ別の推奨ハンドラキュー生成</li>
- *   <li>知識ベースからのハンドラ情報取得</li>
- *   <li>順序制約に基づいた自動並び替え</li>
- *   <li>XML設定の自動生成</li>
- *   <li>生成結果の検証</li>
- * </ul>
+ * <p>ハンドラ情報（名前、FQCN、説明、順序）はすべて知識ベースYAMLから取得する。
+ * ハードコードによる二重管理を排除し、YAMLを唯一の情報源として使用する。</p>
  *
  * @see <a href="docs/designs/15_tool-design-handler-queue.md">設計書</a>
  */
@@ -30,94 +25,6 @@ import java.util.stream.Collectors;
 public class DesignHandlerQueueTool {
 
     private final NablarchKnowledgeBase knowledgeBase;
-
-    /** アプリタイプ別の推奨ハンドラ順序（デフォルト構成） */
-    private static final Map<String, List<String>> DEFAULT_HANDLER_ORDERS = Map.of(
-            "web", List.of(
-                    "StatusCodeConvertHandler",
-                    "HttpResponseHandler",
-                    "GlobalErrorHandler",
-                    "SecureHandler",
-                    "SessionStoreHandler",
-                    "DbConnectionManagementHandler",
-                    "RequestPathJavaPackageMapping",
-                    "MultipartHandler",
-                    "HttpCharacterEncodingHandler",
-                    "HttpAccessLogHandler",
-                    "PackageMapping",
-                    "RoutesMapping",
-                    "DispatchHandler"
-            ),
-            "rest", List.of(
-                    "StatusCodeConvertHandler",
-                    "HttpResponseHandler",
-                    "GlobalErrorHandler",
-                    "SecureHandler",
-                    "DbConnectionManagementHandler",
-                    "RequestPathJavaPackageMapping",
-                    "HttpAccessLogHandler",
-                    "JaxRsResponseHandler",
-                    "DispatchHandler"
-            ),
-            "batch", List.of(
-                    "StatusCodeConvertHandler",
-                    "GlobalErrorHandler",
-                    "DbConnectionManagementHandler",
-                    "TransactionManagementHandler",
-                    "LoopHandler",
-                    "RetryHandler",
-                    "DataReadHandler",
-                    "ProcessStopHandler",
-                    "MultiThreadExecutionHandler",
-                    "DispatchHandler"
-            ),
-            "messaging", List.of(
-                    "StatusCodeConvertHandler",
-                    "GlobalErrorHandler",
-                    "DbConnectionManagementHandler",
-                    "TransactionManagementHandler",
-                    "RequestThreadLoopHandler",
-                    "RetryHandler",
-                    "DataReadHandler",
-                    "DispatchHandler"
-            )
-    );
-
-    /** ハンドラのFQCNマッピング */
-    private static final Map<String, String> HANDLER_FQCN_MAP = new LinkedHashMap<>();
-    static {
-        // 共通
-        HANDLER_FQCN_MAP.put("StatusCodeConvertHandler", "nablarch.fw.handler.StatusCodeConvertHandler");
-        HANDLER_FQCN_MAP.put("GlobalErrorHandler", "nablarch.fw.handler.GlobalErrorHandler");
-        HANDLER_FQCN_MAP.put("DbConnectionManagementHandler", "nablarch.common.handler.DbConnectionManagementHandler");
-        HANDLER_FQCN_MAP.put("TransactionManagementHandler", "nablarch.common.handler.TransactionManagementHandler");
-        HANDLER_FQCN_MAP.put("DispatchHandler", "nablarch.fw.handler.DispatchHandler");
-        HANDLER_FQCN_MAP.put("RetryHandler", "nablarch.fw.handler.RetryHandler");
-
-        // Web
-        HANDLER_FQCN_MAP.put("HttpResponseHandler", "nablarch.fw.web.handler.HttpResponseHandler");
-        HANDLER_FQCN_MAP.put("SecureHandler", "nablarch.fw.web.handler.SecureHandler");
-        HANDLER_FQCN_MAP.put("SessionStoreHandler", "nablarch.common.web.session.SessionStoreHandler");
-        HANDLER_FQCN_MAP.put("RequestPathJavaPackageMapping", "nablarch.integration.router.RequestPathJavaPackageMapping");
-        HANDLER_FQCN_MAP.put("MultipartHandler", "nablarch.fw.web.handler.MultipartHandler");
-        HANDLER_FQCN_MAP.put("HttpCharacterEncodingHandler", "nablarch.fw.web.handler.HttpCharacterEncodingHandler");
-        HANDLER_FQCN_MAP.put("HttpAccessLogHandler", "nablarch.fw.web.handler.HttpAccessLogHandler");
-        HANDLER_FQCN_MAP.put("PackageMapping", "nablarch.integration.router.PackageMapping");
-        HANDLER_FQCN_MAP.put("RoutesMapping", "nablarch.integration.router.RoutesMapping");
-        HANDLER_FQCN_MAP.put("CsrfTokenVerificationHandler", "nablarch.fw.web.handler.CsrfTokenVerificationHandler");
-
-        // REST
-        HANDLER_FQCN_MAP.put("JaxRsResponseHandler", "nablarch.fw.jaxrs.JaxRsResponseHandler");
-
-        // Batch
-        HANDLER_FQCN_MAP.put("LoopHandler", "nablarch.fw.handler.LoopHandler");
-        HANDLER_FQCN_MAP.put("DataReadHandler", "nablarch.fw.handler.DataReadHandler");
-        HANDLER_FQCN_MAP.put("ProcessStopHandler", "nablarch.fw.handler.ProcessStopHandler");
-        HANDLER_FQCN_MAP.put("MultiThreadExecutionHandler", "nablarch.fw.handler.MultiThreadExecutionHandler");
-
-        // Messaging
-        HANDLER_FQCN_MAP.put("RequestThreadLoopHandler", "nablarch.fw.messaging.handler.RequestThreadLoopHandler");
-    }
 
     /**
      * コンストラクタ。
@@ -151,20 +58,21 @@ public class DesignHandlerQueueTool {
         // 入力検証
         if (appType == null || appType.isBlank()) {
             return "エラー: アプリケーションタイプ（app_type）を指定してください。\n"
-                    + "有効な値: web, rest, batch, messaging";
+                    + "有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes());
         }
 
         String normalizedAppType = appType.toLowerCase().trim();
-        if (!DEFAULT_HANDLER_ORDERS.containsKey(normalizedAppType)) {
+        List<HandlerEntry> yamlHandlers = knowledgeBase.getHandlerEntries(normalizedAppType);
+        if (yamlHandlers.isEmpty()) {
             return "エラー: 不明なアプリケーションタイプ: " + appType + "\n"
-                    + "有効な値: " + String.join(", ", DEFAULT_HANDLER_ORDERS.keySet());
+                    + "有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes());
         }
 
         boolean withComments = includeComments == null || includeComments;
         Set<String> reqSet = parseRequirements(requirements);
 
-        // ハンドラリストを構築
-        List<HandlerInfo> handlers = buildHandlerList(normalizedAppType, reqSet);
+        // ハンドラリストを構築（YAMLから読み込み）
+        List<HandlerInfo> handlers = buildHandlerList(normalizedAppType, yamlHandlers, reqSet);
 
         // 順序制約を適用してソート
         handlers = applyOrderingConstraints(handlers);
@@ -195,34 +103,45 @@ public class DesignHandlerQueueTool {
 
     /**
      * アプリタイプと要件に基づいてハンドラリストを構築する。
+     * ハンドラ情報はすべてYAML知識ベースから取得する。
      */
-    private List<HandlerInfo> buildHandlerList(String appType, Set<String> requirements) {
-        List<String> baseHandlers = DEFAULT_HANDLER_ORDERS.get(appType);
-        List<HandlerInfo> handlers = new ArrayList<>();
+    private List<HandlerInfo> buildHandlerList(String appType,
+                                                List<HandlerEntry> yamlHandlers,
+                                                Set<String> requirements) {
+        // YAML名→FQCNのインデックスを構築
+        Map<String, String> fqcnIndex = new HashMap<>();
+        Map<String, String> descIndex = new HashMap<>();
+        for (HandlerEntry h : yamlHandlers) {
+            fqcnIndex.put(h.name, h.fqcn);
+            descIndex.put(h.name, h.description != null ? h.description : "");
+        }
 
-        // 基本ハンドラを追加
-        for (String name : baseHandlers) {
-            String fqcn = HANDLER_FQCN_MAP.getOrDefault(name,
-                    "nablarch.fw.handler." + name);
-            String description = getHandlerDescription(name);
-            handlers.add(new HandlerInfo(name, fqcn, description, true));
+        // YAMLのorder順でハンドラを追加
+        List<HandlerInfo> handlers = new ArrayList<>();
+        for (HandlerEntry h : yamlHandlers) {
+            handlers.add(new HandlerInfo(h.name, h.fqcn,
+                    h.description != null ? h.description : "", h.required));
         }
 
         // 要件に応じて追加ハンドラを挿入
         if (requirements.contains("csrf") && "web".equals(appType)) {
             if (handlers.stream().noneMatch(h -> h.name.equals("CsrfTokenVerificationHandler"))) {
-                String fqcn = HANDLER_FQCN_MAP.get("CsrfTokenVerificationHandler");
-                handlers.add(new HandlerInfo("CsrfTokenVerificationHandler", fqcn,
-                        "CSRF対策トークン検証", false));
+                String fqcn = fqcnIndex.getOrDefault("CsrfTokenVerificationHandler",
+                        "nablarch.fw.web.handler.CsrfTokenVerificationHandler");
+                String desc = descIndex.getOrDefault("CsrfTokenVerificationHandler",
+                        "CSRF対策トークン検証");
+                handlers.add(new HandlerInfo("CsrfTokenVerificationHandler", fqcn, desc, false));
             }
         }
 
         if (requirements.contains("security")) {
             if (handlers.stream().noneMatch(h -> h.name.equals("SecureHandler"))) {
-                String fqcn = HANDLER_FQCN_MAP.get("SecureHandler");
+                String fqcn = fqcnIndex.getOrDefault("SecureHandler",
+                        "nablarch.fw.web.handler.SecureHandler");
+                String desc = descIndex.getOrDefault("SecureHandler",
+                        "セキュリティヘッダー付与");
                 int insertIdx = findInsertPosition(handlers, "HttpResponseHandler", true);
-                handlers.add(insertIdx, new HandlerInfo("SecureHandler", fqcn,
-                        "セキュリティヘッダー付与", false));
+                handlers.add(insertIdx, new HandlerInfo("SecureHandler", fqcn, desc, false));
             }
         }
 
@@ -233,17 +152,13 @@ public class DesignHandlerQueueTool {
      * 順序制約を適用してハンドラリストをソートする。
      */
     private List<HandlerInfo> applyOrderingConstraints(List<HandlerInfo> handlers) {
-        // 現状の順序は既にデフォルト構成に従っているため、
-        // 知識ベースの制約に違反する場合のみ調整する
         List<HandlerInfo> sorted = new ArrayList<>(handlers);
 
-        // 制約チェック用のマップ
         Map<String, Integer> positionMap = new HashMap<>();
         for (int i = 0; i < sorted.size(); i++) {
             positionMap.put(sorted.get(i).name, i);
         }
 
-        // 各ハンドラの制約をチェック
         boolean changed;
         int maxIterations = sorted.size() * 2;
         int iterations = 0;
@@ -257,12 +172,10 @@ public class DesignHandlerQueueTool {
                 HandlerConstraintEntry constraint = knowledgeBase.getHandlerConstraints(handler.name);
                 if (constraint == null) continue;
 
-                // mustBefore制約をチェック
                 if (constraint.mustBefore != null) {
                     for (String target : constraint.mustBefore) {
                         Integer targetPos = positionMap.get(target);
                         if (targetPos != null && i >= targetPos) {
-                            // targetより前に移動
                             sorted.remove(i);
                             sorted.add(targetPos, handler);
                             changed = true;
@@ -273,12 +186,10 @@ public class DesignHandlerQueueTool {
 
                 if (changed) break;
 
-                // mustAfter制約をチェック
                 if (constraint.mustAfter != null) {
                     for (String target : constraint.mustAfter) {
                         Integer targetPos = positionMap.get(target);
                         if (targetPos != null && i <= targetPos) {
-                            // targetより後に移動
                             sorted.remove(i);
                             sorted.add(targetPos + 1, handler);
                             changed = true;
@@ -290,7 +201,6 @@ public class DesignHandlerQueueTool {
                 if (changed) break;
             }
 
-            // 位置マップを更新
             if (changed) {
                 positionMap.clear();
                 for (int i = 0; i < sorted.size(); i++) {
@@ -313,37 +223,6 @@ public class DesignHandlerQueueTool {
             }
         }
         return handlers.size();
-    }
-
-    /**
-     * ハンドラの説明を取得する。
-     */
-    private String getHandlerDescription(String name) {
-        return switch (name) {
-            case "StatusCodeConvertHandler" -> "ステータスコード変換";
-            case "HttpResponseHandler" -> "HTTPレスポンス処理";
-            case "GlobalErrorHandler" -> "グローバルエラー処理";
-            case "SecureHandler" -> "セキュリティヘッダー付与";
-            case "SessionStoreHandler" -> "セッションストア管理";
-            case "DbConnectionManagementHandler" -> "DBコネクション管理";
-            case "TransactionManagementHandler" -> "トランザクション管理";
-            case "RequestPathJavaPackageMapping" -> "リクエストパス→パッケージマッピング";
-            case "MultipartHandler" -> "マルチパートリクエスト処理";
-            case "HttpCharacterEncodingHandler" -> "文字エンコーディング設定";
-            case "HttpAccessLogHandler" -> "アクセスログ出力";
-            case "PackageMapping" -> "パッケージベースルーティング";
-            case "RoutesMapping" -> "ルートベースルーティング";
-            case "JaxRsResponseHandler" -> "JAX-RSレスポンス処理";
-            case "DispatchHandler" -> "アクションディスパッチ";
-            case "LoopHandler" -> "ループ制御";
-            case "DataReadHandler" -> "データ読み込み";
-            case "ProcessStopHandler" -> "プロセス停止制御";
-            case "MultiThreadExecutionHandler" -> "マルチスレッド実行";
-            case "RequestThreadLoopHandler" -> "リクエストスレッドループ";
-            case "RetryHandler" -> "リトライ制御";
-            case "CsrfTokenVerificationHandler" -> "CSRF対策トークン検証";
-            default -> "";
-        };
     }
 
     /**

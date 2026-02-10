@@ -89,11 +89,14 @@ public class TroubleshootTool {
     public String troubleshoot(
             @ToolParam(description = "Error message text to analyze")
             String errorMessage,
-            @ToolParam(description = "Full stack trace (optional but recommended)")
+            @ToolParam(description = "Full stack trace (optional but recommended)",
+                    required = false)
             String stackTrace,
-            @ToolParam(description = "Nablarch error code (e.g., ERR-001) if available")
+            @ToolParam(description = "Nablarch error code (e.g., ERR-001) if available",
+                    required = false)
             String errorCode,
-            @ToolParam(description = "Environment info as JSON (e.g., app type, Nablarch version)")
+            @ToolParam(description = "Environment info as JSON (e.g., app type, Nablarch version)",
+                    required = false)
             String environment) {
 
         // 入力検証
@@ -288,7 +291,7 @@ public class TroubleshootTool {
         // エラー分析セクション
         sb.append("## エラー分析\n\n");
         sb.append("| 項目 | 値 |\n");
-        sb.append("|------|----|n");
+        sb.append("|------|----|\n");
         sb.append("| カテゴリ | ").append(formatCategory(analysis.category)).append(" |\n");
         if (analysis.errorCode != null) {
             sb.append("| エラーコード | ").append(analysis.errorCode).append(" |\n");

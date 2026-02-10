@@ -108,7 +108,7 @@ constraints:
     reason: "セッション管理はDB接続と独立して動作する場合がある（HIDDENストア等）。DB接続障害時もセッション情報にアクセスできるようにする"
 
   - handler: MultipartHandler
-    fqcn: "nablarch.fw.web.handler.multipart.MultipartHandler"
+    fqcn: "nablarch.fw.web.upload.MultipartHandler"
     rule: relative_order
     must_before:
       - SessionStoreHandler
@@ -129,7 +129,7 @@ constraints:
     reason: "内部フォワードが必要な場合のみ使用。セッション管理の後、DB接続管理の前に配置するのが一般的"
 
   - handler: HttpAccessLogHandler
-    fqcn: "nablarch.fw.web.handler.HttpAccessLogHandler"
+    fqcn: "nablarch.common.web.handler.HttpAccessLogHandler"
     rule: relative_order
     must_after:
       - HttpResponseHandler
@@ -146,7 +146,7 @@ constraints:
     reason: "JAX-RSレスポンスの変換はGlobalErrorHandlerの内側で行う。例外発生時のエラーレスポンスもJSON形式に変換する"
 
   - handler: StatusCodeConvertHandler
-    fqcn: "nablarch.fw.web.handler.StatusCodeConvertHandler"
+    fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"
     rule: relative_order
     must_after:
       - JaxRsResponseHandler
@@ -214,13 +214,15 @@ constraints:
     reason: "メッセージ受信のメインループはマルチスレッド実行の前に配置。ループ内でサブスレッドを起動する"
 
   # ===== ルーティング =====
-  - handler: PackageMapping
+  - handler: RoutesMapping
     fqcn: "nablarch.integration.router.RoutesMapping"
+    aliases:
+      - PackageMapping
     rule: must_be_inner
     required_by_app_type:
       - web
       - rest
-    reason: "リクエストルーティングはハンドラキューの最内殻に配置。全ハンドラを通過した後にアクションクラスにディスパッチする"
+    reason: "リクエストルーティングはハンドラキューの最内殻に配置。全ハンドラを通過した後にアクションクラスにディスパッチする。旧名PackageMappingとも呼ばれるが、正式クラス名はRoutesMapping"
 
   - handler: RequestPathJavaPackageMapping
     fqcn: "nablarch.fw.handler.RequestPathJavaPackageMapping"

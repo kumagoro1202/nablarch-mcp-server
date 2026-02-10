@@ -26,7 +26,7 @@ patterns:
   - name: inject-form-on-error
     category: web
     description: "InjectFormとOnErrorアノテーションの組み合わせパターン。バリデーションエラー時に元の画面に戻す"
-    fqcn: "nablarch.fw.web.interceptor.InjectForm"
+    fqcn: "nablarch.common.web.interceptor.InjectForm"
     related_patterns:
       - action-class
       - form-validation
@@ -105,7 +105,7 @@ patterns:
   - name: file-download
     category: web
     description: "ファイルダウンロードパターン。StreamResponseを使ったファイル送信"
-    fqcn: "nablarch.fw.web.download.StreamResponse"
+    fqcn: "nablarch.common.web.download.StreamResponse"
     related_patterns:
       - action-class
     example: |

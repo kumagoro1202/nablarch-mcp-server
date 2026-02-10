@@ -180,6 +180,20 @@ public class NablarchKnowledgeBase {
     }
 
     /**
+     * アプリタイプ別ハンドラエントリリストを取得する（型付き）。
+     *
+     * @param applicationType アプリケーションタイプ
+     * @return ハンドラエントリのリスト。タイプが存在しない場合は空リスト
+     */
+    public List<HandlerEntry> getHandlerEntries(String applicationType) {
+        HandlerCatalogEntry entry = handlerCatalog.get(applicationType);
+        if (entry == null || entry.handlers == null) {
+            return List.of();
+        }
+        return Collections.unmodifiableList(entry.handlers);
+    }
+
+    /**
      * API仕様をモジュール名とクラス名で取得する。
      *
      * @param module モジュール名

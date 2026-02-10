@@ -177,7 +177,7 @@ templates:
                   <component class="nablarch.fw.jaxrs.ErrorResponseBuilder" />
                 </property>
               </component>
-              <component class="nablarch.fw.web.handler.StatusCodeConvertHandler" />
+              <component class="nablarch.fw.handler.StatusCodeConvertHandler" />
               <component-ref name="threadContextHandler" />
               <component-ref name="threadContextClearHandler" />
               <component-ref name="dbConnectionManagementHandler" />
@@ -252,6 +252,42 @@ templates:
         </list>
       </component-configuration>
 
+  - name: messaging-component
+    category: component
+    app_type: messaging
+    description: "テーブルキューイング型メッセージングアプリケーション用コンポーネント定義XMLテンプレート"
+    template: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <component-configuration
+          xmlns="http://tis.co.jp/nablarch/component-configuration"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration">
+
+        <config-file file="common.config" />
+        <config-file file="env.config" />
+
+        <!-- メッセージングハンドラキュー定義 -->
+        <list name="handlerQueue">
+          <component class="nablarch.fw.handler.StatusCodeConvertHandler" />
+          <component class="nablarch.fw.handler.GlobalErrorHandler" />
+          <component-ref name="dbConnectionManagementHandler" />
+          <component-ref name="transactionManagementHandler" />
+          <component class="nablarch.fw.handler.RequestPathJavaPackageMapping">
+            <property name="basePackage" value="com.example.messaging.action" />
+          </component>
+          <component class="nablarch.fw.handler.MultiThreadExecutionHandler">
+            <property name="concurrentNumber" value="${messaging.thread.count}" />
+          </component>
+          <component class="nablarch.fw.handler.RequestThreadLoopHandler">
+            <property name="serviceUnavailableRetryInterval"
+                      value="${messaging.retry.interval}" />
+          </component>
+          <component-ref name="dbConnectionManagementHandler" />
+          <component-ref name="transactionManagementHandler" />
+          <component class="nablarch.fw.handler.DataReadHandler" />
+        </list>
+      </component-configuration>
+
   # ===== Handler Queue =====
   - name: web-handler-queue
     category: handler-queue
@@ -272,9 +308,9 @@ templates:
           <!-- 4. セキュリティヘッダー -->
           <component class="nablarch.fw.web.handler.SecureHandler" />
           <!-- 5. アクセスログ（任意） -->
-          <component class="nablarch.fw.web.handler.HttpAccessLogHandler" />
+          <component class="nablarch.common.web.handler.HttpAccessLogHandler" />
           <!-- 6. マルチパート（任意、ファイルアップロード時） -->
-          <component class="nablarch.fw.web.handler.multipart.MultipartHandler" />
+          <component class="nablarch.fw.web.upload.MultipartHandler" />
           <!-- 7. セッション管理 -->
           <component-ref name="sessionStoreHandler" />
           <!-- 8. 正規化（任意） -->

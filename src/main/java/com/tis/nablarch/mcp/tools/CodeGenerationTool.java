@@ -63,9 +63,11 @@ public class CodeGenerationTool {
             String type,
             @ToolParam(description = "Name for the generated class/file (e.g. 'UserRegistration', 'Product')")
             String name,
-            @ToolParam(description = "Application type: web (default), rest, batch, messaging")
+            @ToolParam(description = "Application type: web (default), rest, batch, messaging",
+                    required = false)
             String appType,
-            @ToolParam(description = "Type-specific parameters as JSON (fields, queries, routing, etc.)")
+            @ToolParam(description = "Type-specific parameters as JSON (fields, queries, routing, etc.)",
+                    required = false)
             String specifications) {
 
         // 入力検証
@@ -100,7 +102,8 @@ public class CodeGenerationTool {
         } catch (Exception e) {
             log.error("コード生成でエラー: type={}, name={}, appType={}",
                     effectiveType, name, effectiveAppType, e);
-            return "コード生成中にエラーが発生しました: " + e.getMessage();
+            throw new RuntimeException(
+                    "コード生成中にエラーが発生しました。入力パラメータを確認してください。");
         }
 
         return formatResult(result);

@@ -1,6 +1,5 @@
 package com.tis.nablarch.mcp.tools;
 
-import com.tis.nablarch.mcp.TestConfig;
 import com.tis.nablarch.mcp.rag.ingestion.OfficialDocsIngester;
 import com.tis.nablarch.mcp.rag.rerank.Reranker;
 import com.tis.nablarch.mcp.rag.search.BM25SearchService;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -37,7 +35,6 @@ import static org.mockito.Mockito.*;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-@Import(TestConfig.class)
 class SemanticSearchIntegrationTest {
 
     @Autowired
@@ -169,7 +166,7 @@ class SemanticSearchIntegrationTest {
     class FallbackIntegrationTests {
 
         @Test
-        @DisplayName("Reranker失敗時: HybridSearch結果がそのまま表示される")
+        @DisplayName("Reranker失敗時: RuntimeExceptionがスローされる（isError:true対応）")
         void rerankerFailureFallback() {
             List<SearchResult> bm25Results = createSearchResults("bm25", 3, 0.8);
             when(bm25SearchService.search(anyString(), any(), anyInt()))
@@ -179,13 +176,12 @@ class SemanticSearchIntegrationTest {
             when(reranker.rerank(anyString(), anyList(), anyInt()))
                     .thenThrow(new RuntimeException("Reranker API timeout"));
 
-            // SemanticSearchToolのエラーハンドリングがキャッチ
-            String result = semanticSearchTool.semanticSearch(
-                    "テストクエリ", null, null, null, null, null, null);
+            // isError:true対応: 例外がスローされることを検証
+            RuntimeException ex = assertThrows(RuntimeException.class,
+                    () -> semanticSearchTool.semanticSearch(
+                            "テストクエリ", null, null, null, null, null, null));
 
-            assertNotNull(result);
-            // エラーメッセージが返却される
-            assertTrue(result.contains("エラー") || result.contains("検索結果"));
+            assertTrue(ex.getMessage().contains("検索中にエラーが発生しました"));
         }
 
         @Test

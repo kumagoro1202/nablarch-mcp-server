@@ -79,11 +79,12 @@ class CodeGenerationToolTest {
     @Nested
     class エラーハンドリングテスト {
         @Test
-        void 例外発生時はエラーメッセージ() {
+        void 例外発生時はRuntimeExceptionをスロー() {
             when(codeGenerator.generate(anyString(), anyString(), anyString(), any()))
                     .thenThrow(new RuntimeException("error"));
-            String result = tool.generateCode("action", "Product", "web", null);
-            assertTrue(result.contains("エラーが発生"));
+            RuntimeException ex = assertThrows(RuntimeException.class,
+                    () -> tool.generateCode("action", "Product", "web", null));
+            assertTrue(ex.getMessage().contains("コード生成中にエラーが発生しました"));
         }
     }
 }

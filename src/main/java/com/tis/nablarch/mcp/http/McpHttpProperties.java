@@ -215,14 +215,14 @@ public class McpHttpProperties {
     }
 
     /**
-     * Originヘッダ検証設定（Phase 4で実装予定）。
+     * Originヘッダ検証設定。
      */
     public static class OriginValidationConfig {
 
         /**
-         * Origin検証の有効/無効（Phase 3では無効）。
+         * Origin検証の有効/無効（MCP仕様MUST要件によりデフォルト有効）。
          */
-        private boolean enabled = false;
+        private boolean enabled = true;
 
         /**
          * localhost系オリジンを許可するか。

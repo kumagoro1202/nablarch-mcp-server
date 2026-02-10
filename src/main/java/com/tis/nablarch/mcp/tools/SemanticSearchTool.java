@@ -91,17 +91,23 @@ public class SemanticSearchTool {
     public String semanticSearch(
             @ToolParam(description = "Search query in natural language or keywords")
             String query,
-            @ToolParam(description = "Optional app type filter: web, rest, batch, messaging")
+            @ToolParam(description = "Optional app type filter: web, rest, batch, messaging",
+                    required = false)
             String appType,
-            @ToolParam(description = "Optional module filter: e.g. nablarch-fw-web")
+            @ToolParam(description = "Optional module filter: e.g. nablarch-fw-web",
+                    required = false)
             String module,
-            @ToolParam(description = "Optional source filter: nablarch-document, github, fintan, javadoc")
+            @ToolParam(description = "Optional source filter: nablarch-document, github, fintan, javadoc",
+                    required = false)
             String source,
-            @ToolParam(description = "Optional content type filter: documentation, code, javadoc, config, standard")
+            @ToolParam(description = "Optional content type filter: documentation, code, javadoc, config, standard",
+                    required = false)
             String sourceType,
-            @ToolParam(description = "Number of results (1-50, default 5)")
+            @ToolParam(description = "Number of results (1-50, default 5)",
+                    required = false)
             Integer topK,
-            @ToolParam(description = "Search mode: hybrid (default), vector, keyword")
+            @ToolParam(description = "Search mode: hybrid (default), vector, keyword",
+                    required = false)
             String mode) {
 
         if (query == null || query.isBlank()) {
@@ -122,7 +128,8 @@ public class SemanticSearchTool {
             return doSearch(query, filters, effectiveTopK, effectiveMode);
         } catch (Exception e) {
             log.error("semantic_search実行中にエラーが発生: {}", e.getMessage(), e);
-            return "検索中にエラーが発生しました。search_apiツールをお試しください。";
+            throw new RuntimeException(
+                    "検索中にエラーが発生しました。search_apiツールをお試しください。");
         }
     }
 

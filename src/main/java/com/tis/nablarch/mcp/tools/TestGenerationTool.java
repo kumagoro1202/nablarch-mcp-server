@@ -95,14 +95,18 @@ public class TestGenerationTool {
                     + "(web/REST request testing), batch (batch action), messaging (MOM messaging)")
             String testType,
             @ToolParam(description = "Output format: junit5 (default) or nablarch-excel "
-                    + "(includes Excel test data structure)")
+                    + "(includes Excel test data structure)",
+                    required = false)
             String format,
             @ToolParam(description = "Optional: natural language description of test cases "
-                    + "(e.g. 'normal registration, validation error, duplicate email')")
+                    + "(e.g. 'normal registration, validation error, duplicate email')",
+                    required = false)
             String testCases,
-            @ToolParam(description = "Include Excel test data structure: true (default) or false")
+            @ToolParam(description = "Include Excel test data structure: true (default) or false",
+                    required = false)
             String includeExcel,
-            @ToolParam(description = "Coverage target: minimal, standard (default), comprehensive")
+            @ToolParam(description = "Coverage target: minimal, standard (default), comprehensive",
+                    required = false)
             String coverageTarget) {
 
         // 入力検証
@@ -129,10 +133,11 @@ public class TestGenerationTool {
                     effectiveIncludeExcel, effectiveCoverage, nullIfBlank(testCases));
         } catch (Exception e) {
             log.error("generate_test実行中にエラーが発生: {}", e.getMessage(), e);
-            return "テストコードの生成に失敗しました: " + e.getMessage()
+            throw new RuntimeException(
+                    "テストコードの生成に失敗しました。入力パラメータを確認してください。"
                     + "\n\n手動でテストクラスを作成する場合は以下を参考にしてください:\n"
                     + "- search_api ツールで \"request-unit-test\" を検索\n"
-                    + "- nablarch://guide/testing リソースを参照";
+                    + "- nablarch://guide/testing リソースを参照");
         }
     }
 

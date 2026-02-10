@@ -1,19 +1,20 @@
 # Nablarch Version Information
 # バージョン情報・プラットフォーム情報
-# Version: 1.0
-# WBS: 3.2.13 (subtask_072)
+# Version: 2.0
+# 情報源: 公式ドキュメント稼動環境ページ + GitHub Releases
+# 最終更新: 2026-02-10
 
 version_info:
   framework_name: "Nablarch"
   latest_version: "6u3"
-  release_date: "2024-09"
+  release_date: "2025-03"
 
   supported_versions:
     - version: "6u3"
       status: "current"
       java_versions: ["17", "21"]
       jakarta_ee_version: "10"
-    - version: "5u24"
+    - version: "5u26"
       status: "maintenance"
       java_versions: ["8", "11"]
       java_ee_version: "8"
@@ -21,18 +22,25 @@ version_info:
   platforms:
     application_server:
       - name: "Apache Tomcat"
-        versions: ["10.1"]
+        versions: ["10.1.17"]
       - name: "WildFly"
-        versions: ["30"]
+        versions: ["35.0.1.Final"]
       - name: "Open Liberty"
-        versions: ["24.0"]
+        versions: ["25.0.0.2"]
+      - name: "WebSphere Application Server Liberty"
+        versions: ["25.0.0.2"]
+      - name: "Red Hat JBoss Enterprise Application Platform"
+        versions: ["8.0.0"]
     database:
       - name: "Oracle Database"
         versions: ["19c", "21c", "23ai"]
+      - name: "IBM Db2"
+        versions: ["11.5", "12.1"]
+      - name: "SQL Server"
+        versions: ["2017", "2019", "2022"]
       - name: "PostgreSQL"
-        versions: ["14", "15", "16"]
-      - name: "H2 Database"
-        versions: ["2.x"]
+        versions: ["12.2", "13.2", "14.0", "15.2", "16.2", "17.4"]
+      # H2 Databaseは公式動作確認マトリクスに非掲載（開発・テスト用途のみ）
     java:
       - name: "Eclipse Temurin"
         versions: ["17", "21"]
@@ -50,3 +58,4 @@ version_info:
     github_org: "https://github.com/nablarch"
     fintan: "https://fintan.jp/"
     release_notes: "https://nablarch.github.io/docs/LATEST/doc/about_nablarch/versionup_policy.html"
+    platform_matrix: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/nablarch/platform.html"
