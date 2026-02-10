@@ -162,14 +162,16 @@ RAGパイプラインは以下のNablarch関連情報源をインデックス化
 
 ## ドキュメント
 
-| ドキュメント | 内容 |
+**[docs/INDEX.md](docs/INDEX.md)** — 読者別ガイド付きのドキュメント総合案内
+
+| カテゴリ | 内容 |
 |---|---|
-| [docs/overview.md](docs/overview.md) | プロジェクトビジョン、対象ユーザー、機能概要 |
-| [docs/architecture.md](docs/architecture.md) | RAG強化型アーキテクチャ設計、コンポーネント図、データモデル |
-| [docs/use-cases.md](docs/use-cases.md) | 12ユースケース（シーケンス図・入出力例付き） |
-| [docs/user-guide.md](docs/user-guide.md) | セットアップ、設定、利用方法ガイド |
-| [docs/decisions/](docs/decisions/) | Architecture Decision Records（ADR） |
-| [docs/research/](docs/research/) | 調査レポート・分析資料 |
+| [guides/](docs/guides/) | 🟢 **利用者向け** — セットアップ、使い方、Streamable HTTP設定 |
+| [reference/](docs/reference/) | 🔵 **開発者向け** — アーキテクチャ、API仕様、RAGパイプライン、DBスキーマ |
+| [designs/](docs/designs/) | 📐 設計書（Phase 1〜3、全23本） |
+| [articles/](docs/articles/) | 📚 連載記事シリーズ（全17記事の専門家育成カリキュラム） |
+| [decisions/](docs/decisions/) | 📋 ADR（アーキテクチャ決定記録） |
+| [research/](docs/research/) | 📊 調査レポート・分析資料 |
 
 ## 関連リソース
 

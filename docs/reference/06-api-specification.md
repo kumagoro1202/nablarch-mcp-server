@@ -1,5 +1,11 @@
 # Nablarch MCP Server API仕様書
 
+> **対象読者**: 開発者（API仕様を参照したい人）
+> **前提知識**: MCP, JSON-RPCの基本知識
+> **概要**: MCP Tools/Resources/PromptsのAPI仕様、入出力フォーマット
+
+---
+
 ## サーバー情報
 
 | 項目 | 値 |

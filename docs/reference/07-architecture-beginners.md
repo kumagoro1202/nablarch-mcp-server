@@ -1,9 +1,8 @@
 # 駆け出しエンジニアのための nablarch-mcp-server アーキテクチャ解説
 
-> **作成日**: 2026-02-04
-> **対象読者**: プログラミング経験1〜2年の駆け出しエンジニア、MCPやRAGを初めて学ぶ方
-> **元ドキュメント**: docs/01-overview.md, docs/02-architecture.md, docs/03-use-cases.md
-> **作成者**: ashigaru1 (shogun-tutorial-article-generator)
+> **対象読者**: 初学者（アーキテクチャを基礎から学びたい人）
+> **前提知識**: プログラミングの基礎知識
+> **概要**: MCPとRAGの基本概念をわかりやすく解説
 
 ---
 
