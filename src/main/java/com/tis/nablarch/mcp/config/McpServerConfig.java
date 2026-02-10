@@ -6,8 +6,14 @@ import com.tis.nablarch.mcp.prompts.ExplainHandlerPrompt;
 import com.tis.nablarch.mcp.prompts.MigrationGuidePrompt;
 import com.tis.nablarch.mcp.prompts.ReviewConfigPrompt;
 import com.tis.nablarch.mcp.prompts.SetupHandlerQueuePrompt;
+import com.tis.nablarch.mcp.resources.AntipatternResourceProvider;
+import com.tis.nablarch.mcp.resources.ApiResourceProvider;
+import com.tis.nablarch.mcp.resources.ConfigResourceProvider;
+import com.tis.nablarch.mcp.resources.ExampleResourceProvider;
 import com.tis.nablarch.mcp.resources.GuideResourceProvider;
 import com.tis.nablarch.mcp.resources.HandlerResourceProvider;
+import com.tis.nablarch.mcp.resources.PatternResourceProvider;
+import com.tis.nablarch.mcp.resources.VersionResourceProvider;
 import com.tis.nablarch.mcp.tools.CodeGenerationTool;
 import com.tis.nablarch.mcp.tools.DesignHandlerQueueTool;
 import com.tis.nablarch.mcp.tools.OptimizeHandlerQueueTool;
@@ -25,6 +31,7 @@ import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -63,56 +70,110 @@ public class McpServerConfig {
     }
 
     /**
-     * NablarchハンドラカタログおよびガイドのMCPリソースを登録する。
+     * Nablarch MCPリソースを登録する。
      *
-     * <p>6種のハンドラリソースと6種のガイドリソース（計12リソース）を登録する。</p>
+     * <p>ハンドラ（6種）、ガイド（6種）、API、パターン、サンプル、
+     * 設定テンプレート、アンチパターン、バージョン情報の全リソースを登録する。</p>
      *
      * @param handlerProvider ハンドラリソースプロバイダ
      * @param guideProvider ガイドリソースプロバイダ
+     * @param apiProvider APIリソースプロバイダ
+     * @param patternProvider パターンリソースプロバイダ
+     * @param exampleProvider サンプルリソースプロバイダ
+     * @param configProvider 設定テンプレートリソースプロバイダ
+     * @param antipatternProvider アンチパターンリソースプロバイダ
+     * @param versionProvider バージョン情報リソースプロバイダ
      * @return MCPサーバ自動構成用のリソース仕様リスト
      */
     @Bean
     public List<McpServerFeatures.SyncResourceSpecification> nablarchResources(
             HandlerResourceProvider handlerProvider,
-            GuideResourceProvider guideProvider) {
-        return List.of(
-            createHandlerResourceSpec("web", "Nablarch Web Handler Catalog",
+            GuideResourceProvider guideProvider,
+            ApiResourceProvider apiProvider,
+            PatternResourceProvider patternProvider,
+            ExampleResourceProvider exampleProvider,
+            ConfigResourceProvider configProvider,
+            AntipatternResourceProvider antipatternProvider,
+            VersionResourceProvider versionProvider) {
+        List<McpServerFeatures.SyncResourceSpecification> specs = new ArrayList<>();
+
+        // ハンドラカタログ（6種）
+        specs.add(createHandlerResourceSpec("web", "Nablarch Web Handler Catalog",
                 "Web application handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("rest", "Nablarch REST Handler Catalog",
+                handlerProvider));
+        specs.add(createHandlerResourceSpec("rest", "Nablarch REST Handler Catalog",
                 "REST application handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("batch", "Nablarch Batch Handler Catalog",
+                handlerProvider));
+        specs.add(createHandlerResourceSpec("batch", "Nablarch Batch Handler Catalog",
                 "Batch application handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("messaging", "Nablarch Messaging Handler Catalog",
+                handlerProvider));
+        specs.add(createHandlerResourceSpec("messaging", "Nablarch Messaging Handler Catalog",
                 "Messaging application handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("http-messaging",
+                handlerProvider));
+        specs.add(createHandlerResourceSpec("http-messaging",
                 "Nablarch HTTP Messaging Handler Catalog",
                 "HTTP messaging handler specifications and ordering constraints",
-                handlerProvider),
-            createHandlerResourceSpec("jakarta-batch",
+                handlerProvider));
+        specs.add(createHandlerResourceSpec("jakarta-batch",
                 "Nablarch Jakarta Batch Handler Catalog",
                 "Jakarta Batch handler specifications and ordering constraints",
-                handlerProvider),
-            createGuideResourceSpec("setup", "Nablarch Setup Guide",
-                "Nablarch project setup and configuration guide", guideProvider),
-            createGuideResourceSpec("testing", "Nablarch Testing Guide",
-                "Nablarch testing patterns and best practices guide", guideProvider),
-            createGuideResourceSpec("validation", "Nablarch Validation Guide",
-                "Nablarch validation patterns and design guide", guideProvider),
-            createGuideResourceSpec("database", "Nablarch Database Guide",
+                handlerProvider));
+
+        // ガイド（6種）
+        specs.add(createGuideResourceSpec("setup", "Nablarch Setup Guide",
+                "Nablarch project setup and configuration guide", guideProvider));
+        specs.add(createGuideResourceSpec("testing", "Nablarch Testing Guide",
+                "Nablarch testing patterns and best practices guide", guideProvider));
+        specs.add(createGuideResourceSpec("validation", "Nablarch Validation Guide",
+                "Nablarch validation patterns and design guide", guideProvider));
+        specs.add(createGuideResourceSpec("database", "Nablarch Database Guide",
                 "Nablarch database access patterns and configuration guide",
-                guideProvider),
-            createGuideResourceSpec("handler-queue",
+                guideProvider));
+        specs.add(createGuideResourceSpec("handler-queue",
                 "Nablarch Handler Queue Guide",
                 "Nablarch handler queue architecture and configuration guide",
-                guideProvider),
-            createGuideResourceSpec("error-handling",
+                guideProvider));
+        specs.add(createGuideResourceSpec("error-handling",
                 "Nablarch Error Handling Guide",
-                "Nablarch common errors and troubleshooting guide", guideProvider)
-        );
+                "Nablarch common errors and troubleshooting guide", guideProvider));
+
+        // APIモジュールカタログ
+        specs.add(createSimpleResourceSpec("nablarch://api/modules",
+                "Nablarch API Module Catalog",
+                "List of Nablarch framework modules and their APIs",
+                "application/json", apiProvider::getModuleList));
+
+        // デザインパターンカタログ
+        specs.add(createSimpleResourceSpec("nablarch://pattern/list",
+                "Nablarch Design Pattern Catalog",
+                "Nablarch-specific design patterns and best practices",
+                "text/markdown", patternProvider::getPatternList));
+
+        // サンプルコードカタログ
+        specs.add(createSimpleResourceSpec("nablarch://example/list",
+                "Nablarch Example Catalog",
+                "Nablarch code examples and implementation samples",
+                "application/json", exampleProvider::getExampleList));
+
+        // 設定テンプレートカタログ
+        specs.add(createSimpleResourceSpec("nablarch://config/list",
+                "Nablarch Config Template Catalog",
+                "Nablarch XML configuration templates",
+                "text/plain", configProvider::getTemplateList));
+
+        // アンチパターンカタログ
+        specs.add(createSimpleResourceSpec("nablarch://antipattern/list",
+                "Nablarch Antipattern Catalog",
+                "Common Nablarch antipatterns and how to avoid them",
+                "application/json", antipatternProvider::getAntipatternList));
+
+        // バージョン情報
+        specs.add(createSimpleResourceSpec("nablarch://version/info",
+                "Nablarch Version Information",
+                "Nablarch framework version, platform support, and module information",
+                "application/json", versionProvider::getVersionInfo));
+
+        return specs;
     }
 
     /**
@@ -191,6 +252,17 @@ public class McpServerConfig {
                 List.of(new McpSchema.TextResourceContents(
                     request.uri(), "text/markdown",
                     provider.getGuideMarkdown(topic))))
+        );
+    }
+
+    private static McpServerFeatures.SyncResourceSpecification createSimpleResourceSpec(
+            String uri, String name, String description, String mimeType,
+            java.util.function.Supplier<String> contentSupplier) {
+        return new McpServerFeatures.SyncResourceSpecification(
+            new McpSchema.Resource(uri, name, description, mimeType, null),
+            (exchange, request) -> new McpSchema.ReadResourceResult(
+                List.of(new McpSchema.TextResourceContents(
+                    request.uri(), mimeType, contentSupplier.get())))
         );
     }
 
