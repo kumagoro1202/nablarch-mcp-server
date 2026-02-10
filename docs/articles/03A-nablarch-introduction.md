@@ -61,7 +61,7 @@ Spring Bootを「使ったことはあるが詳しくはない」レベルでも
 
 ### 3.1 概要
 
-**Nablarch**（ナブラーク）は、**TIS株式会社**が開発・OSS公開している**Java用アプリケーションフレームワーク**です。名前の由来は "**N**ew **A**pplication **B**ase **L**ayer **ARCH**itecture" の頭文字です。
+**Nablarch**（ナブラーク）は、**TIS株式会社**が開発・OSS公開している**Java用アプリケーションフレームワーク**です。公式ドキュメントでは数学記号の∇（ナブラ）を冠した「∇Nablarch」の表記が使われています。
 
 一言で言えば、**「銀行・保険・官公庁のような、絶対に止まってはいけない大規模システムを作るためのフレームワーク」** です。
 
@@ -69,11 +69,11 @@ Spring Bootを「使ったことはあるが詳しくはない」レベルでも
 
 | 時期 | 出来事 |
 |------|-------|
-| **2010年頃** | TIS社内で開発開始。社内の大規模SIプロジェクトで実績を蓄積 |
-| **2016年** | OSSとしてGitHubで公開（Apache License 2.0） |
-| **2019年** | Nablarch 5リリース。Java 8対応、各種改善 |
-| **2023年** | Nablarch 6リリース。Jakarta EE 10対応、Java 17+ |
-| **現在** | Nablarch 6系が最新。ミッションクリティカルシステムでの利用が継続中 |
+| **2016年頃** | OSSとしてGitHubで公開（Apache License 2.0）。公開時点のバージョンはNablarch 5u6 |
+| **2024年12月** | Nablarch 6リリース。Jakarta EE 10対応、Java 17+必須 |
+| **現在** | Nablarch 6u3が最新（2025年3月）。Nablarch 5系（5u26）もメンテナンス継続中 |
+
+> **注**: 上記はGitHub Releases（[nablarch-document](https://github.com/nablarch/nablarch-document/releases)）および公式ドキュメントのcopyright表記（© 2010-2016, TIS Inc.）から確認できる情報に基づく。TIS社内での開発開始時期について公式プレスリリース等での明確な記述は確認されていない。
 
 ### 3.3 どこで使われているか
 
