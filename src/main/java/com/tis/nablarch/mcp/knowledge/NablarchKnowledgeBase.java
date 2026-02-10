@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * Nablarch知識ベース。
  *
  * <p>MCPツール・リソースが参照する知識データの中央リポジトリ。
- * 起動時に静的YAMLファイル（7本）をメモリにロードし、
+ * 起動時に静的YAMLファイル（14本：基本7+カタログ7）をメモリにロードし、
  * キーワード検索・カテゴリフィルタ・ハンドラキュー検証機能を提供する。</p>
  *
  * <p>Phase 1では単純な文字列マッチングによる検索を実装。
@@ -51,6 +51,20 @@ public class NablarchKnowledgeBase {
     private List<ConfigTemplateEntry> configTemplates = List.of();
     /** 設計パターン */
     private List<DesignPatternEntry> designPatterns = List.of();
+
+    /** カタログ知識エントリ（拡張7ファイルのフラット化データ） */
+    private List<CatalogKnowledgeEntry> catalogEntries = List.of();
+
+    /** 拡張カタログYAMLファイル名 */
+    private static final String[] CATALOG_FILES = {
+            "data-io-catalog.yaml",
+            "validation-catalog.yaml",
+            "mail-catalog.yaml",
+            "message-catalog.yaml",
+            "utility-catalog.yaml",
+            "log-catalog.yaml",
+            "security-catalog.yaml"
+    };
 
     /** カテゴリ別APIパターンインデックス */
     private Map<String, List<ApiPatternEntry>> patternsByCategoryIndex = Map.of();
@@ -97,12 +111,30 @@ public class NablarchKnowledgeBase {
         designPatterns = loadListYaml("design-patterns.yaml", "patterns",
                 new TypeReference<List<DesignPatternEntry>>() {});
 
+        // 拡張カタログYAMLのロード
+        List<CatalogKnowledgeEntry> entries = new ArrayList<>();
+        for (String filename : CATALOG_FILES) {
+            try {
+                Map<String, Object> data = loadYaml(filename,
+                        new TypeReference<Map<String, Object>>() {});
+                String catalogName = filename.replace("-catalog.yaml", "").replace("-", "_");
+                int before = entries.size();
+                extractCatalogEntries(catalogName, data, entries);
+                log.info("カタログロード完了: {} ({}エントリ)", filename, entries.size() - before);
+            } catch (Exception e) {
+                log.warn("カタログファイルの読み込みスキップ: {}", filename, e);
+            }
+        }
+        catalogEntries = List.copyOf(entries);
+
         buildIndexes();
 
         log.info("知識ベース初期化完了: ハンドラカタログ={}タイプ, API={}パターン, 制約={}件, "
-                + "モジュール={}件, エラー={}件, テンプレート={}件, 設計パターン={}件",
+                + "モジュール={}件, エラー={}件, テンプレート={}件, 設計パターン={}件, "
+                + "カタログエントリ={}件",
                 handlerCatalog.size(), apiPatterns.size(), handlerConstraints.size(),
-                modules.size(), errors.size(), configTemplates.size(), designPatterns.size());
+                modules.size(), errors.size(), configTemplates.size(), designPatterns.size(),
+                catalogEntries.size());
     }
 
     /**
@@ -158,6 +190,14 @@ public class NablarchKnowledgeBase {
                     .filter(e -> matchesKeyword(e, lowerKeyword))
                     .forEach(e -> results.add(formatError(e)));
         }
+
+        // カタログ知識検索（拡張7ファイル）
+        String lowerCategory = category != null ? category.toLowerCase() : null;
+        catalogEntries.stream()
+                .filter(e -> lowerCategory == null || lowerCategory.isBlank()
+                        || e.matchesCategory(lowerCategory))
+                .filter(e -> e.matches(lowerKeyword))
+                .forEach(e -> results.add(e.formatted()));
 
         return results;
     }
@@ -382,6 +422,111 @@ public class NablarchKnowledgeBase {
                 .filter(d -> d.name.equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
+    }
+
+    // ========== 内部: カタログ知識抽出 ==========
+
+    @SuppressWarnings("unchecked")
+    private void extractCatalogEntries(String catalogName, Map<String, Object> data,
+            List<CatalogKnowledgeEntry> entries) {
+        for (Map.Entry<String, Object> topEntry : data.entrySet()) {
+            if (!(topEntry.getValue() instanceof Map)) continue;
+            Map<String, Object> section = (Map<String, Object>) topEntry.getValue();
+            String sectionKey = topEntry.getKey();
+            String sectionDesc = getStringValue(section, "description");
+
+            // セクション自体をエントリとして登録
+            if (sectionDesc != null) {
+                entries.add(new CatalogKnowledgeEntry(
+                        catalogName, sectionKey, sectionKey, null, sectionDesc, null,
+                        String.format("[ライブラリ] %s — %s", sectionKey, trimToLine(sectionDesc))));
+            }
+
+            // セクション内の名前付きアイテムを再帰的に抽出
+            extractNamedItems(catalogName, sectionKey, section, entries);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void extractNamedItems(String catalogName, String sectionKey,
+            Map<String, Object> map, List<CatalogKnowledgeEntry> entries) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof List) {
+                for (Object item : (List<?>) value) {
+                    if (item instanceof Map) {
+                        Map<String, Object> itemMap = (Map<String, Object>) item;
+                        String name = getStringValue(itemMap, "name");
+                        if (name != null) {
+                            String fqcn = getStringValue(itemMap, "fqcn");
+                            String desc = getStringValue(itemMap, "description");
+                            String usage = getStringValue(itemMap, "usage");
+                            if (usage == null) usage = getStringValue(itemMap, "example");
+                            entries.add(new CatalogKnowledgeEntry(
+                                    catalogName, sectionKey, name, fqcn, desc, usage,
+                                    formatCatalogItem(sectionKey, name, fqcn, desc)));
+                        }
+                    }
+                }
+            } else if (value instanceof Map) {
+                Map<String, Object> nestedMap = (Map<String, Object>) value;
+                String name = getStringValue(nestedMap, "name");
+                if (name != null) {
+                    String fqcn = getStringValue(nestedMap, "fqcn");
+                    String desc = getStringValue(nestedMap, "description");
+                    String usage = getStringValue(nestedMap, "usage");
+                    entries.add(new CatalogKnowledgeEntry(
+                            catalogName, sectionKey, name, fqcn, desc, usage,
+                            formatCatalogItem(sectionKey, name, fqcn, desc)));
+                }
+                // ネストされたマップを再帰走査
+                extractNamedItems(catalogName, sectionKey, nestedMap, entries);
+            }
+        }
+    }
+
+    private static String getStringValue(Map<String, Object> map, String key) {
+        Object v = map.get(key);
+        return v instanceof String ? (String) v : null;
+    }
+
+    private static String formatCatalogItem(String section, String name, String fqcn, String desc) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[カタログ:").append(section).append("] ").append(name);
+        if (fqcn != null) sb.append(" (").append(fqcn).append(")");
+        if (desc != null) sb.append(" — ").append(trimToLine(desc));
+        return sb.toString();
+    }
+
+    private static String trimToLine(String text) {
+        if (text == null) return "";
+        String trimmed = text.strip();
+        int nl = trimmed.indexOf('\n');
+        return nl > 0 ? trimmed.substring(0, nl).strip() : trimmed;
+    }
+
+    /**
+     * カタログ知識の検索可能エントリ。
+     * 拡張カタログYAMLから抽出したフラット化データを保持する。
+     */
+    record CatalogKnowledgeEntry(
+            String catalog,
+            String section,
+            String name,
+            String fqcn,
+            String description,
+            String usage,
+            String formatted) {
+
+        boolean matches(String keyword) {
+            return ci(name, keyword) || ci(fqcn, keyword)
+                    || ci(description, keyword) || ci(section, keyword)
+                    || ci(usage, keyword) || ci(catalog, keyword);
+        }
+
+        boolean matchesCategory(String category) {
+            return ci(catalog, category) || ci(section, category);
+        }
     }
 
     // ========== 内部: YAMLロード ==========
