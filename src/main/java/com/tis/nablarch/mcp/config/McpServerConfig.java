@@ -14,6 +14,8 @@ import com.tis.nablarch.mcp.tools.OptimizeHandlerQueueTool;
 import com.tis.nablarch.mcp.tools.RecommendPatternTool;
 import com.tis.nablarch.mcp.tools.SearchApiTool;
 import com.tis.nablarch.mcp.tools.SemanticSearchTool;
+import com.tis.nablarch.mcp.tools.MigrationAnalysisTool;
+import com.tis.nablarch.mcp.tools.TestGenerationTool;
 import com.tis.nablarch.mcp.tools.TroubleshootTool;
 import com.tis.nablarch.mcp.tools.ValidateHandlerQueueTool;
 import io.modelcontextprotocol.server.McpServerFeatures;
@@ -48,12 +50,15 @@ public class McpServerConfig {
             DesignHandlerQueueTool designHandlerQueueTool,
             RecommendPatternTool recommendPatternTool,
             OptimizeHandlerQueueTool optimizeHandlerQueueTool,
-            TroubleshootTool troubleshootTool) {
+            TroubleshootTool troubleshootTool,
+            MigrationAnalysisTool migrationAnalysisTool,
+            TestGenerationTool testGenerationTool) {
         return MethodToolCallbackProvider.builder()
                 .toolObjects(searchApiTool, validateHandlerQueueTool,
                         semanticSearchTool, codeGenerationTool,
                         designHandlerQueueTool, recommendPatternTool,
-                        optimizeHandlerQueueTool, troubleshootTool)
+                        optimizeHandlerQueueTool, troubleshootTool,
+                        migrationAnalysisTool, testGenerationTool)
                 .build();
     }
 
