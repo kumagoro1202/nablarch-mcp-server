@@ -55,11 +55,13 @@ AIツールに組み込む前に、まずMCP Inspector（MCPサーバーの開�
 ### MCP Inspectorの起動
 
 ```bash
-# MCP Inspectorを起動
+# WSL2上でMCP Inspectorを起動
 npx @modelcontextprotocol/inspector java -jar target/nablarch-mcp-server-*.jar
 ```
 
-ブラウザで `http://localhost:5173` を開くと、MCP Inspectorの画面が表示されます。
+**WSL2環境での注意**: コマンド実行後、`Server running at http://localhost:5173` と表示されたら、**Windows側（ホスト側）のブラウザ**で `http://localhost:5173` を開いてください。最新のWSL2では自動的にポート転送されるため、Windows側から直接 `localhost:5173` でアクセスできます。
+
+MCP Inspectorの画面が表示されれば準備完了です。
 
 ### 画面構成
 
