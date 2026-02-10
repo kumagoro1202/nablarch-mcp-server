@@ -1,6 +1,5 @@
 package com.tis.nablarch.mcp.tools;
 
-import com.tis.nablarch.mcp.TestConfig;
 import com.tis.nablarch.mcp.rag.ingestion.OfficialDocsIngester;
 import com.tis.nablarch.mcp.rag.rerank.Reranker;
 import com.tis.nablarch.mcp.rag.search.BM25SearchService;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -37,7 +35,6 @@ import static org.mockito.Mockito.*;
  */
 @SpringBootTest
 @ActiveProfiles("test")
-@Import(TestConfig.class)
 class SemanticSearchIntegrationTest {
 
     @Autowired
