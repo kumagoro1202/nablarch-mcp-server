@@ -1,0 +1,123 @@
+# Nablarch Utility Catalog
+# 日付管理 + ファイルパス管理 + BeanUtil + 汎用ユーティリティの知識
+# Version: 1.0
+# Reference: https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/
+# FQCN検証: 公式ドキュメント + Javadocで確認（2026-02-10）
+
+date:
+  description: |
+    日付管理機能。業務日付（テーブル管理）とシステム日付（OS日時）の2種類を提供。
+    業務日付はDBテーブルで管理され、テスト時の日付切り替えが容易。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-date"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/date.html"
+
+  core_classes:
+    - name: BusinessDateUtil
+      fqcn: "nablarch.core.date.BusinessDateUtil"
+      description: "業務日付取得ユーティリティ。DBテーブルから業務日付を取得"
+      usage: |
+        // デフォルト区分の業務日付取得
+        String date = BusinessDateUtil.getDate();
+        // → "20260210"
+
+        // 区分指定で業務日付取得
+        String date = BusinessDateUtil.getDate("01");
+
+    - name: SystemTimeUtil
+      fqcn: "nablarch.core.date.SystemTimeUtil"
+      description: "システム日時取得ユーティリティ。OSのシステムクロックから日時を取得"
+      usage: |
+        // システム日付取得
+        String date = SystemTimeUtil.getDateString();
+        // → "20260210"
+
+        // システム日時取得（Timestamp）
+        Timestamp timestamp = SystemTimeUtil.getTimestamp();
+
+        // システム日付取得（Date型）
+        Date date = SystemTimeUtil.getDate();
+
+  config:
+    description: |
+      業務日付はDBテーブル（業務日付テーブル）で管理する。
+      テーブルに「区分」と「日付」を持ち、業務処理日・締め日等の複数日付を管理可能。
+      BasicBusinessDateProvider をコンポーネント定義で登録する。
+
+file_path:
+  description: |
+    ファイルパス管理機能。ファイルパスの論理名→物理パス変換を提供。
+    環境ごとにファイル配置が異なる場合に、設定で物理パスを切り替えられる。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/file_path_management.html"
+
+  core_classes:
+    - name: FilePathSetting
+      fqcn: "nablarch.core.util.FilePathSetting"
+      description: "ファイルパス設定。論理名からベースパス・ファイル名を解決"
+      usage: |
+        // ファイルパス取得
+        FilePathSetting setting = FilePathSetting.getInstance();
+        File file = setting.getFileWithoutCreate("csv-input", "users.csv");
+
+        // ベースパス取得
+        File baseDir = setting.getBaseDirectory("csv-output");
+
+bean_util:
+  description: |
+    BeanUtil。Java Beansオブジェクト間のプロパティコピー、Map⇔Beanの変換を提供。
+    フォームからエンティティへの変換等で頻繁に使用。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-beans"
+
+  core_classes:
+    - name: BeanUtil
+      fqcn: "nablarch.core.beans.BeanUtil"
+      description: "Bean操作ユーティリティ。プロパティコピー・型変換を提供"
+      usage: |
+        // Bean → Bean コピー（同名プロパティを自動コピー）
+        UserEntity entity = BeanUtil.createAndCopy(UserEntity.class, form);
+
+        // 既存オブジェクトにコピー
+        BeanUtil.copy(form, entity);
+
+        // Bean → Map 変換
+        Map<String, Object> map = BeanUtil.createMapAndCopy(entity);
+
+        // Map → Bean 変換
+        UserEntity entity = BeanUtil.createAndCopy(UserEntity.class, map);
+
+  notes:
+    - "同名プロパティの型が異なる場合、自動型変換を試みる"
+    - "ネストしたBeanのコピーには対応しない（フラットなプロパティのみ）"
+    - "フォーム→エンティティ変換でNablarchアプリケーション開発では頻出"
+
+general_utilities:
+  description: "Nablarchが提供する汎用ユーティリティクラス群"
+
+  classes:
+    - name: StringUtil
+      fqcn: "nablarch.core.util.StringUtil"
+      description: "文字列ユーティリティ。null安全な文字列操作"
+      methods:
+        - "isNullOrEmpty(String) - null または空文字チェック"
+        - "hasValue(String) - 値があるかチェック（isNullOrEmptyの逆）"
+        - "lpad(String, int, char) - 左パディング"
+        - "rpad(String, int, char) - 右パディング"
+
+    - name: DateUtil
+      fqcn: "nablarch.core.util.DateUtil"
+      description: "日付ユーティリティ。日付文字列の変換・計算"
+      methods:
+        - "formatDate(String, String) - 日付文字列のフォーマット変換"
+        - "getMonths(String, String) - 2つの日付間の月数を計算"
+        - "addDay(String, int) - 日付に日数を加算"
+        - "getDays(String, String) - 2つの日付間の日数を計算"
+
+    - name: ObjectUtil
+      fqcn: "nablarch.core.util.ObjectUtil"
+      description: "オブジェクトユーティリティ。リフレクション操作等"

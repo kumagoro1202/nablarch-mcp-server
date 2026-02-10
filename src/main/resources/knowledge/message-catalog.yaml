@@ -1,0 +1,140 @@
+# Nablarch Message & Code Management Catalog
+# メッセージ管理 + コード管理の知識
+# Version: 1.0
+# Reference:
+#   - https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/message.html
+#   - https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/code.html
+# FQCN検証: 公式ドキュメント + Javadocで確認（2026-02-10）
+
+message:
+  description: |
+    メッセージ管理機能。プロパティファイルまたはDBからメッセージを取得し、
+    パラメータ置換して返却する。エラーメッセージ・業務メッセージの一元管理に使用。
+    ApplicationExceptionと連携してバリデーションエラーを通知する。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-message"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/message.html"
+
+  core_classes:
+    - name: MessageUtil
+      fqcn: "nablarch.core.message.MessageUtil"
+      description: "メッセージ取得ユーティリティ。メッセージIDとパラメータからメッセージを生成"
+      usage: |
+        // メッセージ取得
+        Message message = MessageUtil.createMessage(
+            MessageLevel.ERROR, "errors.maxLength", "ユーザ名", 100);
+        // → "ユーザ名は100文字以下で入力してください。"
+
+        // メッセージ文字列のみ取得
+        String msg = MessageUtil.getStringResource("MSG00001").getValue();
+
+    - name: ApplicationException
+      fqcn: "nablarch.core.message.ApplicationException"
+      description: "業務例外。バリデーションエラー等のメッセージを保持する例外クラス"
+      usage: |
+        // バリデーションエラー通知
+        throw new ApplicationException(
+            MessageUtil.createMessage(MessageLevel.ERROR, "errors.required", "ユーザ名"));
+
+        // 複数エラーをまとめて通知
+        ApplicationException e = new ApplicationException();
+        e.addMessages(message1);
+        e.addMessages(message2);
+        throw e;
+
+    - name: Message
+      fqcn: "nablarch.core.message.Message"
+      description: "メッセージオブジェクト。メッセージID・レベル・フォーマット済みテキストを保持"
+
+    - name: StringResourceHolder
+      fqcn: "nablarch.core.message.StringResourceHolder"
+      description: "メッセージリソースの保持インターフェース"
+
+  message_levels:
+    - "ERROR - エラーメッセージ"
+    - "WARN - 警告メッセージ"
+    - "INFO - 情報メッセージ"
+
+  web_integration:
+    description: "Webアプリケーションでのメッセージ表示"
+    classes:
+      - name: WebUtil
+        fqcn: "nablarch.common.web.WebUtil"
+        description: "リクエストスコープにメッセージを設定するユーティリティ"
+        usage: |
+          // リクエストスコープにメッセージを設定
+          WebUtil.notifyMessages(context, message);
+
+code:
+  description: |
+    コード管理機能。コードマスタ（DBテーブル）からコード値・名称・略称を取得する。
+    パターン機能で機能ごとにコード表示を切り替え可能。多言語対応。
+    バリデーションアノテーション（@CodeValue）で入力値がコードマスタに存在するかチェックできる。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-common-code"
+    additional:
+      - artifact_id: "nablarch-common-code-jdbc"
+        description: "JDBC経由のコードローダー"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/code.html"
+
+  core_classes:
+    - name: CodeUtil
+      fqcn: "nablarch.common.code.CodeUtil"
+      description: "コード情報取得ユーティリティ。コード名称・略称・オプション名称を取得"
+      usage: |
+        // コード名称取得
+        String name = CodeUtil.getName("GENDER", "01");
+        // → "男性"
+
+        // コード略称取得
+        String shortName = CodeUtil.getShortName("GENDER", "01");
+
+        // パターン指定で名称取得
+        String name = CodeUtil.getName("STATUS", "pattern01", "01");
+
+        // コード値一覧取得
+        List<String> values = CodeUtil.getValues("GENDER");
+
+        // 言語指定
+        String name = CodeUtil.getName("GENDER", "01", Locale.ENGLISH);
+
+    - name: BasicCodeManager
+      fqcn: "nablarch.common.code.BasicCodeManager"
+      description: "コード管理の中核クラス。コンポーネント名は「codeManager」で登録必須"
+
+    - name: BasicCodeLoader
+      fqcn: "nablarch.common.code.BasicCodeLoader"
+      description: "DBからコード情報をロードするクラス"
+
+  table_schemas:
+    - name: CodePatternSchema
+      fqcn: "nablarch.common.code.schema.CodePatternSchema"
+      description: "コードパターンテーブルのスキーマ定義"
+
+    - name: CodeNameSchema
+      fqcn: "nablarch.common.code.schema.CodeNameSchema"
+      description: "コード名称テーブルのスキーマ定義"
+
+  validation:
+    bean_validation:
+      name: "@CodeValue"
+      fqcn: "nablarch.common.code.validator.ee.CodeValue"
+      description: "Bean Validation用コード値チェックアノテーション"
+      example: |
+        @CodeValue(codeId = "GENDER")
+        private String genderCode;
+
+    nablarch_validation:
+      name: "@CodeValue"
+      fqcn: "nablarch.common.code.validator.CodeValue"
+      description: "Nablarch Validation用コード値チェックアノテーション"
+
+  features:
+    - name: "パターン機能"
+      description: "同一コードIDに対して複数のパターン（表示切り替え）を定義可能。機能ごとに表示するコード値を変更できる"
+    - name: "多言語対応"
+      description: "ロケール指定でコード名称・略称を言語ごとに取得可能"
+    - name: "キャッシュ"
+      description: "BasicStaticDataCacheによりコード情報をメモリキャッシュ。起動時にDB読み込み"

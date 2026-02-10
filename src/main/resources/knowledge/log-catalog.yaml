@@ -1,0 +1,130 @@
+# Nablarch Log Catalog
+# ログ出力機能の知識
+# Version: 1.0
+# Reference: https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/log.html
+# FQCN検証: 公式ドキュメント + Javadocで確認（2026-02-10）
+
+log:
+  description: |
+    Nablarch標準のログ出力機能。独自のロギングフレームワークを提供し、
+    障害ログ・SQLログ・パフォーマンスログ・アクセスログ等の用途別ログカテゴリに対応。
+    log.properties と app-log.properties で設定する。
+    SLF4Jアダプタを使用してSLF4J/Logback等の外部ロギングフレームワークに委譲も可能。
+  module:
+    group_id: "com.nablarch.framework"
+    artifact_id: "nablarch-core-log"
+  reference: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/log.html"
+
+  core_classes:
+    - name: Logger
+      fqcn: "nablarch.core.log.Logger"
+      description: "ログ出力インターフェース。アプリケーションはこのクラス経由でログを出力"
+      usage: |
+        private static final Logger LOGGER = LoggerManager.get(MyClass.class);
+
+        // レベル別ログ出力
+        LOGGER.logInfo("処理を開始します");
+        LOGGER.logWarn("警告メッセージ");
+        LOGGER.logError("エラーが発生しました", exception);
+
+        // レベルチェック（パフォーマンス向上）
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.logDebug("デバッグ情報: " + expensiveToString());
+        }
+
+    - name: LoggerManager
+      fqcn: "nablarch.core.log.LoggerManager"
+      description: "Loggerファクトリ。クラスまたは名前でLoggerインスタンスを取得"
+      usage: |
+        Logger logger = LoggerManager.get(MyClass.class);
+        Logger logger = LoggerManager.get("SQL");
+
+    - name: BasicLoggerFactory
+      fqcn: "nablarch.core.log.basic.BasicLoggerFactory"
+      description: "デフォルトのLoggerファクトリ実装"
+
+  log_writers:
+    - name: FileLogWriter
+      fqcn: "nablarch.core.log.basic.FileLogWriter"
+      description: "ファイル出力ライター。ログローテーション対応"
+      settings:
+        - "filePath - 出力ファイルパス"
+        - "encoding - 文字エンコーディング"
+        - "maxFileSize - 最大ファイルサイズ（ローテーション閾値）"
+        - "currentFilePath - カレントファイルパス"
+
+    - name: StandardOutputLogWriter
+      fqcn: "nablarch.core.log.basic.StandardOutputLogWriter"
+      description: "標準出力ライター。コンソールに出力"
+
+    - name: SynchronousFileLogWriter
+      fqcn: "nablarch.core.log.basic.SynchronousFileLogWriter"
+      description: "同期ファイル出力ライター。複数プロセスからの同時書き込みに対応"
+
+  formatters:
+    - name: BasicLogFormatter
+      fqcn: "nablarch.core.log.basic.BasicLogFormatter"
+      description: "パターンベースフォーマッタ。プレースホルダで出力形式を定義"
+      placeholders:
+        - "$date$ - 日時"
+        - "$logLevel$ - ログレベル"
+        - "$loggerName$ - ロガー名"
+        - "$runtimeLoggerName$ - 実行時ロガー名"
+        - "$executionId$ - 実行ID"
+        - "$userId$ - ユーザID"
+        - "$message$ - メッセージ"
+        - "$stackTrace$ - スタックトレース"
+
+    - name: JsonLogFormatter
+      fqcn: "nablarch.core.log.basic.JsonLogFormatter"
+      description: "JSON形式フォーマッタ。構造化ログ出力に対応"
+
+  log_categories:
+    description: "Nablarchが提供する用途別ログカテゴリ"
+    categories:
+      - name: "障害ログ（failure log）"
+        description: "アプリケーション障害監視用。未キャッチ例外やシステムエラーを記録"
+        reference: "障害通知ログ/障害解析ログの2種類"
+
+      - name: "SQLログ（SQL log）"
+        description: "SQL文と実行時間を記録。パフォーマンスチューニングに使用"
+        settings:
+          - "startRetrieve - 検索開始ログ"
+          - "endRetrieve - 検索終了ログ（件数・時間）"
+          - "startUpdate - 更新開始ログ"
+          - "endUpdate - 更新終了ログ"
+
+      - name: "パフォーマンスログ（performance log）"
+        description: "処理の実行時間を記録。ボトルネック特定に使用"
+
+      - name: "HTTPアクセスログ（HTTP access log）"
+        description: "HTTPリクエスト/レスポンスの情報を記録。Webアプリケーション用"
+        handler: "nablarch.common.web.handler.HttpAccessLogHandler"
+
+      - name: "メッセージングログ（messaging log）"
+        description: "メッセージング処理のリクエスト/レスポンスを記録"
+
+  config_files:
+    - name: "log.properties"
+      description: "ログの基本設定。ライター定義、ロガー定義、フォーマッタ定義"
+      example: |
+        # ライター定義
+        writer.appLog.className=nablarch.core.log.basic.FileLogWriter
+        writer.appLog.filePath=/var/log/app/app.log
+        writer.appLog.maxFileSize=10000000
+
+        # ロガー定義
+        loggers.access.nameRegex=HTTP_ACCESS
+        loggers.access.level=INFO
+        loggers.access.writerNames=accessLog
+
+    - name: "app-log.properties"
+      description: "用途別ログの詳細設定。各ログカテゴリのフォーマット等"
+
+  adapters:
+    - name: "SLF4Jアダプタ"
+      description: "NablarchログをSLF4Jに委譲。Logback等の外部フレームワークを使用可能"
+      module: "nablarch-slf4j-adaptor"
+    - name: "logアダプタ"
+      description: "SLF4JアダプタのAlias"
+      module: "nablarch-log-adaptor"
