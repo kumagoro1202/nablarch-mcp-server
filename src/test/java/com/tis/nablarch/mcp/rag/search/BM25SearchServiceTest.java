@@ -144,9 +144,9 @@ class BM25SearchServiceTest {
     class FilterTests {
 
         @Test
-        @DisplayName("app_typeフィルタがSQL WHERE句に含まれる")
+        @DisplayName("app_typeフィルタがdocument_chunksのSQL WHERE句にのみ含まれる")
         @SuppressWarnings("unchecked")
-        void appTypeFilterIncludedInSql() {
+        void appTypeFilterIncludedInDocSqlOnly() {
             SearchFilters filters = new SearchFilters("web", null, null, null, null);
             ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -155,16 +155,18 @@ class BM25SearchServiceTest {
 
             service.search("テスト", filters, 10);
 
-            // document_chunksとcode_chunks両方のSQLを確認
+            // document_chunksのSQLにはapp_typeフィルタが含まれる
             List<String> sqls = sqlCaptor.getAllValues();
-            assertTrue(sqls.stream().allMatch(sql -> sql.contains("metadata->>'app_type' = :app_type")),
-                    "app_typeフィルタがSQLに含まれていない");
+            String docSql = sqls.stream().filter(s -> s.contains("document_chunks")).findFirst().orElseThrow();
+            String codeSql = sqls.stream().filter(s -> s.contains("code_chunks")).findFirst().orElseThrow();
+            assertTrue(docSql.contains("app_type = :app_type"), "document_chunksにapp_typeフィルタが含まれていない");
+            assertFalse(codeSql.contains("app_type = :app_type"), "code_chunksにapp_typeフィルタが含まれてはならない");
         }
 
         @Test
-        @DisplayName("複数フィルタが全てSQL WHERE句に含まれる")
+        @DisplayName("複数フィルタがdocument_chunksのSQL WHERE句に全て含まれる")
         @SuppressWarnings("unchecked")
-        void multipleFiltersIncludedInSql() {
+        void multipleFiltersIncludedInDocSql() {
             SearchFilters filters = new SearchFilters("rest", "nablarch-fw-web", "github", "code", "ja");
             ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -173,20 +175,33 @@ class BM25SearchServiceTest {
 
             service.search("テスト", filters, 10);
 
-            String sql = sqlCaptor.getValue();
+            List<String> sqls = sqlCaptor.getAllValues();
+            String docSql = sqls.stream().filter(s -> s.contains("document_chunks")).findFirst().orElseThrow();
+            String codeSql = sqls.stream().filter(s -> s.contains("code_chunks")).findFirst().orElseThrow();
+
+            // document_chunksは全フィルタ適用
             assertAll(
-                    () -> assertTrue(sql.contains("metadata->>'app_type' = :app_type")),
-                    () -> assertTrue(sql.contains("metadata->>'module' = :module")),
-                    () -> assertTrue(sql.contains("metadata->>'source' = :source")),
-                    () -> assertTrue(sql.contains("metadata->>'source_type' = :source_type")),
-                    () -> assertTrue(sql.contains("metadata->>'language' = :language"))
+                    () -> assertTrue(docSql.contains("app_type = :app_type")),
+                    () -> assertTrue(docSql.contains("module = :module")),
+                    () -> assertTrue(docSql.contains("source = :source")),
+                    () -> assertTrue(docSql.contains("source_type = :source_type")),
+                    () -> assertTrue(docSql.contains("language = :language"))
+            );
+
+            // code_chunksは共通フィルタのみ適用
+            assertAll(
+                    () -> assertFalse(codeSql.contains("app_type = :app_type")),
+                    () -> assertTrue(codeSql.contains("module = :module")),
+                    () -> assertFalse(codeSql.contains("source = :source")),
+                    () -> assertFalse(codeSql.contains("source_type = :source_type")),
+                    () -> assertTrue(codeSql.contains("language = :language"))
             );
         }
 
         @Test
-        @DisplayName("フィルタなしの場合はメタデータ条件がSQLに含まれない")
+        @DisplayName("フィルタなしの場合はフィルタ条件がSQLに含まれない")
         @SuppressWarnings("unchecked")
-        void noFiltersExcludesMetadataConditions() {
+        void noFiltersExcludesFilterConditions() {
             ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
 
             when(jdbcTemplate.query(sqlCaptor.capture(), any(MapSqlParameterSource.class), any(RowMapper.class)))
@@ -194,8 +209,12 @@ class BM25SearchServiceTest {
 
             service.search("テスト", SearchFilters.NONE, 10);
 
-            String sql = sqlCaptor.getValue();
-            assertFalse(sql.contains("metadata-->"), "フィルタ条件が含まれてはならない");
+            List<String> sqls = sqlCaptor.getAllValues();
+            for (String sql : sqls) {
+                assertFalse(sql.contains("app_type = :app_type"), "app_typeフィルタが含まれてはならない");
+                assertFalse(sql.contains("module = :module"), "moduleフィルタが含まれてはならない");
+                assertFalse(sql.contains("source = :source"), "sourceフィルタが含まれてはならない");
+            }
         }
     }
 
