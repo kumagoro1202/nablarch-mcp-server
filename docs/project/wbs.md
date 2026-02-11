@@ -204,44 +204,29 @@
 ## 5. Phase 4: 本番デプロイ・エンタープライズ対応
 
 > チーム利用・エンタープライズ対応の機能を整備する。
-> **技術**: + Docker + OAuth 2.0 + GitHub Webhook + モニタリング
+> cmd_076計画により4サブフェーズに再構成（Phase 4-1〜4-4）。
+> **技術**: + Docker + OAuth 2.0 + GitHub Webhook + Micrometer/Prometheus + 構造化ログ
 
-### Phase 4 WBSテーブル
+### Phase 4-1: 品質基盤・オブザーバビリティ基盤（✅ 12/12完了）
 
-| WBS番号 | タスク名 | 成果物 | 依存タスク | 並列可否 | 状態 |
-|---------|---------|--------|-----------|---------|------|
-| **4.1** | **設計** | | | | |
-| 4.1.1 | Docker Composeデプロイ設計 | デプロイメントアーキテクチャ設計書（コンテナ構成、ネットワーク、ボリューム） | Phase 3完了 | — | 未着手 |
-| 4.1.2 | OAuth 2.0認証設計 | 認証・認可設計書（OAuth 2.0フロー、APIキー管理、セッション管理） | Phase 3完了 | ‖ 4.1.1 | 未着手 |
-| 4.1.3 | GitHub取り込みパイプライン設計 | 設計書（113リポジトリのクローリング戦略、増分更新、Webhook連携） | Phase 3完了 | ‖ 4.1.1 | 未着手 |
-| 4.1.4 | Javadoc取り込みパイプライン設計 | 設計書（全モジュールJavadocパース・チャンキング・Embedding戦略） | Phase 3完了 | ‖ 4.1.1 | 未着手 |
-| 4.1.5 | モニタリング・ロギング設計 | 設計書（メトリクス定義、ログフォーマット、ヘルスチェック、アラート条件） | Phase 3完了 | ‖ 4.1.1 | 未着手 |
-| **4.2** | **実装** | | | | |
-| **4.2.1** | **Docker Compose構築** | `Dockerfile`, `docker-compose.yml`（nablarch-mcp + pgvector/pg16、環境変数、ヘルスチェック） | 4.1.1 | — | 未着手 |
-| 4.2.2 | OAuth 2.0認証実装 | `SecurityConfig.java`, `AuthFilter.java`（トークン検証、APIキー認証、セッション管理） | 4.1.2 | ‖ 4.2.1 | 未着手 |
-| 4.2.3 | APIキー管理実装 | `ApiKeyService.java`, `api_keys` テーブル（キー発行・失効・ローテーション） | 4.2.2 | — | 未着手 |
-| 4.2.4 | レート制限実装 | `RateLimitFilter.java`（セッション単位のレート制限） | 4.2.2 | ‖ 4.2.3 | 未着手 |
-| **4.2.5** | **GitHub取り込みパイプライン実装** | `GitHubIngester.java`（113リポジトリのJava/XMLソースコード取り込み→Voyage-code-3 Embedding→code_chunks格納） | 4.1.3, 2.2.5, 2.2.7 | ‖ 4.2.1 | 未着手 |
-| **4.2.6** | **Javadoc取り込みパイプライン実装** | `JavadocIngester.java`（全モジュールJavadoc取り込み→Jina v4 Embedding→document_chunks格納） | 4.1.4, 2.2.5, 2.2.6 | ‖ 4.2.5 | 未着手 |
-| 4.2.7 | GitHub Webhook連携（増分更新） | `WebhookController.java`（pushイベント受信→差分検出→増分取り込み） | 4.2.5 | — | 未着手 |
-| 4.2.8 | モニタリング・メトリクス実装 | `MetricsConfig.java`（Micrometer + Prometheus: リクエスト数、レイテンシ、RAG検索時間、ベクトルDB容量） | 4.1.5 | ‖ 4.2.1 | 未着手 |
-| 4.2.9 | ヘルスチェック・ロギング実装 | `HealthCheckConfig.java`（pgvector接続確認、Embedding API疎通確認）、構造化ログ設定 | 4.2.8 | — | 未着手 |
-| 4.2.10 | Origin ヘッダ検証実装 | `OriginValidationFilter.java`（Streamable HTTPのOriginヘッダバリデーション） | 4.2.2, 3.2.14 | ‖ 4.2.8 | 未着手 |
-| **4.3** | **テスト** | | | | |
-| 4.3.1 | Docker Composeデプロイテスト | コンテナ起動・停止テスト、ヘルスチェック確認 | 4.2.1 | — | 未着手 |
-| 4.3.2 | 認証・認可テスト | OAuth 2.0フロー、APIキー認証、不正アクセス拒否テスト | 4.2.2, 4.2.3 | ‖ 4.3.1 | 未着手 |
-| 4.3.3 | レート制限テスト | レート制限動作確認（閾値超過時の429レスポンス） | 4.2.4 | ‖ 4.3.2 | 未着手 |
-| 4.3.4 | 取り込みパイプラインテスト（GitHub） | 代表リポジトリの取り込みE2Eテスト（クローン→パース→Embedding→格納→検索確認） | 4.2.5 | — | 未着手 |
-| 4.3.5 | 取り込みパイプラインテスト（Javadoc） | Javadoc取り込みE2Eテスト | 4.2.6 | ‖ 4.3.4 | 未着手 |
-| 4.3.6 | Webhook増分更新テスト | Webhookイベント受信→増分取り込み→インデックス更新確認 | 4.2.7 | — | 未着手 |
-| 4.3.7 | モニタリングテスト | Prometheusメトリクスエンドポイント確認、アラート条件テスト | 4.2.8, 4.2.9 | ‖ 4.3.4 | 未着手 |
-| **4.3.8** | **全体E2Eテスト（Docker環境）** | Docker環境での全機能テスト（10 Tool、8 Resource、6 Prompt、認証、Streamable HTTP） | 4.3.1〜4.3.7 | — | 未着手 |
-| 4.3.9 | パフォーマンステスト | レイテンシ計測（RAG検索100-300ms目標）、同時接続テスト | 4.3.8 | — | 未着手 |
-| **4.4** | **ドキュメント** | | | | |
-| 4.4.1 | デプロイメントガイド | `docs/deployment-guide.md`（Docker Compose手順、環境変数一覧、スケーリング） | 4.3.8 | — | 未着手 |
-| 4.4.2 | 運用マニュアル | `docs/operations-manual.md`（モニタリング、ログ確認、トラブルシューティング、バックアップ） | 4.2.8, 4.2.9, 4.3.8 | ‖ 4.4.1 | 未着手 |
-| 4.4.3 | セキュリティガイド | `docs/security-guide.md`（OAuth 2.0設定、APIキー管理、TLS設定、Origin検証） | 4.2.2, 4.2.10 | ‖ 4.4.1 | 未着手 |
-| 4.4.4 | ユーザーガイド最終版 | `docs/user-guide.md` 最終更新（全機能の使用方法、FAQ） | 4.3.8 | ‖ 4.4.1 | 未着手 |
+| WBS番号 | タスク名 | 成果物 | 状態 |
+|---------|---------|--------|------|
+| 4.1.1 | Spring Boot Actuator導入 | pom.xml + application-http.yaml | ✅完了 (PR #76) |
+| 4.1.2 | カスタムHealthIndicator実装（3件） | KnowledgeBase/EmbeddingModel/Database + GracefulHealthStatusAggregator | ✅完了 (PR #76) |
+| 4.1.3 | 構造化ログ（JSON）導入 | logback-spring.xml | ✅完了 (PR #76) |
+| 4.1.4 | リクエスト相関ID導入 | CorrelationIdFilter + MDC連携 | ✅完了 (PR #76) |
+| 4.1.5 | Micrometer導入 + MCP固有メトリクス | McpToolMetricsAspect（AOP Counter/Timer/Error） | ✅完了 (PR #78) |
+| 4.1.6 | Prometheus連携 | micrometer-registry-prometheus + /actuator/prometheus | ✅完了 (PR #78) |
+| 4.1.7 | MCP JSON-RPCリクエスト/レスポンスログ | McpToolLoggingAspect（サニタイズ済みパラメータ・レスポンスサイズ） | ✅完了 (PR #78) |
+| 4.1.8 | エラーハンドリング統一 | ErrorResponseBuilder + ErrorCode体系 | ✅完了 (PR #77) |
+| 4.1.9 | pgvector統合テストCI対応 | ci.yml PostgreSQLサービスコンテナ + application-ci.yaml | ✅完了 (PR #78) |
+| 4.1.10 | SpotBugs/Checkstyle警告対応 | 全警告修正 | ✅完了 (PR #77) |
+| 4.1.11 | ドキュメント一括更新 | progress.md/wbs.md/README.md更新 | ✅完了 (PR #78) |
+| 4.1.12 | Tool名snake_case統一 | 全10 Toolに@Tool(name=...)追加 | ✅完了 (PR #77) |
+
+### Phase 4-2〜4-4: 未着手
+
+Phase 4-2（コンテナ化・デプロイ基盤: 8タスク）、Phase 4-3（セキュリティ・認証: 8タスク）、Phase 4-4（データパイプライン拡充・総合テスト: 14タスク）は未着手。詳細は cmd_076計画書を参照。
 
 ---
 
@@ -616,8 +601,9 @@ graph LR
 | Phase 1 | 28 | 28 | 100% |
 | Phase 2 | 34 | 34 | 100% |
 | Phase 3 | 37 | 37 | 100% |
-| Phase 4 | 0 | 28 | 0% |
-| **合計** | **99** | **127** | **78%** |
+| Phase 4-1 | 12 | 12 | 100% |
+| Phase 4-2〜4-4 | 0 | 30 | 0% |
+| **合計** | **111** | **141** | **79%** |
 
 ### MCPプリミティブ対応表
 

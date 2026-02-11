@@ -34,9 +34,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: always
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 # ログ設定はlogback-spring.xmlで管理（HTTPプロファイルではJSON構造化ログ）
