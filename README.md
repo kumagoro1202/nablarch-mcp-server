@@ -132,9 +132,11 @@ RAGパイプラインは以下のNablarch関連情報源をインデックス化
 | **Tools** | 10個実装・登録済み |
 | **Resources** | 8 URIパターン実装・登録済み |
 | **Prompts** | 6テンプレート実装済み |
-| **テスト** | 941テスト成功、0失敗、0エラー、14スキップ（DB統合テスト） |
+| **テスト** | 941テスト（927成功、14スキップ=DB統合テスト） |
 | **品質** | Checkstyle 0違反、SpotBugs 4件（既存Medium警告）、CI/CD導入済み |
 | **品質改善** | cmd_066でP0改善7件+P1改善8件完了（FQCN自動検証テスト131件追加） |
+| **知識データ** | 17 YAMLファイル（カバレッジ85%）— cmd_078で7ファイル追加 |
+| **Agent Skills** | 6件（.claude/skills/配下）— cmd_079で追加 |
 
 ### Phase 1: MCP基盤 + 静的知識（✅ 完了）
 - [x] プロジェクト構造
@@ -176,7 +178,7 @@ RAGパイプラインは以下のNablarch関連情報源をインデックス化
 - ResourceProvider未登録6件追加（Api, Pattern, Example, Config, Antipattern, Version）
 - CI/CD導入（GitHub Actions）
 
-**P1改善（8件、重要改善）**:
+**P1改善（7件、重要改善）**:
 - isError:true対応（MCP仕様準拠）
 - エラーメッセージ内部情報露出防止
 - @ToolParam required=false追加（16パラメータ）
@@ -184,7 +186,16 @@ RAGパイプラインは以下のNablarch関連情報源をインデックス化
 - SetupHandlerQueuePromptアプリタイプ拡張（messagingテンプレート追加）
 - TroubleshootTool Markdownテーブルtypo修正
 - FQCN自動検証テスト導入（131テストケース追加）
-- CI/CD導入（GitHub Actions）
+
+### 知識データ拡充（cmd_078）
+
+- 知識YAMLファイル: 10→17ファイルに拡充（カバレッジ30%→85%）
+- 追加領域: データバインド、バリデーション、ログ、メール、メッセージ、セキュリティ、ユーティリティ
+
+### Agent Skills導入（cmd_079）
+
+- `.claude/skills/`配下に6件のエージェントスキルを追加
+- Nablarch API設計ガイド、コンポーネントXML設定ガイド、エラーハンドリングガイド、ハンドラキュー設計ガイド、マイグレーションガイド、テスト戦略ガイド
 
 ### Phase 4: 本番デプロイ（未着手）
 - [ ] Docker Composeデプロイ
