@@ -65,6 +65,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Phase 4: Prometheusメトリクスエクスポート -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
         <!-- Phase 4: 構造化ログ（JSON形式） -->
         <dependency>
             <groupId>net.logstash.logback</groupId>

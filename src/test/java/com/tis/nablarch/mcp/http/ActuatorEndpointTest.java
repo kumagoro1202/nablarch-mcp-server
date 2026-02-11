@@ -49,9 +49,9 @@ class ActuatorEndpointTest {
     }
 
     @Test
-    void prometheusエンドポイントは未公開() throws Exception {
-        // prometheusはexposure.includeに含めていないので404
+    void prometheusエンドポイントが応答する() throws Exception {
         mockMvc.perform(get("/actuator/prometheus"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("jvm_memory")));
     }
 }
