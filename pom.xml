@@ -65,6 +65,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- Phase 4: 構造化ログ（JSON形式） -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>8.0</version>
+        </dependency>
+
         <!-- YAML parsing -->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>

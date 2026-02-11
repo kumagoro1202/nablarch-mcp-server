@@ -78,9 +78,4 @@ nablarch:
         timeout-ms: 3000
         top-k: 10
 
-logging:
-  pattern:
-    console:
-  level:
-    root: WARN
-    com.tis.nablarch.mcp: INFO
+# ログ設定はlogback-spring.xmlで管理（プロファイル別にJSON/プレーンテキスト切替）

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- ============================================== -->
+    <!-- STDIOプロファイル: プレーンテキスト出力            -->
+    <!-- MCPプロトコル（STDIO）に干渉しないよう stderr に出力 -->
+    <!-- ============================================== -->
+    <springProfile name="!http">
+        <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+            <target>System.err</target>
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <root level="WARN">
+            <appender-ref ref="STDERR" />
+        </root>
+        <logger name="com.tis.nablarch.mcp" level="INFO" />
+    </springProfile>
+
+    <!-- ============================================== -->
+    <!-- HTTPプロファイル: JSON構造化ログ出力              -->
+    <!-- ELK/Loki等のログ集約ツールとの互換性を確保        -->
+    <!-- ============================================== -->
+    <springProfile name="http">
+        <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdcKeyName>requestId</includeMdcKeyName>
+                <timeZone>Asia/Tokyo</timeZone>
+                <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSXXX</timestampPattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE" />
+        </root>
+        <logger name="com.tis.nablarch.mcp" level="DEBUG" />
+    </springProfile>
+
+</configuration>
