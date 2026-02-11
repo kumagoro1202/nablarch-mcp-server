@@ -122,21 +122,21 @@ RAGパイプラインは以下のNablarch関連情報源をインデックス化
 
 ## プロジェクト状況
 
-**現在**: Phase 1〜3完了、品質改善実施済み（P0:7件、P1:8件）。Phase 4未着手。
+**現在**: Phase 1〜3完了 + Phase 4-1（品質基盤・オブザーバビリティ）完了。Phase 4-2〜4-4未着手。
 
 ### 実装状況サマリ
 
 | 項目 | 状況 |
 |---|---|
-| **実装フェーズ** | Phase 3完了（全37タスク） |
+| **実装フェーズ** | Phase 4-1完了（品質基盤12タスク） |
 | **Tools** | 10個実装・登録済み |
 | **Resources** | 8 URIパターン実装・登録済み |
 | **Prompts** | 6テンプレート実装済み |
-| **テスト** | 941テスト（927成功、14スキップ=DB統合テスト） |
-| **品質** | Checkstyle 0違反、SpotBugs 4件（既存Medium警告）、CI/CD導入済み |
-| **品質改善** | cmd_066でP0改善7件+P1改善8件完了（FQCN自動検証テスト131件追加） |
-| **知識データ** | 17 YAMLファイル（カバレッジ85%）— cmd_078で7ファイル追加 |
-| **Agent Skills** | 6件（.claude/skills/配下）— cmd_079で追加 |
+| **テスト** | 1,027テスト以上（0失敗、14スキップ=ONNXモデル・Phase 1 stub） |
+| **品質** | Checkstyle 0違反、SpotBugs 0件、CI/CD導入済み |
+| **オブザーバビリティ** | Actuator + 3 HealthIndicator + 構造化ログ + 相関ID + Micrometer/Prometheus |
+| **知識データ** | 17 YAMLファイル（カバレッジ85%） |
+| **Agent Skills** | 6件（.claude/skills/配下） |
 
 ### Phase 1: MCP基盤 + 静的知識（✅ 完了）
 - [x] プロジェクト構造
@@ -197,18 +197,25 @@ RAGパイプラインは以下のNablarch関連情報源をインデックス化
 - `.claude/skills/`配下に6件のエージェントスキルを追加
 - Nablarch API設計ガイド、コンポーネントXML設定ガイド、エラーハンドリングガイド、ハンドラキュー設計ガイド、マイグレーションガイド、テスト戦略ガイド
 
-### Phase 4: 本番デプロイ（未着手）
-- [ ] Docker Composeデプロイ
-- [ ] OAuth 2.0認証
-- [ ] 自動更新パイプライン（GitHub Webhook）
-- [ ] モニタリング・ログ
-- [ ] IDE統合モジュール
+### Phase 4-1: 品質基盤・オブザーバビリティ（✅ 完了）
+- [x] Spring Boot Actuator（health/info/metrics/prometheus）
+- [x] カスタムHealthIndicator 3件 + GracefulHealthStatusAggregator
+- [x] 構造化ログ（JSON） + リクエスト相関ID
+- [x] Micrometer + MCP Tool固有メトリクス（Counter/Timer/Error）
+- [x] Prometheus連携（/actuator/prometheus）
+- [x] MCP JSON-RPCリクエスト/レスポンスログ
+- [x] エラーハンドリング統一 + SpotBugs/Checkstyle警告ゼロ化
+- [x] pgvector統合テストCI対応
+- [x] Tool名snake_case統一
+
+### Phase 4-2〜4-4: 未着手
+- [ ] Docker Composeデプロイ（Phase 4-2）
+- [ ] OAuth 2.0認証（Phase 4-3）
+- [ ] 自動更新パイプライン / GitHub Webhook（Phase 4-4）
 
 ### 既知の課題
 
-- SpotBugs既存警告4件（既存コード起因、段階的解消予定）
-- P2改善項目（評価レポートcmd_065で指摘、優先度低）
-- Phase 4未着手（本番デプロイ、エンタープライズ対応）
+- Phase 4-2〜4-4未着手（コンテナ化、セキュリティ、データパイプライン拡充）
 
 ## ドキュメント
 
