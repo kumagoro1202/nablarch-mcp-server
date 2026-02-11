@@ -53,16 +53,23 @@ public class ValidateHandlerQueueTool {
             @ToolParam(description = "Application type: web, rest, batch, or messaging")
             String applicationType) {
         if (handlerQueueXml == null || handlerQueueXml.isBlank()) {
-            return "ハンドラキューXMLを指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("ハンドラキューXMLを指定してください")
+                    .build();
         }
         if (applicationType == null || applicationType.isBlank()) {
-            return "アプリケーションタイプを指定してください（web, rest, batch, messaging）。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("アプリケーションタイプを指定してください")
+                    .hint("有効な値: web, rest, batch, messaging")
+                    .build();
         }
 
         List<String> handlerNames = extractHandlerNames(handlerQueueXml);
         if (handlerNames.isEmpty()) {
-            return "XMLからハンドラクラスを抽出できませんでした。\n"
-                    + "class属性を持つcomponentまたはhandler要素を含むXMLを指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("XMLからハンドラクラスを抽出できませんでした")
+                    .hint("class属性を持つcomponentまたはhandler要素を含むXMLを指定してください")
+                    .build();
         }
 
         return knowledgeBase.validateHandlerQueue(applicationType, handlerNames);

@@ -45,7 +45,8 @@ class TroubleshootToolTest {
         @DisplayName("エラーメッセージがnullの場合エラーを返す")
         void troubleshoot_エラーメッセージがnull() {
             String result = troubleshootTool.troubleshoot(null, null, null, null);
-            assertEquals("エラーメッセージを指定してください。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("エラーメッセージを指定してください"));
             verifyNoInteractions(knowledgeBase);
         }
 
@@ -53,7 +54,8 @@ class TroubleshootToolTest {
         @DisplayName("エラーメッセージが空白の場合エラーを返す")
         void troubleshoot_エラーメッセージが空白() {
             String result = troubleshootTool.troubleshoot("   ", null, null, null);
-            assertEquals("エラーメッセージを指定してください。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("エラーメッセージを指定してください"));
             verifyNoInteractions(knowledgeBase);
         }
     }
@@ -276,7 +278,8 @@ class TroubleshootToolTest {
         @DisplayName("空文字列のエラーメッセージでエラーを返す")
         void troubleshoot_空文字列() {
             String result = troubleshootTool.troubleshoot("", null, null, null);
-            assertEquals("エラーメッセージを指定してください。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("エラーメッセージを指定してください"));
             verifyNoInteractions(knowledgeBase);
         }
 

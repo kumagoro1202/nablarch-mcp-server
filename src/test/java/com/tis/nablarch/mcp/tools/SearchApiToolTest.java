@@ -34,14 +34,16 @@ class SearchApiToolTest {
     @Test
     void searchApi_キーワードがnullの場合エラーメッセージを返す() {
         String result = searchApiTool.searchApi(null, null);
-        assertEquals("検索キーワードを指定してください。", result);
+        assertTrue(result.contains("[MCP_TOOL_002]"));
+        assertTrue(result.contains("検索キーワードを指定してください"));
         verifyNoInteractions(knowledgeBase);
     }
 
     @Test
     void searchApi_キーワードが空白の場合エラーメッセージを返す() {
         String result = searchApiTool.searchApi("   ", null);
-        assertEquals("検索キーワードを指定してください。", result);
+        assertTrue(result.contains("[MCP_TOOL_002]"));
+        assertTrue(result.contains("検索キーワードを指定してください"));
         verifyNoInteractions(knowledgeBase);
     }
 

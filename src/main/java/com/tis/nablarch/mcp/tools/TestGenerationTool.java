@@ -111,16 +111,23 @@ public class TestGenerationTool {
 
         // 入力検証
         if (targetClass == null || targetClass.isBlank()) {
-            return "テスト対象クラスのFQCNを指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("テスト対象クラスのFQCNを指定してください")
+                    .build();
         }
         if (testType == null || testType.isBlank()) {
-            return "テストタイプを指定してください（unit, request-response, batch, messaging）。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("テストタイプを指定してください")
+                    .hint("有効なタイプ: unit, request-response, batch, messaging")
+                    .build();
         }
 
         TestType effectiveTestType = TestType.parse(testType);
         if (effectiveTestType == null) {
-            return "不明なテストタイプ: " + testType
-                    + "\n有効なタイプ: unit, request-response, batch, messaging";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("不明なテストタイプ: " + testType)
+                    .hint("有効なタイプ: unit, request-response, batch, messaging")
+                    .build();
         }
 
         // パラメータ正規化
@@ -133,11 +140,12 @@ public class TestGenerationTool {
                     effectiveIncludeExcel, effectiveCoverage, nullIfBlank(testCases));
         } catch (Exception e) {
             log.error("generate_test実行中にエラーが発生: {}", e.getMessage(), e);
-            throw new RuntimeException(
-                    "テストコードの生成に失敗しました。入力パラメータを確認してください。"
-                    + "\n\n手動でテストクラスを作成する場合は以下を参考にしてください:\n"
-                    + "- search_api ツールで \"request-unit-test\" を検索\n"
-                    + "- nablarch://guide/testing リソースを参照");
+            throw ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_004)
+                    .message("テストコードの生成に失敗しました")
+                    .detail("入力パラメータを確認してください")
+                    .hint("search_apiツールで \"request-unit-test\" を検索、"
+                            + "またはnablarch://guide/testingリソースを参照")
+                    .toException(e);
         }
     }
 

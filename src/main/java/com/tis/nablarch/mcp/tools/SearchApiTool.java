@@ -43,7 +43,9 @@ public class SearchApiTool {
                     required = false)
             String category) {
         if (keyword == null || keyword.isBlank()) {
-            return "検索キーワードを指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("検索キーワードを指定してください")
+                    .build();
         }
 
         String effectiveCategory = (category != null && !category.isBlank()) ? category : null;

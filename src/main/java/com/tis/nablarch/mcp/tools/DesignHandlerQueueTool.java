@@ -57,15 +57,19 @@ public class DesignHandlerQueueTool {
 
         // 入力検証
         if (appType == null || appType.isBlank()) {
-            return "エラー: アプリケーションタイプ（app_type）を指定してください。\n"
-                    + "有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes());
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("アプリケーションタイプ（app_type）を指定してください")
+                    .hint("有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes()))
+                    .build();
         }
 
         String normalizedAppType = appType.toLowerCase().trim();
         List<HandlerEntry> yamlHandlers = knowledgeBase.getHandlerEntries(normalizedAppType);
         if (yamlHandlers.isEmpty()) {
-            return "エラー: 不明なアプリケーションタイプ: " + appType + "\n"
-                    + "有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes());
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("不明なアプリケーションタイプ: " + appType)
+                    .hint("有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes()))
+                    .build();
         }
 
         boolean withComments = includeComments == null || includeComments;

@@ -197,20 +197,26 @@ public class MigrationAnalysisTool {
 
         // 入力検証
         if (codeSnippet == null || codeSnippet.isBlank()) {
-            return "エラー: 分析対象のコードが指定されていません";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("分析対象のコードが指定されていません")
+                    .build();
         }
 
         String srcVer = normalizeVersion(sourceVersion, "5");
         String tgtVer = normalizeVersion(targetVersion, "6");
 
         if (!SUPPORTED_SOURCE_VERSIONS.contains(srcVer)) {
-            return "エラー: サポートされていない移行元バージョン: " + srcVer
-                    + "\nサポート対象: " + String.join(", ", SUPPORTED_SOURCE_VERSIONS);
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("サポートされていない移行元バージョン: " + srcVer)
+                    .hint("サポート対象: " + String.join(", ", SUPPORTED_SOURCE_VERSIONS))
+                    .build();
         }
 
         if (!SUPPORTED_TARGET_VERSIONS.contains(tgtVer)) {
-            return "エラー: サポートされていない移行先バージョン: " + tgtVer
-                    + "\nサポート対象: " + String.join(", ", SUPPORTED_TARGET_VERSIONS);
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("サポートされていない移行先バージョン: " + tgtVer)
+                    .hint("サポート対象: " + String.join(", ", SUPPORTED_TARGET_VERSIONS))
+                    .build();
         }
 
         String scope = (analysisScope != null && !analysisScope.isBlank())

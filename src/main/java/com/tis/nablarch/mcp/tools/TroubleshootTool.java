@@ -101,7 +101,9 @@ public class TroubleshootTool {
 
         // 入力検証
         if (errorMessage == null || errorMessage.isBlank()) {
-            return "エラーメッセージを指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("エラーメッセージを指定してください")
+                    .build();
         }
 
         log.debug("トラブルシューティング開始: errorMessage={}, errorCode={}",

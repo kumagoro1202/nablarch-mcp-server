@@ -36,14 +36,16 @@ class ValidateHandlerQueueToolTest {
     @Test
     void validateHandlerQueue_XMLがnullの場合エラーメッセージを返す() {
         String result = tool.validateHandlerQueue(null, "web");
-        assertEquals("ハンドラキューXMLを指定してください。", result);
+        assertTrue(result.contains("[MCP_TOOL_002]"));
+        assertTrue(result.contains("ハンドラキューXMLを指定してください"));
         verifyNoInteractions(knowledgeBase);
     }
 
     @Test
     void validateHandlerQueue_XMLが空白の場合エラーメッセージを返す() {
         String result = tool.validateHandlerQueue("   ", "web");
-        assertEquals("ハンドラキューXMLを指定してください。", result);
+        assertTrue(result.contains("[MCP_TOOL_002]"));
+        assertTrue(result.contains("ハンドラキューXMLを指定してください"));
         verifyNoInteractions(knowledgeBase);
     }
 
@@ -51,7 +53,8 @@ class ValidateHandlerQueueToolTest {
     void validateHandlerQueue_アプリタイプがnullの場合エラーメッセージを返す() {
         String xml = "<component class=\"nablarch.fw.handler.GlobalErrorHandler\"/>";
         String result = tool.validateHandlerQueue(xml, null);
-        assertEquals("アプリケーションタイプを指定してください（web, rest, batch, messaging）。", result);
+        assertTrue(result.contains("[MCP_TOOL_002]"));
+        assertTrue(result.contains("アプリケーションタイプを指定してください"));
         verifyNoInteractions(knowledgeBase);
     }
 
@@ -59,7 +62,8 @@ class ValidateHandlerQueueToolTest {
     void validateHandlerQueue_アプリタイプが空白の場合エラーメッセージを返す() {
         String xml = "<component class=\"nablarch.fw.handler.GlobalErrorHandler\"/>";
         String result = tool.validateHandlerQueue(xml, "");
-        assertEquals("アプリケーションタイプを指定してください（web, rest, batch, messaging）。", result);
+        assertTrue(result.contains("[MCP_TOOL_002]"));
+        assertTrue(result.contains("アプリケーションタイプを指定してください"));
         verifyNoInteractions(knowledgeBase);
     }
 
