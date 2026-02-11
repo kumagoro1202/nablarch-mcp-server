@@ -1269,7 +1269,7 @@ public class ValidateFormTool {
 
 ### 次の記事
 
-次の記事「[第13回: テスト戦略](./13-testing-strategy.md)」では、810件のテストが守る品質の仕組みを学びます。
+次の記事「[第13回: テスト戦略](./13-testing-strategy.md)」では、1,019件のテストが守る品質の仕組みを学びます。
 
 ---
 

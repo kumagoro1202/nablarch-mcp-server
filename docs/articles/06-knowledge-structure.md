@@ -1,6 +1,6 @@
 # ナレッジの構造化 — YAML知識ファイルの設計思想と実装
 
-> **シリーズ**: Nablarch MCP Server 専門家育成シリーズ（全14回）
+> **シリーズ**: Nablarch MCP Server 専門家育成シリーズ（全17記事）
 > **対象読者**: 中級者エンジニア、MCPサーバー構築者
 > **想定読了時間**: 20-25分
 
@@ -11,7 +11,7 @@
 この記事を読むと、以下のことが理解できます。
 
 - **静的知識（YAML）** と **動的知識（RAG）** の使い分けと設計思想
-- Nablarch MCP Serverにおける **10種類のYAML知識ファイル** の全体構成
+- Nablarch MCP Serverにおける **17種類のYAML知識ファイル** の全体構成
 - YAML知識ファイルの **設計パターン** と **構造化のルール**
 - **ResourceProvider** による知識の公開方法
 - 知識の **追加・更新** プロセス
@@ -58,7 +58,7 @@ graph TD
 
 | 項目 | 内容 |
 |------|------|
-| **データソース** | 10個のYAMLファイル |
+| **データソース** | 17個のYAMLファイル |
 | **精度** | 100%（人間が作成・レビュー） |
 | **更新頻度** | 低（フレームワークの仕様変更時のみ） |
 | **検索速度** | 高速（インメモリ） |
@@ -94,9 +94,9 @@ graph TD
 
 ---
 
-## 2. YAML知識ファイルの全体構成 — 10ファイルの役割
+## 2. YAML知識ファイルの全体構成 — 17ファイルの役割
 
-Nablarch MCP Serverは、**10種類のYAML知識ファイル** で静的知識を管理しています。
+Nablarch MCP Serverは、**17種類のYAML知識ファイル** で静的知識を管理しています。
 
 ```
 src/main/resources/knowledge/
@@ -109,7 +109,14 @@ src/main/resources/knowledge/
 ├── example-catalog.yaml          # サンプルコード集
 ├── version-info.yaml             # バージョン情報
 ├── antipattern-catalog.yaml      # アンチパターン集
-└── module-catalog.yaml           # モジュールカタログ
+├── module-catalog.yaml           # モジュールカタログ
+├── data-io.yaml                  # データアクセス・ファイル操作
+├── validation.yaml               # バリデーション
+├── log.yaml                      # ログ出力
+├── mail.yaml                     # メール送信
+├── message.yaml                  # メッセージ管理
+├── security.yaml                 # 認証・認可・セキュリティ
+└── utility.yaml                  # ユーティリティ・共通機能
 ```
 
 ### 2.1 各ファイルの詳細
@@ -126,6 +133,13 @@ src/main/resources/knowledge/
 | **version-info.yaml** | Nablarchバージョン情報・プラットフォーム情報 | `nablarch://version` |
 | **antipattern-catalog.yaml** | アンチパターン集（やってはいけない実装パターン） | `review-code` Prompt |
 | **module-catalog.yaml** | Nablarchモジュール一覧と主要クラス | `search_api` |
+| **data-io.yaml** | データアクセス（Universal DAO）・ファイル操作パターン | `semantic_search`, `generate_code` |
+| **validation.yaml** | バリデーション定義・Bean Validation連携パターン | `semantic_search`, `generate_code` |
+| **log.yaml** | ログ出力設定・障害通知・ログレベル制御パターン | `semantic_search`, `troubleshoot` |
+| **mail.yaml** | メール送信・テンプレート管理パターン | `semantic_search`, `generate_code` |
+| **message.yaml** | メッセージ管理・国際化・メッセージID体系 | `semantic_search`, `generate_code` |
+| **security.yaml** | 認証・認可・CSRF対策・セキュリティハンドラ | `semantic_search`, `design_handler_queue` |
+| **utility.yaml** | ユーティリティ・日付処理・コード管理等の共通機能 | `semantic_search`, `generate_code` |
 
 ---
 
@@ -372,7 +386,7 @@ Nablarch MCP Serverの静的知識管理には、YAML以外にもいくつかの
 |----------|------|
 | **パース速度** | 起動時に1回だけ読み込み、インメモリにキャッシュ |
 | **スキーマ検証** | CI/CDでYAML Lintを実行し、構文エラーを検出 |
-| **巨大化** | 10ファイルに分割し、1ファイルあたり500行以下を維持 |
+| **巨大化** | 17ファイルに分割し、1ファイルあたり500行以下を維持 |
 
 ---
 
@@ -563,7 +577,7 @@ class HandlerCatalogTest {
 この記事で学んだこと：
 
 - Nablarch MCP Serverは **静的知識（YAML）** と **動的知識（RAG）** の2層構造
-- **10種類のYAML知識ファイル** でハンドラキュー、API、設計パターン、エラー解決策等を管理
+- **17種類のYAML知識ファイル** でハンドラキュー、API、設計パターン、エラー解決策等を管理
 - YAML採用の理由: **人間による編集・Git管理・レビュー** が容易
 - **ResourceProvider** がYAMLをMarkdownに変換してMCP Resourceとして公開
 - 知識の追加・更新は **Git + Pull Request** のワークフローで管理
