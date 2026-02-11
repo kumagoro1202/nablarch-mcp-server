@@ -91,8 +91,15 @@ docs/
 │   ├── mcp-inspector-test.md
 │   ├── e2e-test-results.md
 │   └── use-case-test-results.md
-└── checklists/              ✅ WBSチェックリスト
-    └── WBS-*.md
+├── checklists/              ✅ WBSチェックリスト
+│   └── WBS-*.md
+└── ../.claude/skills/       🤖 Agent Skills（6件）
+    ├── nablarch-api-design-guide.md
+    ├── nablarch-component-xml-guide.md
+    ├── nablarch-error-handling-guide.md
+    ├── nablarch-handler-queue-guide.md
+    ├── nablarch-migration-guide.md
+    └── nablarch-testing-guide.md
 ```
 
 ---
@@ -168,8 +175,25 @@ Phase 1〜3の詳細設計書（WBS番号順）。
 
 ---
 
+## Agent Skills
+
+`.claude/skills/`配下にNablarch開発支援用のエージェントスキルが6件配置されている（cmd_079で追加）。
+
+| スキル | 内容 |
+|--------|------|
+| nablarch-api-design-guide | API設計ガイド |
+| nablarch-component-xml-guide | コンポーネントXML設定ガイド |
+| nablarch-error-handling-guide | エラーハンドリングガイド |
+| nablarch-handler-queue-guide | ハンドラキュー設計ガイド |
+| nablarch-migration-guide | マイグレーションガイド |
+| nablarch-testing-guide | テスト戦略ガイド |
+
+---
+
 ## クイックリンク
 
 - **GitHub**: [nablarch-mcp-server](https://github.com/kumagoro1202/nablarch-mcp-server)
 - **現在の進捗**: Phase 1-3 完了 / Phase 4 未着手
 - **技術スタック**: Spring Boot 3.x + MCP Java SDK 0.17.x + PostgreSQL 16 + pgvector
+- **知識データ**: 17 YAMLファイル（カバレッジ85%）
+- **Agent Skills**: 6件（.claude/skills/配下）
