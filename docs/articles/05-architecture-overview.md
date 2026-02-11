@@ -1,6 +1,6 @@
 # アーキテクチャ概要 — Spring Boot + MCP + RAGの三位一体
 
-> **シリーズ**: nablarch-mcp-server 専門家育成シリーズ 第5回（全14回）
+> **シリーズ**: nablarch-mcp-server 専門家育成シリーズ 第5回（全17記事）
 > **対象読者**: 中級者（Spring Boot、REST API、データベースの基礎知識がある方）
 > **前提記事**: [04B. 使ってみよう 応用編](./04B-hands-on-advanced.md)
 > **作成日**: 2026-02-07
@@ -93,8 +93,8 @@ graph TB
             QP[クエリプロセッサ]
             HS[ハイブリッド検索<br/>BM25 + Vector]
             RR[リランカー<br/>Cross-Encoder]
-            DE[Docエンベッダ<br/>Jina v4]
-            CE[Codeエンベッダ<br/>Voyage-code-3]
+            DE[Docエンベッダ<br/>ONNX bge-m3 / Jina v4]
+            CE[Codeエンベッダ<br/>ONNX CodeSage / Voyage-code-3]
         end
 
         subgraph "Data Layer"
@@ -238,8 +238,8 @@ graph LR
 | **クエリプロセッサ** | クエリ分析、言語検出、エンティティ抽出 | カスタムJava |
 | **ハイブリッド検索** | BM25（キーワード）とベクトル検索を並列実行 | PostgreSQL FTS + pgvector |
 | **リランカー** | 検索結果を元のクエリに対して再スコアリング | Cross-Encoderモデル |
-| **Docエンベッダ** | ドキュメントのベクトル化 | Jina embeddings-v4 |
-| **Codeエンベッダ** | Java/XMLコードのベクトル化 | Voyage-code-3 |
+| **Docエンベッダ** | ドキュメントのベクトル化 | ONNX bge-m3（デフォルト）/ Jina embeddings-v4（APIプロファイル） |
+| **Codeエンベッダ** | Java/XMLコードのベクトル化 | ONNX CodeSage-small-v2（デフォルト）/ Voyage-code-3（APIプロファイル） |
 
 ### 3.3 Data Layer（データ層）
 
@@ -252,7 +252,7 @@ graph LR
 CREATE TABLE document_chunks (
     id          BIGSERIAL PRIMARY KEY,
     content     TEXT NOT NULL,
-    embedding   vector(1024),       -- Jina v4: 1024次元
+    embedding   vector(1024),       -- bge-m3/Jina v4: 1024次元
     source_type VARCHAR(20),        -- docs, code, javadoc, config
     app_type    VARCHAR(20),        -- web, rest, batch, messaging
     fqcn        VARCHAR(300),       -- 完全修飾クラス名
@@ -268,13 +268,16 @@ CREATE INDEX idx_chunks_embedding
 静的な構造化知識。
 
 ```
-src/main/resources/knowledge/
-├── handlers.yaml            # ハンドラカタログ（6タイプ × 約30ハンドラ）
-├── api-patterns.yaml        # APIパターン（約20パターン）
-├── design-patterns.yaml     # 設計パターン
-├── antipatterns.yaml        # アンチパターン
-└── error-catalog.yaml       # エラーカタログ
+src/main/resources/knowledge/    # 全17ファイル（主要5件のみ抜粋）
+├── handler-catalog.yaml         # ハンドラカタログ（6タイプ × 約30ハンドラ）
+├── api-patterns.yaml            # APIパターン（約20パターン）
+├── design-patterns.yaml         # 設計パターン
+├── antipattern-catalog.yaml     # アンチパターン
+├── error-catalog.yaml           # エラーカタログ
+└── ...（他12ファイル: data-io, validation, log, mail, message, security, utility等）
 ```
+
+> **Note**: 知識YAMLファイルの詳細は [第6回: ナレッジの構造化](./06-knowledge-structure.md) を参照してください。
 
 ---
 

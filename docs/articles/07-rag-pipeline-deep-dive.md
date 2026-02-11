@@ -12,7 +12,7 @@
 この記事では、Nablarch MCP Serverの心臓部である**RAG（Retrieval-Augmented Generation）パイプライン**の全体像を学びます。具体的には以下のトピックを扱います：
 
 - **RAGとは何か** — なぜLLMに外部知識を接続する必要があるのか
-- **Embeddingモデル** — テキストをベクトルに変換する仕組み（Jina v4とVoyage-code-3）
+- **Embeddingモデル** — テキストをベクトルに変換する仕組み（ONNX bge-m3 / CodeSage、API版 Jina v4 / Voyage-code-3）
 - **取り込みパイプライン** — ドキュメントをパース・チャンキング・ベクトル化して保存する流れ
 - **検索パイプライン** — BM25（キーワード検索）とベクトル検索のハイブリッド検索
 - **リランキング** — Cross-Encoderで検索結果の順位を最適化する仕組み
@@ -75,9 +75,9 @@ graph LR
         CODE["コード<br/>(Java/XML)"]
     end
 
-    subgraph Models["Embeddingモデル"]
-        JINA["Jina embeddings-v4<br/>🌍 89言語対応<br/>📄 ドキュメント特化<br/>📏 1024次元"]
-        VOYAGE["Voyage-code-3<br/>💻 Java/XML最適化<br/>🎯 CoIR: 77.33<br/>📏 1024次元"]
+    subgraph Models["Embeddingモデル（プロファイル切替可能）"]
+        JINA["ONNX bge-m3（デフォルト）<br/>/ Jina embeddings-v4（API版）<br/>🌍 多言語対応<br/>📄 ドキュメント特化"]
+        VOYAGE["ONNX CodeSage-small-v2（デフォルト）<br/>/ Voyage-code-3（API版）<br/>💻 Java/XML最適化<br/>🎯 コード特化"]
     end
 
     subgraph Output["出力"]
@@ -91,23 +91,21 @@ graph LR
     VOYAGE --> CC
 ```
 
-#### Jina embeddings-v4（ドキュメント用）
+#### ドキュメント用Embeddingモデル
 
-| 項目 | 値 | 説明 |
-|------|-----|------|
-| 次元数 | 1024 | ベクトルの長さ |
-| 対応言語 | 89言語 | 日本語・英語の混在ドキュメントに対応 |
-| コンテキスト長 | 32Kトークン | 長文ドキュメントも処理可能 |
-| 用途 | ドキュメント・記事・Javadoc | 自然言語テキストの意味理解 |
+| プロファイル | モデル | 次元数 | 特徴 |
+|-------------|--------|--------|------|
+| **local**（デフォルト） | ONNX bge-m3 | 1024 | 無償・オフライン動作・多言語対応 |
+| **api** | Jina embeddings-v4 | 1024 | 89言語対応・32Kトークン・高精度 |
 
-#### Voyage-code-3（コード用）
+#### コード用Embeddingモデル
 
-| 項目 | 値 | 説明 |
-|------|-----|------|
-| 次元数 | 1024 | Jina v4と同じ（統合検索可能） |
-| 最適化対象 | Java / XML | Nablarchのコードベースに最適 |
-| CoIRスコア | 77.33 | Code-to-Code検索精度（SOTA水準） |
-| 用途 | Javaソース・XML設定 | コードの構造・パターン理解 |
+| プロファイル | モデル | 次元数 | 特徴 |
+|-------------|--------|--------|------|
+| **local**（デフォルト） | ONNX CodeSage-small-v2 | 1024 | 無償・オフライン動作・Java/XML最適化 |
+| **api** | Voyage-code-3 | 1024 | CoIR: 77.33（SOTA水準）・高精度 |
+
+> **Note**: `spring.profiles.active=local` でONNXモデル、`spring.profiles.active=api` でJina/Voyage APIを使用します。プロファイル切替により、開発時はローカルモデル、本番時はAPIモデルといった使い分けが可能です。
 
 **なぜ2つのモデルを使い分けるか？**
 
@@ -140,9 +138,9 @@ flowchart LR
         C1["ChunkingService<br/>・セクション単位<br/>・メソッド単位<br/>・要素単位"]
     end
 
-    subgraph Embed["Embedding"]
-        E1["Jina v4<br/>(ドキュメント)"]
-        E2["Voyage-code-3<br/>(コード)"]
+    subgraph Embed["Embedding（プロファイル切替）"]
+        E1["bge-m3 / Jina v4<br/>(ドキュメント)"]
+        E2["CodeSage / Voyage-code-3<br/>(コード)"]
     end
 
     subgraph Store["格納"]
@@ -231,7 +229,7 @@ public abstract class HttpRequestHandler implements Handler {
 ```
 入力チャンク: "Nablarchのハンドラキューは、HTTPリクエストを処理するハンドラを順次実行する仕組みです。"
 
-↓ Jina embeddings-v4
+↓ ONNX bge-m3（またはJina embeddings-v4）
 
 出力ベクトル: [0.23, -0.15, 0.87, ..., 0.42]（1024次元）
 ```
@@ -517,7 +515,7 @@ IDCG@5: 理想的な順位の場合のDCG（最高値）
 ### 重要なポイントの再確認
 
 1. **RAGは外部知識をLLMに接続する技術** — ファインチューニングよりも低コスト・リアルタイム更新可能
-2. **デュアルEmbeddingモデル戦略** — ドキュメント（Jina v4）とコード（Voyage-code-3）で精度を最大化
+2. **デュアルEmbeddingモデル戦略** — ドキュメント（ONNX bge-m3 / Jina v4）とコード（ONNX CodeSage / Voyage-code-3）で精度を最大化
 3. **取り込みパイプライン** — パース → チャンキング → Embedding → pgvectorへ格納
 4. **ハイブリッド検索** — BM25（キーワード）+ ベクトル（意味）をRRFで統合
 5. **Cross-Encoderリランキング** — Top-50候補を精密評価し、MRRを200%向上
@@ -530,7 +528,7 @@ graph TB
     subgraph Ingestion["取り込みパイプライン"]
         Source["データソース<br/>公式ドキュメント<br/>Fintan記事<br/>GitHubコード"] --> Parser["パーサー<br/>HTML/Markdown<br/>Java/XML"]
         Parser --> Chunking["チャンキング<br/>セクション・メソッド単位"]
-        Chunking --> Embedding["Embedding<br/>Jina v4 / Voyage-code-3"]
+        Chunking --> Embedding["Embedding<br/>ONNX bge-m3 / CodeSage<br/>（API版: Jina v4 / Voyage-code-3）"]
         Embedding --> DB["PostgreSQL<br/>+ pgvector"]
     end
 

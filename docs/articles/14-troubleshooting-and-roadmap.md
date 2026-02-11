@@ -912,19 +912,22 @@ List<String> texts = documents.stream()
 client.embedBatch(texts);
 ```
 
-#### 5.3.2 ローカルモデルの使用（将来対応）
+#### 5.3.2 ローカルONNXモデルの使用（実装済み）
 
-無償ONNX Embeddingモデルへの移行（Phase 4で実装予定）:
+ONNX Embeddingモデルへの移行は**Phase 4-1で完了**しています。`spring.profiles.active=local` を設定すると、無償のローカルモデルで動作します:
 
 ```yaml
+# application-local.yml（デフォルトプロファイル）
 mcp:
   rag:
     embedding:
-      provider: onnx  # jina/voyageの代わり
+      provider: local
       model:
-        document: BAAI/bge-m3-onnx
-        code: CodeSage-small-v2-onnx
+        document: BAAI/bge-m3        # ONNXランタイムで推論
+        code: CodeSage-small-v2      # ONNXランタイムで推論
 ```
+
+> **Tip**: 有償APIモデル（Jina v4 / Voyage-code-3）を使用する場合は `spring.profiles.active=api` に切り替えてください。
 
 ---
 
@@ -1032,7 +1035,21 @@ grep "Tool .* completed in" logs/nablarch-mcp-server.log | awk '{print $NF}'
 - テスト810件（805件成功）
 - 37タスク完了、33 PRマージ
 
-**累計**: Phase 1-3で99タスク完了、58 PRマージ
+#### Phase 4-1: 品質基盤（完了）
+
+**期間**: 2026-02-10完了
+**成果**:
+- ONNX Embedding移行（bge-m3 / CodeSage-small-v2）
+- Spring Boot Actuator / HealthIndicator統合
+- 構造化ログ（JSON）+ 相関ID
+- Micrometer メトリクス基盤
+- 一次ソースURL付与（96エントリ、37 Nablarch公式文書URL）
+- Agent Skills 6個実装
+- 知識YAML 10→17ファイルに拡充
+- テスト1,019件（1,005件成功、14件スキップ）
+- 22 PRマージ（#59〜#80）
+
+**累計**: Phase 1-4-1で121タスク完了、80 PRマージ
 
 ---
 
@@ -1053,17 +1070,22 @@ gantt
     section Phase 3
     ツール拡充・コード生成   :done,    p3, 2026-02-03, 2026-02-04
 
-    section Phase 4
-    本番デプロイ準備        :active,  p4, 2026-02-07, 2026-03-31
-    Docker環境構築          :         p4a, 2026-02-07, 2026-02-21
-    認証・認可実装          :         p4b, 2026-02-14, 2026-02-28
-    GitHub取込パイプライン  :         p4c, 2026-02-21, 2026-03-14
-    Javadoc取込パイプライン :         p4d, 2026-02-21, 2026-03-14
-    モニタリング            :         p4e, 2026-03-01, 2026-03-21
-    全体E2Eテスト           :         p4f, 2026-03-21, 2026-03-31
+    section Phase 4-1
+    品質基盤構築            :done,    p41, 2026-02-05, 2026-02-10
+    ONNX Embedding移行      :done,    p41a, 2026-02-07, 2026-02-09
+    Actuator/HealthIndicator:done,    p41b, 2026-02-08, 2026-02-09
+    構造化ログ/相関ID       :done,    p41c, 2026-02-09, 2026-02-10
+    知識YAML拡充(17種類)    :done,    p41d, 2026-02-08, 2026-02-10
+
+    section Phase 4-2
+    本番デプロイ準備        :active,  p42, 2026-02-11, 2026-03-31
+    Docker環境構築          :         p42a, 2026-02-11, 2026-02-21
+    認証・認可実装          :         p42b, 2026-02-14, 2026-02-28
+    GitHub取込パイプライン  :         p42c, 2026-02-21, 2026-03-14
+    Javadoc取込パイプライン :         p42d, 2026-02-21, 2026-03-14
+    全体E2Eテスト           :         p42e, 2026-03-21, 2026-03-31
 
     section Phase 5
-    ONNX Embeddingへの移行  :         p5a, 2026-04-01, 2026-04-30
     IDE統合モジュール       :         p5b, 2026-04-01, 2026-05-31
     マルチテナント対応      :         p5c, 2026-05-01, 2026-06-30
 
@@ -1073,10 +1095,27 @@ gantt
 
 ---
 
-### 6.3 Phase 4: 本番デプロイ・エンタープライズ対応（進行中）
+### 6.3 Phase 4: 品質基盤・本番デプロイ準備（進行中）
 
 **目標完了**: 2026年3月末
-**主要タスク（28タスク）**:
+
+#### Phase 4-1: 品質基盤構築（完了 — 2026-02-10）
+
+Phase 4-1では以下の品質基盤を構築しました:
+
+- **ONNX Embedding移行**: bge-m3（ドキュメント用）/ CodeSage-small-v2（コード用）でローカル推論を実現
+- **Spring Boot Actuator統合**: HealthIndicator、メトリクスエンドポイント
+- **構造化ログ**: JSON形式ログ + 相関ID（リクエストトレーシング）
+- **Micrometer メトリクス**: Tool実行時間・RAG検索レイテンシの計測基盤
+- **知識YAML拡充**: 10→17ファイル（data-io, validation, log, mail, message, security, utility追加）
+- **一次ソースURL**: 96エントリに37件のNablarch公式ドキュメントURLを付与
+- **Agent Skills**: 6個の開発支援スキルを実装
+
+**成果**: テスト1,019件（1,005成功、14スキップ）、22 PR（#59〜#80）マージ
+
+#### Phase 4-2: 本番デプロイ準備（計画中）
+
+**主要タスク**:
 
 #### 6.3.1 Docker Compose デプロイ
 
@@ -1127,7 +1166,7 @@ mcp:
 
 **実装内容**:
 - GitHub API経由のクローニング
-- Voyage-code-3 による高精度Embedding
+- ONNX CodeSage（ローカル）/ Voyage-code-3（API）による高精度Embedding
 - 増分更新（Webhook連携）
 
 #### 6.3.4 Javadoc取込パイプライン
@@ -1137,22 +1176,23 @@ mcp:
 **実装内容**:
 - JavadocのHTMLパース
 - クラス・メソッド・パッケージ構造の保持
-- Jina v4 による Embedding
+- ONNX bge-m3（ローカル）/ Jina v4（API）による Embedding
 
-#### 6.3.5 モニタリング・ロギング
+#### 6.3.5 モニタリング・ロギング（Phase 4-1で基盤完了）
 
 **目的**: プロダクション環境での運用監視
 
-**実装内容**:
-- Prometheus メトリクス
-  - Tool実行時間
-  - RAG検索レイテンシ
+**Phase 4-1で実装済み**:
+- Spring Boot Actuator HealthIndicator（PostgreSQL / Embedding / 知識YAML）
+- Micrometer メトリクス基盤（Tool実行時間、RAG検索レイテンシ）
+- 構造化ログ（JSON形式）+ 相関ID（リクエストトレーシング）
+
+**Phase 4-2で追加予定**:
+- Prometheus メトリクスエクスポート
   - データベース接続数
   - メモリ使用量
-- ヘルスチェックエンドポイント
-  - PostgreSQL接続確認
-  - Embedding API疎通確認
-- 構造化ログ（JSON形式）
+- Grafanaダッシュボード
+- アラート設定
 
 **メトリクスエンドポイント**:
 ```bash
@@ -1164,36 +1204,9 @@ curl http://localhost:8080/actuator/health
 
 ### 6.4 Phase 5以降: 今後の拡張計画
 
-#### 6.4.1 ONNX Embeddingへの移行（2026年4-5月）
+> **Note**: ONNX Embeddingへの移行はPhase 4-1で完了済みです（bge-m3 / CodeSage-small-v2）。
 
-**目的**: 有償Embedding APIへの依存をなくす
-
-**移行対象**:
-- ドキュメント用: BAAI/bge-m3（ONNX形式）
-- コード用: CodeSage-small-v2（ONNX形式）
-
-**メリット**:
-- API利用料の削減
-- レイテンシの改善
-- オフライン環境での動作
-
-**実装内容**:
-- ONNXランタイム統合
-- HuggingFaceモデルのONNX変換
-- プロファイル切替（jina/voyage/onnx）
-
-**設定例**:
-```yaml
-mcp:
-  rag:
-    embedding:
-      provider: onnx
-      model:
-        document: BAAI/bge-m3-onnx
-        code: CodeSage-small-v2-onnx
-```
-
-#### 6.4.2 IDE統合モジュール（2026年4-6月）
+#### 6.4.1 IDE統合モジュール（2026年4-6月）
 
 **目的**: VS Code、IntelliJ等への直接統合
 
@@ -1207,7 +1220,7 @@ mcp:
 - ハンドラキュー設定のリアルタイム検証
 - エラー行にNablarch固有の修正案を表示
 
-#### 6.4.3 マルチテナント対応（2026年5-7月）
+#### 6.4.2 マルチテナント対応（2026年5-7月）
 
 **目的**: 複数プロジェクト・チーム間でのMCPサーバー共有
 
@@ -1216,7 +1229,7 @@ mcp:
 - テナント別セッション管理
 - テナント別アクセス制御
 
-#### 6.4.4 他フレームワーク対応（将来検討）
+#### 6.4.3 他フレームワーク対応（将来検討）
 
 **対象候補**:
 - Spring Framework
@@ -1360,7 +1373,7 @@ GitHub Discussionsで以下を議論:
 - **到達目標**: プロジェクト固有の拡張を実装できる
 
 #### 記事13: テスト戦略
-- **学んだこと**: 810件のテスト構成、品質保証手法
+- **学んだこと**: 1,019件のテスト構成、品質保証手法
 - **到達目標**: テストを理解し、新規機能にテストを追加できる
 
 **上級編の成果**: nablarch-mcp-serverの内部構造を理解し、拡張・最適化・テストができる
@@ -1425,7 +1438,7 @@ GitHub Discussionsで以下を議論:
 | 10 | Tool設計と実装パターン | 上級 | Tool開発、パラメータ設計、テストパターン |
 | 11 | Resource/Prompt設計と実装パターン | 上級 | Resource/Prompt設計、YAMLベース実装 |
 | 12 | 拡張ガイド | 上級 | プラグイン機構、カスタマイズポイント |
-| 13 | テスト戦略 | 上級 | 810件のテスト構成、品質保証手法 |
+| 13 | テスト戦略 | 上級 | 1,019件のテスト構成、品質保証手法 |
 | **14** | **トラブルシューティングとロードマップ** | **実践** | **問題解決、デバッグ、パフォーマンスチューニング、今後の展望** |
 
 **シリーズTOPに戻る**: [INDEX.md — 記事一覧](INDEX.md)
