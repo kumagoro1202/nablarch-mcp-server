@@ -29,9 +29,14 @@ mcp:
         - "http://localhost:8080"
       allow-credentials: true
 
-logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  level:
-    root: INFO
-    com.tis.nablarch.mcp: DEBUG
+# Actuator設定（HTTPモードのみ）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# ログ設定はlogback-spring.xmlで管理（HTTPプロファイルではJSON構造化ログ）
