@@ -73,7 +73,7 @@ public class OfficialDocsIngester implements DocumentIngester {
     public OfficialDocsIngester(
             HtmlDocumentParser htmlParser,
             ChunkingService chunkingService,
-            EmbeddingClient embeddingClient,
+            @org.springframework.beans.factory.annotation.Qualifier("document") EmbeddingClient embeddingClient,
             DocumentChunkRepository repository,
             IngestionConfig ingestionConfig) {
         this(htmlParser, chunkingService, embeddingClient, repository, ingestionConfig,

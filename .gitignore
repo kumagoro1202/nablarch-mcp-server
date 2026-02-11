@@ -28,3 +28,7 @@ hs_err_pid*
 # Logs
 *.log
 logs/
+
+# ONNX Models (large binary files, download via scripts/download-models.sh)
+models/
+*.onnx

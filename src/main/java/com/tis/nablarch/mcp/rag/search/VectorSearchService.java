@@ -23,10 +23,10 @@ import java.util.StringJoiner;
  * セマンティック検索を提供する。クエリテキストをEmbeddingClient経由で
  * ベクトルに変換し、document_chunksとcode_chunksの両テーブルを検索する。</p>
  *
- * <p>Embeddingモデルの使い分け:</p>
+ * <p>Embeddingモデルの使い分け（provider設定により切替）:</p>
  * <ul>
- *   <li>{@code document_chunks} — Jina embeddings-v4（ドキュメント用）</li>
- *   <li>{@code code_chunks} — Voyage-code-3（コード用）</li>
+ *   <li>{@code document_chunks} — local: BGE-M3 / api: Jina embeddings-v4</li>
+ *   <li>{@code code_chunks} — local: CodeSage-small-v2 / api: Voyage-code-3</li>
  * </ul>
  *
  * @see SearchResult
@@ -46,16 +46,16 @@ public class VectorSearchService {
      * コンストラクタ。
      *
      * @param jdbcTemplate Spring NamedParameterJdbcTemplate
-     * @param jinaEmbeddingClient ドキュメント用Embeddingクライアント（Jina v4）
-     * @param voyageEmbeddingClient コード用Embeddingクライアント（Voyage-code-3）
+     * @param documentEmbeddingClient ドキュメント用Embeddingクライアント（local: BGE-M3 / api: Jina v4）
+     * @param codeEmbeddingClient コード用Embeddingクライアント（local: CodeSage / api: Voyage-code-3）
      */
     public VectorSearchService(
             NamedParameterJdbcTemplate jdbcTemplate,
-            @Qualifier("jinaEmbeddingClient") EmbeddingClient jinaEmbeddingClient,
-            @Qualifier("voyageEmbeddingClient") EmbeddingClient voyageEmbeddingClient) {
+            @Qualifier("document") EmbeddingClient documentEmbeddingClient,
+            @Qualifier("code") EmbeddingClient codeEmbeddingClient) {
         this.jdbcTemplate = jdbcTemplate;
-        this.documentEmbeddingClient = jinaEmbeddingClient;
-        this.codeEmbeddingClient = voyageEmbeddingClient;
+        this.documentEmbeddingClient = documentEmbeddingClient;
+        this.codeEmbeddingClient = codeEmbeddingClient;
     }
 
     /**
