@@ -9,6 +9,7 @@ patterns:
     category: web
     description: "Webアプリケーションの標準アクションクラスパターン。HTTPリクエストを受け取り、ビジネスロジックを実行してレスポンスを返す"
     fqcn: "nablarch.fw.web.HttpResponse"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/architecture.html"
     related_patterns:
       - inject-form-on-error
       - form-validation
@@ -27,6 +28,7 @@ patterns:
     category: web
     description: "InjectFormとOnErrorアノテーションの組み合わせパターン。バリデーションエラー時に元の画面に戻す"
     fqcn: "nablarch.common.web.interceptor.InjectForm"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/feature_details.html"
     related_patterns:
       - action-class
       - form-validation
@@ -50,6 +52,7 @@ patterns:
     category: web
     description: "HttpResponseを使った画面遷移パターン。JSPへのフォワードとリダイレクトの使い分け"
     fqcn: "nablarch.fw.web.HttpResponse"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/feature_details.html"
     related_patterns:
       - action-class
     example: |
@@ -66,6 +69,7 @@ patterns:
     category: web
     description: "SessionStoreを使ったセッション管理パターン。DBストアとHIDDENストアの使い分け"
     fqcn: "nablarch.common.web.session.SessionUtil"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/session_store.html"
     related_patterns:
       - double-submit-prevention
     example: |
@@ -85,6 +89,7 @@ patterns:
     category: web
     description: "二重送信防止パターン。トークンベースのCSRF・二重送信対策"
     fqcn: "nablarch.common.web.token.TokenUtil"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/db_double_submit.html"
     related_patterns:
       - session-store-access
     example: |
@@ -106,6 +111,7 @@ patterns:
     category: web
     description: "ファイルダウンロードパターン。StreamResponseを使ったファイル送信"
     fqcn: "nablarch.common.web.download.StreamResponse"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/feature_details.html"
     related_patterns:
       - action-class
     example: |
@@ -124,6 +130,7 @@ patterns:
     category: rest
     description: "RESTfulリソースアクションパターン。JAX-RSアノテーションを使用したCRUD実装"
     fqcn: "nablarch.fw.jaxrs.JaxRsHttpRequest"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web_service/rest/architecture.html"
     related_patterns:
       - universal-dao
       - jaxrs-body-convert
@@ -177,6 +184,7 @@ patterns:
     category: rest
     description: "JAX-RSリクエスト/レスポンスボディの変換パターン。JacksonによるJSON変換"
     fqcn: "nablarch.fw.jaxrs.BodyConvertHandler"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web_service/rest/feature_details.html"
     related_patterns:
       - rest-action
     example: |
@@ -207,6 +215,7 @@ patterns:
     category: batch
     description: "標準バッチアクションパターン。DataReaderでデータを読み取り、handleメソッドでレコード単位に処理"
     fqcn: "nablarch.fw.action.BatchAction"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/nablarch_batch/architecture.html"
     related_patterns:
       - sql-file
       - universal-dao
@@ -239,6 +248,7 @@ patterns:
     category: batch
     description: "常駐バッチパターン。ProcessResidentHandlerを使用してメッセージキューを定期的にポーリング"
     fqcn: "nablarch.fw.handler.ProcessResidentHandler"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/batch/process_resident_handler.html"
     related_patterns:
       - batch-action
     example: |
@@ -268,6 +278,7 @@ patterns:
     category: library
     description: "Universal DAOによるデータベースアクセスパターン。エンティティクラスを使ったCRUD操作"
     fqcn: "nablarch.common.dao.UniversalDao"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     related_patterns:
       - sql-file
       - entity-class
@@ -300,6 +311,7 @@ patterns:
     category: library
     description: "外部SQLファイルパターン。SQLをJavaコードの外に定義し、名前で参照する"
     fqcn: "nablarch.common.dao.UniversalDao"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     related_patterns:
       - universal-dao
     example: |
@@ -330,6 +342,7 @@ patterns:
     category: library
     description: "フォームバリデーションパターン。Bean ValidationアノテーションまたはNablarch独自バリデーション"
     fqcn: "nablarch.core.validation.ee.Required"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation.html"
     related_patterns:
       - action-class
       - inject-form-on-error
@@ -359,6 +372,7 @@ patterns:
     category: library
     description: "SystemRepositoryによるコンポーネント取得パターン。DIコンテナからオブジェクトを取得する"
     fqcn: "nablarch.core.repository.SystemRepository"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/repository.html"
     related_patterns:
       - component-definition
     example: |
@@ -372,6 +386,7 @@ patterns:
     category: library
     description: "排他制御パターン。楽観ロック（バージョン番号）と悲観ロック（SELECT FOR UPDATE）"
     fqcn: "nablarch.common.dao.UniversalDao"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/exclusive_control.html"
     related_patterns:
       - universal-dao
     example: |
@@ -400,6 +415,7 @@ patterns:
     category: library
     description: "CodeManagerによるコード値管理パターン。マスタテーブルからコード値を取得・変換"
     fqcn: "nablarch.common.code.CodeUtil"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/code.html"
     related_patterns:
       - system-repository
     example: |
@@ -417,6 +433,7 @@ patterns:
     category: messaging
     description: "MessageSenderによるMOMメッセージ送信パターン。外部システムへのメッセージ送受信"
     fqcn: "nablarch.fw.messaging.MessageSender"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/system_messaging.html"
     related_patterns:
       - resident-batch
     example: |
@@ -432,6 +449,7 @@ patterns:
     category: library
     description: "MailSenderによるメール送信パターン。テンプレートベースのメール送信"
     fqcn: "nablarch.common.mail.MailUtil"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/mail.html"
     related_patterns:
       - resident-batch
     example: |
@@ -460,6 +478,7 @@ patterns:
     category: library
     description: "IDジェネレータによる採番パターン。シーケンス番号の発番"
     fqcn: "nablarch.common.idgenerator.IdGenerator"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/utility.html"
     related_patterns:
       - universal-dao
     example: |
@@ -470,6 +489,7 @@ patterns:
     category: library
     description: "DateUtilによる日付操作パターン。業務日付の取得と操作"
     fqcn: "nablarch.core.date.BusinessDateUtil"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/date.html"
     related_patterns:
       - system-repository
     example: |
@@ -485,6 +505,7 @@ patterns:
     category: testing
     description: "リクエスト単体テストパターン。HTTPリクエストをシミュレートしたアクションクラスのテスト"
     fqcn: "nablarch.test.core.http.SimpleRestTestSupport"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/development_tools/testing_framework/index.html"
     related_patterns:
       - action-class
       - rest-action
@@ -511,6 +532,7 @@ patterns:
     category: testing
     description: "Excelテストデータパターン。Nablarch Testing Frameworkでのテストデータ管理"
     fqcn: "nablarch.test.core.db.DbAccessTestSupport"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/development_tools/testing_framework/index.html"
     related_patterns:
       - request-unit-test
     example: |
@@ -529,6 +551,7 @@ patterns:
     category: config
     description: "コンポーネント定義XMLパターン。Nablarch DIコンテナの設定"
     fqcn: "nablarch.core.repository.di.DiContainer"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/repository.html"
     related_patterns:
       - system-repository
       - handler-queue-xml
@@ -557,6 +580,7 @@ patterns:
     category: config
     description: "ハンドラキューXML定義パターン。アプリケーションのハンドラキューをXMLで設定"
     fqcn: "nablarch.fw.HandlerQueueManager"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/repository.html"
     related_patterns:
       - component-definition
     example: |
@@ -582,6 +606,7 @@ patterns:
     category: library
     description: "エンティティクラスパターン。JPAアノテーションを使用したテーブルマッピング"
     fqcn: "nablarch.common.dao.EntityUtil"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     related_patterns:
       - universal-dao
       - sql-file

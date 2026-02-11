@@ -14,4 +14,8 @@ public class ApiPatternEntry {
     @JsonProperty("related_patterns")
     public List<String> relatedPatterns;
     public String example;
+    @JsonProperty("source_url")
+    public String sourceUrl;
+    @JsonProperty("source_urls")
+    public List<String> sourceUrls;
 }

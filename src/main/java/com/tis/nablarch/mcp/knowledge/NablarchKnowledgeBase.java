@@ -257,8 +257,10 @@ public class NablarchKnowledgeBase {
                     .findFirst();
             if (keyClass.isPresent()) {
                 ModuleEntry.KeyClassEntry kc = keyClass.get();
-                return String.format("## %s\n- FQCN: %s\n- 説明: %s\n- モジュール: %s (%s)",
+                String base = String.format("## %s\n- FQCN: %s\n- 説明: %s\n- モジュール: %s (%s)",
                         kc.fqcn, kc.fqcn, kc.description, mod.name, mod.description);
+                String ref = buildSourceRef(mod.sourceUrl, null);
+                return ref != null ? base + "\n- " + ref : base;
             }
         }
 
@@ -272,6 +274,10 @@ public class NablarchKnowledgeBase {
             for (ModuleEntry.KeyClassEntry kc : mod.keyClasses) {
                 sb.append("  - ").append(kc.fqcn).append(": ").append(kc.description).append("\n");
             }
+        }
+        String ref = buildSourceRef(mod.sourceUrl, null);
+        if (ref != null) {
+            sb.append("- ").append(ref).append("\n");
         }
         return sb.toString();
     }
@@ -377,9 +383,13 @@ public class NablarchKnowledgeBase {
         return configTemplates.stream()
                 .filter(t -> t.name.equalsIgnoreCase(name))
                 .findFirst()
-                .map(t -> String.format("## %s\n- カテゴリ: %s\n- 説明: %s\n\n```xml\n%s\n```",
-                        t.name, t.category, t.description,
-                        t.template != null ? t.template.trim() : ""))
+                .map(t -> {
+                    String base = String.format("## %s\n- カテゴリ: %s\n- 説明: %s\n\n```xml\n%s\n```",
+                            t.name, t.category, t.description,
+                            t.template != null ? t.template.trim() : "");
+                    String ref = buildSourceRef(t.sourceUrl, null);
+                    return ref != null ? base + "\n\n" + ref : base;
+                })
                 .orElse(null);
     }
 
@@ -445,9 +455,12 @@ public class NablarchKnowledgeBase {
 
             // セクション自体をエントリとして登録
             if (sectionDesc != null) {
+                String sectionUrl = getStringValue(section, "source_url");
+                String formatted = String.format("[ライブラリ] %s — %s", sectionKey, trimToLine(sectionDesc));
+                formatted = appendSourceUrl(formatted, sectionUrl, null);
                 entries.add(new CatalogKnowledgeEntry(
                         catalogName, sectionKey, sectionKey, null, sectionDesc, null,
-                        String.format("[ライブラリ] %s — %s", sectionKey, trimToLine(sectionDesc))));
+                        sectionUrl, formatted));
             }
 
             // セクション内の名前付きアイテムを再帰的に抽出
@@ -472,9 +485,11 @@ public class NablarchKnowledgeBase {
                             if (usage == null) {
                                 usage = getStringValue(itemMap, "example");
                             }
+                            String srcUrl = getStringValue(itemMap, "source_url");
                             entries.add(new CatalogKnowledgeEntry(
                                     catalogName, sectionKey, name, fqcn, desc, usage,
-                                    formatCatalogItem(sectionKey, name, fqcn, desc)));
+                                    srcUrl,
+                                    formatCatalogItem(sectionKey, name, fqcn, desc, srcUrl)));
                         }
                     }
                 }
@@ -485,9 +500,11 @@ public class NablarchKnowledgeBase {
                     String fqcn = getStringValue(nestedMap, "fqcn");
                     String desc = getStringValue(nestedMap, "description");
                     String usage = getStringValue(nestedMap, "usage");
+                    String srcUrl = getStringValue(nestedMap, "source_url");
                     entries.add(new CatalogKnowledgeEntry(
                             catalogName, sectionKey, name, fqcn, desc, usage,
-                            formatCatalogItem(sectionKey, name, fqcn, desc)));
+                            srcUrl,
+                            formatCatalogItem(sectionKey, name, fqcn, desc, srcUrl)));
                 }
                 // ネストされたマップを再帰走査
                 extractNamedItems(catalogName, sectionKey, nestedMap, entries);
@@ -500,7 +517,8 @@ public class NablarchKnowledgeBase {
         return v instanceof String ? (String) v : null;
     }
 
-    private static String formatCatalogItem(String section, String name, String fqcn, String desc) {
+    private static String formatCatalogItem(String section, String name, String fqcn,
+            String desc, String sourceUrl) {
         StringBuilder sb = new StringBuilder();
         sb.append("[カタログ:").append(section).append("] ").append(name);
         if (fqcn != null) {
@@ -509,7 +527,7 @@ public class NablarchKnowledgeBase {
         if (desc != null) {
             sb.append(" — ").append(trimToLine(desc));
         }
-        return sb.toString();
+        return appendSourceUrl(sb.toString(), sourceUrl, null);
     }
 
     private static String trimToLine(String text) {
@@ -532,6 +550,7 @@ public class NablarchKnowledgeBase {
             String fqcn,
             String description,
             String usage,
+            String sourceUrl,
             String formatted) {
 
         boolean matches(String keyword) {
@@ -674,26 +693,31 @@ public class NablarchKnowledgeBase {
     // ========== 内部: フォーマッタ ==========
 
     private String formatApiPattern(ApiPatternEntry p) {
-        return String.format("[APIパターン] %s (%s) — %s | FQCN: %s",
+        String base = String.format("[APIパターン] %s (%s) — %s | FQCN: %s",
                 p.name, p.category, p.description, p.fqcn != null ? p.fqcn : "N/A");
+        return appendSourceUrl(base, p.sourceUrl, p.sourceUrls);
     }
 
     private String formatModule(ModuleEntry m) {
-        return String.format("[モジュール] %s (%s) — %s", m.name, m.category, m.description);
+        String base = String.format("[モジュール] %s (%s) — %s", m.name, m.category, m.description);
+        return appendSourceUrl(base, m.sourceUrl, null);
     }
 
     private String formatHandler(HandlerEntry h) {
-        return String.format("[ハンドラ] %s — %s | FQCN: %s | 必須: %s",
+        String base = String.format("[ハンドラ] %s — %s | FQCN: %s | 必須: %s",
                 h.name, h.description, h.fqcn, h.required ? "はい" : "いいえ");
+        return appendSourceUrl(base, h.sourceUrl, null);
     }
 
     private String formatDesignPattern(DesignPatternEntry d) {
-        return String.format("[設計パターン] %s (%s) — %s", d.name, d.category, d.description);
+        String base = String.format("[設計パターン] %s (%s) — %s", d.name, d.category, d.description);
+        return appendSourceUrl(base, d.sourceUrl, d.sourceUrls);
     }
 
     private String formatError(ErrorEntry e) {
-        return String.format("[エラー] %s (%s/%s) — %s",
+        String base = String.format("[エラー] %s (%s/%s) — %s",
                 e.id, e.category, e.severity, e.errorMessage);
+        return appendSourceUrl(base, e.sourceUrl, null);
     }
 
     private String formatDesignPatternDetail(DesignPatternEntry d) {
@@ -710,6 +734,35 @@ public class NablarchKnowledgeBase {
         if (d.codeExample != null) {
             sb.append("\n```java\n").append(d.codeExample.trim()).append("\n```\n");
         }
+        String sourceRef = buildSourceRef(d.sourceUrl, d.sourceUrls);
+        if (sourceRef != null) {
+            sb.append("\n").append(sourceRef).append("\n");
+        }
         return sb.toString();
+    }
+
+    /**
+     * 検索結果1行にソースURLを付加する。
+     */
+    public static String appendSourceUrl(String base, String sourceUrl, List<String> sourceUrls) {
+        String ref = buildSourceRef(sourceUrl, sourceUrls);
+        return ref != null ? base + " | " + ref : base;
+    }
+
+    /**
+     * ソースURL参照文字列を構築する。
+     *
+     * @param sourceUrl 単一ソースURL
+     * @param sourceUrls 複数ソースURL
+     * @return 出典文字列。URLが無い場合はnull
+     */
+    public static String buildSourceRef(String sourceUrl, List<String> sourceUrls) {
+        if (sourceUrls != null && !sourceUrls.isEmpty()) {
+            return "出典: " + String.join(" , ", sourceUrls);
+        }
+        if (sourceUrl != null && !sourceUrl.isBlank()) {
+            return "出典: " + sourceUrl;
+        }
+        return null;
     }
 }

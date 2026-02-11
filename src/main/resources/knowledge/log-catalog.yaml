@@ -10,6 +10,7 @@ log:
     障害ログ・SQLログ・パフォーマンスログ・アクセスログ等の用途別ログカテゴリに対応。
     log.properties と app-log.properties で設定する。
     SLF4Jアダプタを使用してSLF4J/Logback等の外部ロギングフレームワークに委譲も可能。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/log.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-core-log"

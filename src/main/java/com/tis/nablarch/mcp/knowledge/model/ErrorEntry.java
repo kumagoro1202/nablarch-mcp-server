@@ -20,4 +20,6 @@ public class ErrorEntry {
     @JsonProperty("related_modules")
     public List<String> relatedModules;
     public String severity;
+    @JsonProperty("source_url")
+    public String sourceUrl;
 }

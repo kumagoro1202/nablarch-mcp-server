@@ -6,6 +6,7 @@
 
 version_info:
   framework_name: "Nablarch"
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/about_nablarch/versionup_policy.html"
   latest_version: "6u3"
   release_date: "2025-03"
 

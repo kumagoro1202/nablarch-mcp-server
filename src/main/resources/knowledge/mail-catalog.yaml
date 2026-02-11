@@ -9,6 +9,7 @@ mail:
     メール送信機能。送信要求をDBに登録し、常駐バッチ（MailSender）が非同期に送信する。
     テンプレートメール（DBテンプレート）とフリーフォーマットメールの2種類をサポート。
     添付ファイル対応、宛先（TO/CC/BCC）管理、送信ステータス管理を含む。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/mail.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-mail-sender"

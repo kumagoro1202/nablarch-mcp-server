@@ -9,6 +9,7 @@ data_bind:
     ファイルデータ（CSV・固定長）をJava BeansやMapオブジェクトにバインドする機能。
     アノテーションでフォーマットを定義し、ObjectMapperFactory経由で読み書きする。
     data_formatより推奨される新しいAPI。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/data_io/data_bind.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-common-databind"
@@ -189,6 +190,7 @@ data_format:
     様々なデータフォーマット（固定長・可変長・JSON・XML）を統一的に扱う機能。
     フォーマット定義ファイルでレイアウトを定義し、Mapベースでデータを読み書きする。
     ※ 非推奨機能。固定長・可変長はdata_bind、XMLはJakarta XML Binding、JSONはJackson等の使用を推奨。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/data_io/data_format.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-core-dataformat"

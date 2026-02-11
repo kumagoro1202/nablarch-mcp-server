@@ -19,4 +19,6 @@ public class HandlerConstraintEntry {
     @JsonProperty("required_by_app_type")
     public List<String> requiredByAppType;
     public String reason;
+    @JsonProperty("source_url")
+    public String sourceUrl;
 }

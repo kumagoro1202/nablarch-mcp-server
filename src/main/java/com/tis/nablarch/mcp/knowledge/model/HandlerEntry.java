@@ -14,6 +14,8 @@ public class HandlerEntry {
     public boolean required;
     public String thread;
     public ConstraintRef constraints;
+    @JsonProperty("source_url")
+    public String sourceUrl;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ConstraintRef {

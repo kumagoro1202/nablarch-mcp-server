@@ -7,6 +7,7 @@ antipatterns:
   - name: action-instance-field
     category: thread-safety
     severity: critical
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/nablarch/policy.html"
     title: "アクションクラスのインスタンスフィールド"
     description: "アクションクラスにインスタンスフィールドを定義するアンチパターン"
     problem: |
@@ -38,6 +39,7 @@ antipatterns:
   - name: direct-sql-execution
     category: data-access
     severity: warning
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     title: "直接SQL実行（UniversalDao未使用）"
     description: "DbAccessSupportのsearch/update等を直接使用するアンチパターン"
     problem: "UniversalDaoを使用せず、低レベルAPIで直接SQL操作を行うと保守性が低下する"
@@ -51,6 +53,7 @@ antipatterns:
   - name: missing-transaction-handler
     category: handler-queue
     severity: critical
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/"
     title: "トランザクションハンドラの欠落"
     description: "ハンドラキューにTransactionManagementHandlerを含めずにDB操作を行うアンチパターン"
     problem: "トランザクション管理なしのDB操作は、障害時のデータ不整合を引き起こす"
@@ -64,6 +67,7 @@ antipatterns:
   - name: handler-order-violation
     category: handler-queue
     severity: critical
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/"
     title: "ハンドラ順序違反"
     description: "ハンドラキューの順序制約に違反した構成"
     problem: "ハンドラには厳密な順序制約があり、違反は実行時エラーを引き起こす"
@@ -77,6 +81,7 @@ antipatterns:
   - name: form-entity-confusion
     category: architecture
     severity: warning
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation/bean_validation.html"
     title: "FormとEntityの混同"
     description: "入力フォームとDBエンティティを同一クラスで表現するアンチパターン"
     problem: "FormとEntityは責務が異なる。混同すると変更に弱い設計になる"
@@ -90,6 +95,7 @@ antipatterns:
   - name: session-overuse
     category: web
     severity: warning
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/session_store.html"
     title: "セッションの過剰使用"
     description: "本来リクエストスコープで十分なデータをセッションに格納するアンチパターン"
     problem: "セッションにデータを過剰に格納すると、メモリ消費が増大する"

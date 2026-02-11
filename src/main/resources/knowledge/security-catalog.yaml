@@ -10,6 +10,7 @@ permission_check:
     ユーザの権限テーブルを参照し認可判定を行う。
     PermissionCheckHandlerがハンドラキュー内で自動実行し、
     PermissionUtilでプログラム的なチェックも可能。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/authorization/permission_check.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-common-auth"
@@ -49,6 +50,7 @@ session_store:
     DBストア（DBテーブルに永続化）とHIDDENストア（hiddenタグで画面間引き継ぎ）の
     2種類のストアを提供し、用途に応じて使い分ける。
     ステートレスアプリケーション構築を支援する。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/session_store.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-fw-web"
@@ -140,6 +142,7 @@ exclusive_control:
     排他制御機能。DBを使用した楽観的排他制御と悲観的排他制御を提供。
     楽観的排他制御はバージョン番号カラムによる更新競合検知、
     悲観的排他制御はSELECT FOR UPDATEによるロックで実現。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/exclusive_control.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-common-exclusivecontrol"

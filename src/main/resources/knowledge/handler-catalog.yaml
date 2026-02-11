@@ -5,6 +5,7 @@
 
 web:
   description: "Webアプリケーション用ハンドラキュー"
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/architecture.html"
   handlers:
     - name: HttpCharacterEncodingHandler
       fqcn: "nablarch.fw.web.handler.HttpCharacterEncodingHandler"
@@ -131,6 +132,7 @@ web:
 
 rest:
   description: "RESTful Webサービス用ハンドラキュー"
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web_service/rest/architecture.html"
   handlers:
     - name: GlobalErrorHandler
       fqcn: "nablarch.fw.handler.GlobalErrorHandler"
@@ -206,6 +208,7 @@ rest:
 
 batch:
   description: "Nablarchバッチアプリケーション用ハンドラキュー（都度起動型）"
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/nablarch_batch/architecture.html"
   handlers:
     - name: StatusCodeConvertHandler
       fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"
@@ -309,6 +312,7 @@ batch:
 
 messaging:
   description: "テーブルキューイング型メッセージング用ハンドラキュー"
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/messaging/db/index.html"
   handlers:
     - name: StatusCodeConvertHandler
       fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"
@@ -406,6 +410,7 @@ messaging:
 
 http-messaging:
   description: "HTTP同期メッセージング用ハンドラキュー（外部システムからのHTTPリクエストを受信しメッセージとして処理）"
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web_service/http_messaging/architecture.html"
   handlers:
     - name: HttpCharacterEncodingHandler
       fqcn: "nablarch.fw.web.handler.HttpCharacterEncodingHandler"
@@ -472,6 +477,7 @@ http-messaging:
 
 jakarta-batch:
   description: "Jakarta Batch（JSR 352）対応バッチアプリケーション用ハンドラキュー"
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/jsr352/architecture.html"
   handlers:
     - name: StatusCodeConvertHandler
       fqcn: "nablarch.fw.handler.StatusCodeConvertHandler"

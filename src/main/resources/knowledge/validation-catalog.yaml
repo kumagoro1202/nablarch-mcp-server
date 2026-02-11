@@ -9,6 +9,7 @@ bean_validation:
     Jakarta Bean Validation（JSR 380）ベースのバリデーション機能。
     Nablarch独自アノテーション（@Required, @Length, @SystemChar等）と
     ドメインバリデーション機能を提供する。新規開発ではこちらを推奨。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation/bean_validation.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-core-validation-ee"
@@ -158,6 +159,7 @@ nablarch_validation:
     Nablarch独自のバリデーション機能。Bean Validation登場以前のレガシーAPI。
     ValidationUtilを使用してバリデーションを実行する。
     新規開発ではBean Validationの使用を推奨。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation/nablarch_validation.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-core-validation"
