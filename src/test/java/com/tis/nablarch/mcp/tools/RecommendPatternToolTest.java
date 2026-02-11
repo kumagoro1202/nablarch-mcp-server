@@ -57,7 +57,7 @@ class RecommendPatternToolTest {
             String result = tool.recommend(requirement, null, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("要件テキストが指定されていません"));
         }
 
@@ -71,7 +71,7 @@ class RecommendPatternToolTest {
             String result = tool.recommend(requirement, null, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("要件テキストが指定されていません"));
         }
 
@@ -85,7 +85,7 @@ class RecommendPatternToolTest {
             String result = tool.recommend(requirement, null, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("要件テキストが短すぎます"));
         }
 
@@ -101,7 +101,7 @@ class RecommendPatternToolTest {
             String result = tool.recommend(requirement, appType, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("不明なアプリケーションタイプ"));
             assertTrue(result.contains("invalid"));
         }
@@ -123,7 +123,7 @@ class RecommendPatternToolTest {
             String result = tool.recommend(requirement, "web", null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("デザインパターンカタログが空です"));
         }
 

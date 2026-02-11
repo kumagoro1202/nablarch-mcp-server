@@ -210,7 +210,8 @@ class SemanticSearchToolTest {
         @DisplayName("クエリがnullの場合エラーメッセージを返す")
         void nullQueryReturnsError() {
             String result = tool.semanticSearch(null, null, null, null, null, null, null);
-            assertEquals("検索クエリを指定してください。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("検索クエリを指定してください"));
             verifyNoInteractions(hybridSearchService);
             verifyNoInteractions(reranker);
         }
@@ -219,7 +220,8 @@ class SemanticSearchToolTest {
         @DisplayName("クエリが空白の場合エラーメッセージを返す")
         void blankQueryReturnsError() {
             String result = tool.semanticSearch("   ", null, null, null, null, null, null);
-            assertEquals("検索クエリを指定してください。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("検索クエリを指定してください"));
         }
 
         @Test

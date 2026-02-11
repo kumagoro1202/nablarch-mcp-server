@@ -44,7 +44,7 @@ class MigrationAnalysisToolTest {
             String result = tool.analyzeMigration(codeSnippet, null, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("コードが指定されていません"));
         }
 
@@ -58,7 +58,7 @@ class MigrationAnalysisToolTest {
             String result = tool.analyzeMigration(codeSnippet, null, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("コードが指定されていません"));
         }
 
@@ -73,7 +73,7 @@ class MigrationAnalysisToolTest {
             String result = tool.analyzeMigration(codeSnippet, sourceVersion, "6", null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("サポートされていない移行元バージョン"));
         }
 
@@ -88,7 +88,7 @@ class MigrationAnalysisToolTest {
             String result = tool.analyzeMigration(codeSnippet, "5", targetVersion, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("サポートされていない移行先バージョン"));
         }
     }

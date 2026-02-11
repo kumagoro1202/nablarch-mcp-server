@@ -54,7 +54,7 @@ public class CodeGenerationTool {
      * @param specifications タイプ固有の詳細パラメータ（JSON文字列）
      * @return 生成結果のMarkdownフォーマット文字列
      */
-    @Tool(description = "Generate Nablarch-compliant code (Action, Form, SQL, Entity, Handler, "
+    @Tool(name = "generate_code", description = "Generate Nablarch-compliant code (Action, Form, SQL, Entity, Handler, "
             + "Interceptor). Produces boilerplate code following Nablarch coding conventions "
             + "and best practices. Use this when developers need skeleton code that adheres "
             + "to Nablarch patterns.")
@@ -72,24 +72,32 @@ public class CodeGenerationTool {
 
         // 入力検証
         if (type == null || type.isBlank()) {
-            return "生成対象タイプを指定してください。"
-                    + "有効値: action, form, sql, entity, handler, interceptor";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("生成対象タイプを指定してください")
+                    .hint("有効値: action, form, sql, entity, handler, interceptor")
+                    .build();
         }
         if (name == null || name.isBlank()) {
-            return "生成するクラス/ファイルの名前を指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("生成するクラス/ファイルの名前を指定してください")
+                    .build();
         }
 
         String effectiveType = type.toLowerCase().trim();
         if (!VALID_TYPES.contains(effectiveType)) {
-            return "不正な生成対象タイプ: " + type
-                    + "。有効値: action, form, sql, entity, handler, interceptor";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("不正な生成対象タイプ: " + type)
+                    .hint("有効値: action, form, sql, entity, handler, interceptor")
+                    .build();
         }
 
         String effectiveAppType = (appType != null && !appType.isBlank())
                 ? appType.toLowerCase().trim() : "web";
         if (!VALID_APP_TYPES.contains(effectiveAppType)) {
-            return "不正なアプリケーションタイプ: " + appType
-                    + "。有効値: web, rest, batch, messaging";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("不正なアプリケーションタイプ: " + appType)
+                    .hint("有効値: web, rest, batch, messaging")
+                    .build();
         }
 
         // specifications のパース
@@ -102,8 +110,11 @@ public class CodeGenerationTool {
         } catch (Exception e) {
             log.error("コード生成でエラー: type={}, name={}, appType={}",
                     effectiveType, name, effectiveAppType, e);
-            throw new RuntimeException(
-                    "コード生成中にエラーが発生しました。入力パラメータを確認してください。");
+            throw ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_004)
+                    .message("コード生成中にエラーが発生しました")
+                    .detail("type=" + effectiveType + ", name=" + name + ", appType=" + effectiveAppType)
+                    .hint("入力パラメータを確認してください")
+                    .toException(e);
         }
 
         return formatResult(result);

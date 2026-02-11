@@ -104,6 +104,7 @@ public class DefaultCodeGenerator implements CodeGenerator {
             }
             case "handler" -> conventions.add("Handler<I, O>インターフェースを実装");
             case "interceptor" -> conventions.add("InterceptorからInvokeNode継承");
+            default -> { /* 未知のタイプは無視 */ }
         }
     }
 
@@ -126,11 +127,13 @@ public class DefaultCodeGenerator implements CodeGenerator {
                     case "messaging" -> {
                         dependencies.add("nablarch-fw-messaging");
                     }
+                    default -> { /* 未知のappTypeは無視 */ }
                 }
             }
             case "form" -> dependencies.add("nablarch-core-validation-ee");
             case "entity" -> dependencies.add("nablarch-common-dao");
             case "handler", "interceptor" -> dependencies.add("nablarch-fw");
+            default -> { /* 未知のタイプは無視 */ }
         }
     }
 

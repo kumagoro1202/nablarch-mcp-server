@@ -66,7 +66,7 @@ public class OptimizeHandlerQueueTool {
      * @param concern 最適化観点（all, correctness, security, performance）
      * @return Markdown形式の最適化提案
      */
-    @Tool(description = "Analyzes an existing Nablarch handler queue XML and generates optimization proposals "
+    @Tool(name = "optimize_handler_queue", description = "Analyzes an existing Nablarch handler queue XML and generates optimization proposals "
             + "from correctness, security, and performance perspectives.")
     public String optimize(
             @ToolParam(description = "Current handler queue XML configuration")
@@ -80,14 +80,18 @@ public class OptimizeHandlerQueueTool {
 
         // 入力検証
         if (currentXml == null || currentXml.isBlank()) {
-            return "エラー: ハンドラキューXMLが指定されていません";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("ハンドラキューXMLが指定されていません")
+                    .build();
         }
 
         // XML解析
         List<HandlerEntry> handlers = parseXml(currentXml);
         if (handlers.isEmpty()) {
-            return "エラー: XMLからハンドラを抽出できませんでした。"
-                    + "component要素のclass属性が正しく設定されているか確認してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("XMLからハンドラを抽出できませんでした")
+                    .hint("component要素のclass属性が正しく設定されているか確認してください")
+                    .build();
         }
 
         // app_type推定
@@ -95,8 +99,10 @@ public class OptimizeHandlerQueueTool {
         if (detectedAppType == null || detectedAppType.isBlank()) {
             detectedAppType = detectAppType(handlers);
             if (detectedAppType == null) {
-                return "エラー: アプリケーションタイプを自動推定できませんでした。"
-                        + "app_typeパラメータを明示的に指定してください。";
+                return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                        .message("アプリケーションタイプを自動推定できませんでした")
+                        .hint("app_typeパラメータを明示的に指定してください")
+                        .build();
             }
         }
 

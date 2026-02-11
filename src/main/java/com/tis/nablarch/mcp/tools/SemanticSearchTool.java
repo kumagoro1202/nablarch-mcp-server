@@ -83,7 +83,7 @@ public class SemanticSearchTool {
      * @param mode 検索モード（hybrid, vector, keyword、デフォルトhybrid）
      * @return 検索結果のMarkdownフォーマット文字列
      */
-    @Tool(description = "Semantic search over the Nablarch knowledge base. "
+    @Tool(name = "semantic_search", description = "Semantic search over the Nablarch knowledge base. "
             + "Uses hybrid search (BM25 + vector) with Cross-Encoder reranking "
             + "for high-accuracy results. Supports natural language queries in "
             + "Japanese and English. Use this for finding Nablarch APIs, patterns, "
@@ -111,7 +111,9 @@ public class SemanticSearchTool {
             String mode) {
 
         if (query == null || query.isBlank()) {
-            return "検索クエリを指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("検索クエリを指定してください")
+                    .build();
         }
 
         int effectiveTopK = (topK != null && topK >= 1 && topK <= 50) ? topK : DEFAULT_TOP_K;
@@ -128,8 +130,10 @@ public class SemanticSearchTool {
             return doSearch(query, filters, effectiveTopK, effectiveMode);
         } catch (Exception e) {
             log.error("semantic_search実行中にエラーが発生: {}", e.getMessage(), e);
-            throw new RuntimeException(
-                    "検索中にエラーが発生しました。search_apiツールをお試しください。");
+            throw ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_004)
+                    .message("検索中にエラーが発生しました")
+                    .hint("search_apiツールをお試しください")
+                    .toException(e);
         }
     }
 

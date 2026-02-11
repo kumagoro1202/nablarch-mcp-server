@@ -51,9 +51,9 @@ class SemanticSearchMcpRegistrationTest {
         assertTrue(callbacks.length > 0, "ツールが1つ以上登録されていること");
 
         boolean found = Arrays.stream(callbacks)
-                .anyMatch(cb -> cb.getToolDefinition().name().equals("semanticSearch"));
+                .anyMatch(cb -> cb.getToolDefinition().name().equals("semantic_search"));
 
-        assertTrue(found, "semanticSearch ツールがMCPに登録されていること。" +
+        assertTrue(found, "semantic_search ツールがMCPに登録されていること。" +
                 " 登録済みツール: " + Arrays.stream(callbacks)
                 .map(cb -> cb.getToolDefinition().name())
                 .toList());
@@ -64,9 +64,9 @@ class SemanticSearchMcpRegistrationTest {
     void semanticSearchToolHasDescription() {
         ToolCallback[] callbacks = toolCallbackProvider.getToolCallbacks();
         ToolCallback semanticSearchCallback = Arrays.stream(callbacks)
-                .filter(cb -> cb.getToolDefinition().name().equals("semanticSearch"))
+                .filter(cb -> cb.getToolDefinition().name().equals("semantic_search"))
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("semanticSearch ツールが見つからない"));
+                .orElseThrow(() -> new AssertionError("semantic_search ツールが見つからない"));
 
         String description = semanticSearchCallback.getToolDefinition().description();
         assertNotNull(description);
@@ -80,9 +80,9 @@ class SemanticSearchMcpRegistrationTest {
     void semanticSearchToolHasInputSchema() {
         ToolCallback[] callbacks = toolCallbackProvider.getToolCallbacks();
         ToolCallback semanticSearchCallback = Arrays.stream(callbacks)
-                .filter(cb -> cb.getToolDefinition().name().equals("semanticSearch"))
+                .filter(cb -> cb.getToolDefinition().name().equals("semantic_search"))
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("semanticSearch ツールが見つからない"));
+                .orElseThrow(() -> new AssertionError("semantic_search ツールが見つからない"));
 
         String inputSchema = semanticSearchCallback.getToolDefinition().inputSchema();
         assertNotNull(inputSchema, "入力スキーマが定義されていること");
@@ -101,11 +101,11 @@ class SemanticSearchMcpRegistrationTest {
         ToolCallback[] callbacks = toolCallbackProvider.getToolCallbacks();
 
         boolean hasSearchApi = Arrays.stream(callbacks)
-                .anyMatch(cb -> cb.getToolDefinition().name().equals("searchApi"));
+                .anyMatch(cb -> cb.getToolDefinition().name().equals("search_api"));
         boolean hasSemanticSearch = Arrays.stream(callbacks)
-                .anyMatch(cb -> cb.getToolDefinition().name().equals("semanticSearch"));
+                .anyMatch(cb -> cb.getToolDefinition().name().equals("semantic_search"));
 
         assertTrue(hasSearchApi, "search_api ツールが登録されていること");
-        assertTrue(hasSemanticSearch, "semanticSearch ツールが登録されていること");
+        assertTrue(hasSemanticSearch, "semantic_search ツールが登録されていること");
     }
 }

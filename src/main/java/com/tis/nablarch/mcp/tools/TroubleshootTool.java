@@ -83,7 +83,7 @@ public class TroubleshootTool {
      * @param environment 環境情報（JSON文字列、オプション）
      * @return トラブルシューティング結果のMarkdownフォーマット文字列
      */
-    @Tool(description = "Troubleshoot Nablarch-specific errors by analyzing error messages "
+    @Tool(name = "troubleshoot", description = "Troubleshoot Nablarch-specific errors by analyzing error messages "
             + "and stack traces. Returns error classification, root cause analysis, "
             + "and recommended solutions from the knowledge base.")
     public String troubleshoot(
@@ -101,7 +101,9 @@ public class TroubleshootTool {
 
         // 入力検証
         if (errorMessage == null || errorMessage.isBlank()) {
-            return "エラーメッセージを指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("エラーメッセージを指定してください")
+                    .build();
         }
 
         log.debug("トラブルシューティング開始: errorMessage={}, errorCode={}",

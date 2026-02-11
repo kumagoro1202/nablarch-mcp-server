@@ -24,7 +24,6 @@ public class ReviewConfigPrompt {
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     private Map<String, Object> constraintsData;
-    private Map<String, Object> handlerCatalog;
     private Map<String, Object> errorCatalog;
 
     /**
@@ -37,9 +36,6 @@ public class ReviewConfigPrompt {
     void init() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/knowledge/handler-constraints.yaml")) {
             constraintsData = YAML.readValue(is, Map.class);
-        }
-        try (InputStream is = getClass().getResourceAsStream("/knowledge/handler-catalog.yaml")) {
-            handlerCatalog = YAML.readValue(is, Map.class);
         }
         try (InputStream is = getClass().getResourceAsStream("/knowledge/error-catalog.yaml")) {
             errorCatalog = YAML.readValue(is, Map.class);

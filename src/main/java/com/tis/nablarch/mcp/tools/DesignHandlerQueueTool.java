@@ -43,7 +43,7 @@ public class DesignHandlerQueueTool {
      * @param includeComments XMLにコメントを含めるか
      * @return 設計結果（XML設定と説明を含むMarkdown形式）
      */
-    @Tool(description = "Designs a Nablarch handler queue configuration based on application type and requirements. "
+    @Tool(name = "design_handler_queue", description = "Designs a Nablarch handler queue configuration based on application type and requirements. "
             + "Generates optimized XML configuration with proper handler ordering and validates constraints.")
     public String design(
             @ToolParam(description = "Application type: web, rest, batch, or messaging")
@@ -57,15 +57,19 @@ public class DesignHandlerQueueTool {
 
         // 入力検証
         if (appType == null || appType.isBlank()) {
-            return "エラー: アプリケーションタイプ（app_type）を指定してください。\n"
-                    + "有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes());
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("アプリケーションタイプ（app_type）を指定してください")
+                    .hint("有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes()))
+                    .build();
         }
 
         String normalizedAppType = appType.toLowerCase().trim();
         List<HandlerEntry> yamlHandlers = knowledgeBase.getHandlerEntries(normalizedAppType);
         if (yamlHandlers.isEmpty()) {
-            return "エラー: 不明なアプリケーションタイプ: " + appType + "\n"
-                    + "有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes());
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("不明なアプリケーションタイプ: " + appType)
+                    .hint("有効な値: " + String.join(", ", knowledgeBase.getAvailableAppTypes()))
+                    .build();
         }
 
         boolean withComments = includeComments == null || includeComments;

@@ -55,7 +55,8 @@ class TestGenerationToolTest {
             // Act
             String result = tool.generateTest(null, "unit", null, null, null, null);
             // Assert
-            assertEquals("テスト対象クラスのFQCNを指定してください。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("テスト対象クラスのFQCNを指定してください"));
             verifyNoInteractions(knowledgeBase);
         }
 
@@ -67,7 +68,8 @@ class TestGenerationToolTest {
             // Act
             String result = tool.generateTest(targetClass, "unit", null, null, null, null);
             // Assert
-            assertEquals("テスト対象クラスのFQCNを指定してください。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("テスト対象クラスのFQCNを指定してください"));
             verifyNoInteractions(knowledgeBase);
         }
 
@@ -79,7 +81,8 @@ class TestGenerationToolTest {
             // Act
             String result = tool.generateTest(targetClass, null, null, null, null, null);
             // Assert
-            assertEquals("テストタイプを指定してください（unit, request-response, batch, messaging）。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("テストタイプを指定してください"));
             verifyNoInteractions(knowledgeBase);
         }
 
@@ -91,7 +94,8 @@ class TestGenerationToolTest {
             // Act
             String result = tool.generateTest(targetClass, "", null, null, null, null);
             // Assert
-            assertEquals("テストタイプを指定してください（unit, request-response, batch, messaging）。", result);
+            assertTrue(result.contains("[MCP_TOOL_002]"));
+            assertTrue(result.contains("テストタイプを指定してください"));
             verifyNoInteractions(knowledgeBase);
         }
 

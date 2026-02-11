@@ -35,7 +35,7 @@ public class SearchApiTool {
      * @param category カテゴリフィルタ（handler, library, web, batch, rest, messaging等）
      * @return 検索結果のフォーマット済みテキスト
      */
-    @Tool(description = "Search the Nablarch API documentation for classes, methods, and patterns. "
+    @Tool(name = "search_api", description = "Search the Nablarch API documentation for classes, methods, and patterns. "
             + "Use this when you need to find Nablarch APIs for code generation.")
     public String searchApi(
             @ToolParam(description = "Search keyword (class name, method name, or concept)") String keyword,
@@ -43,7 +43,9 @@ public class SearchApiTool {
                     required = false)
             String category) {
         if (keyword == null || keyword.isBlank()) {
-            return "検索キーワードを指定してください。";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("検索キーワードを指定してください")
+                    .build();
         }
 
         String effectiveCategory = (category != null && !category.isBlank()) ? category : null;

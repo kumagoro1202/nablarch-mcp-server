@@ -122,7 +122,7 @@ class DesignHandlerQueueToolTest {
         void nullAppTypeReturnsError() {
             when(knowledgeBase.getAvailableAppTypes()).thenReturn(Set.of("web", "rest", "batch", "messaging"));
             String result = tool.design(null, null, null);
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_002]"));
             assertTrue(result.contains("app_type"));
         }
 
@@ -131,7 +131,7 @@ class DesignHandlerQueueToolTest {
         void emptyAppTypeReturnsError() {
             when(knowledgeBase.getAvailableAppTypes()).thenReturn(Set.of("web", "rest", "batch", "messaging"));
             String result = tool.design("", null, null);
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_002]"));
         }
 
         @Test
@@ -140,7 +140,7 @@ class DesignHandlerQueueToolTest {
             when(knowledgeBase.getHandlerEntries("unknown")).thenReturn(List.of());
             when(knowledgeBase.getAvailableAppTypes()).thenReturn(Set.of("web", "rest", "batch", "messaging"));
             String result = tool.design("unknown", null, null);
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_002]"));
             assertTrue(result.contains("unknown"));
         }
     }

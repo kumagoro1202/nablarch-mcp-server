@@ -322,7 +322,9 @@ public class NablarchKnowledgeBase {
         // handler-constraints.yaml の制約チェック
         for (String handlerName : handlerNames) {
             HandlerConstraintEntry constraint = constraintsByHandlerIndex.get(handlerName);
-            if (constraint == null) continue;
+            if (constraint == null) {
+                continue;
+            }
             checkOrderConstraints(handlerName, constraint.mustBefore, constraint.mustAfter,
                     constraint.incompatibleWith, positionMap, providedHandlers,
                     validationErrors, warnings);
@@ -331,8 +333,12 @@ public class NablarchKnowledgeBase {
         // handler-catalog.yaml のインラインconstraints チェック
         if (catalog.handlers != null) {
             for (HandlerEntry handler : catalog.handlers) {
-                if (handler.constraints == null) continue;
-                if (!positionMap.containsKey(handler.name)) continue;
+                if (handler.constraints == null) {
+                    continue;
+                }
+                if (!positionMap.containsKey(handler.name)) {
+                    continue;
+                }
                 checkOrderConstraints(handler.name,
                         handler.constraints.mustBefore, handler.constraints.mustAfter,
                         null, positionMap, providedHandlers, validationErrors, warnings);
@@ -430,7 +436,9 @@ public class NablarchKnowledgeBase {
     private void extractCatalogEntries(String catalogName, Map<String, Object> data,
             List<CatalogKnowledgeEntry> entries) {
         for (Map.Entry<String, Object> topEntry : data.entrySet()) {
-            if (!(topEntry.getValue() instanceof Map)) continue;
+            if (!(topEntry.getValue() instanceof Map)) {
+                continue;
+            }
             Map<String, Object> section = (Map<String, Object>) topEntry.getValue();
             String sectionKey = topEntry.getKey();
             String sectionDesc = getStringValue(section, "description");
@@ -461,7 +469,9 @@ public class NablarchKnowledgeBase {
                             String fqcn = getStringValue(itemMap, "fqcn");
                             String desc = getStringValue(itemMap, "description");
                             String usage = getStringValue(itemMap, "usage");
-                            if (usage == null) usage = getStringValue(itemMap, "example");
+                            if (usage == null) {
+                                usage = getStringValue(itemMap, "example");
+                            }
                             entries.add(new CatalogKnowledgeEntry(
                                     catalogName, sectionKey, name, fqcn, desc, usage,
                                     formatCatalogItem(sectionKey, name, fqcn, desc)));
@@ -493,13 +503,19 @@ public class NablarchKnowledgeBase {
     private static String formatCatalogItem(String section, String name, String fqcn, String desc) {
         StringBuilder sb = new StringBuilder();
         sb.append("[カタログ:").append(section).append("] ").append(name);
-        if (fqcn != null) sb.append(" (").append(fqcn).append(")");
-        if (desc != null) sb.append(" — ").append(trimToLine(desc));
+        if (fqcn != null) {
+            sb.append(" (").append(fqcn).append(")");
+        }
+        if (desc != null) {
+            sb.append(" — ").append(trimToLine(desc));
+        }
         return sb.toString();
     }
 
     private static String trimToLine(String text) {
-        if (text == null) return "";
+        if (text == null) {
+            return "";
+        }
         String trimmed = text.strip();
         int nl = trimmed.indexOf('\n');
         return nl > 0 ? trimmed.substring(0, nl).strip() : trimmed;
@@ -589,7 +605,9 @@ public class NablarchKnowledgeBase {
             Map<String, Integer> positionMap, Set<String> providedHandlers,
             List<String> errors, List<String> warnings) {
         Integer currentPos = positionMap.get(handlerName);
-        if (currentPos == null) return;
+        if (currentPos == null) {
+            return;
+        }
 
         if (mustBefore != null) {
             for (String target : mustBefore) {
@@ -597,7 +615,9 @@ public class NablarchKnowledgeBase {
                 if (targetPos != null && currentPos >= targetPos) {
                     String msg = String.format("順序違反: %s (位置%d) は %s (位置%d) より前に配置すべき",
                             handlerName, currentPos + 1, target, targetPos + 1);
-                    if (!errors.contains(msg)) errors.add(msg);
+                    if (!errors.contains(msg)) {
+                        errors.add(msg);
+                    }
                 }
             }
         }
@@ -607,7 +627,9 @@ public class NablarchKnowledgeBase {
                 if (targetPos != null && currentPos <= targetPos) {
                     String msg = String.format("順序違反: %s (位置%d) は %s (位置%d) より後に配置すべき",
                             handlerName, currentPos + 1, target, targetPos + 1);
-                    if (!errors.contains(msg)) errors.add(msg);
+                    if (!errors.contains(msg)) {
+                        errors.add(msg);
+                    }
                 }
             }
         }
@@ -679,8 +701,12 @@ public class NablarchKnowledgeBase {
         sb.append("## ").append(d.name).append("\n");
         sb.append("- カテゴリ: ").append(d.category).append("\n");
         sb.append("- 説明: ").append(d.description).append("\n");
-        if (d.problem != null) sb.append("- 問題: ").append(d.problem).append("\n");
-        if (d.solution != null) sb.append("- 解決策: ").append(d.solution).append("\n");
+        if (d.problem != null) {
+            sb.append("- 問題: ").append(d.problem).append("\n");
+        }
+        if (d.solution != null) {
+            sb.append("- 解決策: ").append(d.solution).append("\n");
+        }
         if (d.codeExample != null) {
             sb.append("\n```java\n").append(d.codeExample.trim()).append("\n```\n");
         }

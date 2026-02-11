@@ -58,7 +58,7 @@ class OptimizeHandlerQueueToolTest {
             String result = tool.optimize(xml, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("XMLが指定されていません"));
         }
 
@@ -72,7 +72,7 @@ class OptimizeHandlerQueueToolTest {
             String result = tool.optimize(xml, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("XMLが指定されていません"));
         }
 
@@ -86,7 +86,7 @@ class OptimizeHandlerQueueToolTest {
             String result = tool.optimize(xml, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("XMLからハンドラを抽出できませんでした"));
         }
     }
@@ -180,7 +180,7 @@ class OptimizeHandlerQueueToolTest {
             String result = tool.optimize(xml, null, null);
 
             // Assert
-            assertTrue(result.contains("エラー"));
+            assertTrue(result.contains("[MCP_TOOL_"));
             assertTrue(result.contains("アプリケーションタイプを自動推定できませんでした"));
         }
 

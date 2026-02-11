@@ -70,7 +70,7 @@ public class RecommendPatternTool {
      * @param maxResults 返却する最大候補数（1〜11、デフォルト3）
      * @return Markdown形式の推薦結果
      */
-    @Tool(description = "Recommends Nablarch design patterns based on requirements. "
+    @Tool(name = "recommend_pattern", description = "Recommends Nablarch design patterns based on requirements. "
             + "Analyzes natural language requirements and returns scored pattern recommendations "
             + "with rationale and code examples.")
     public String recommend(
@@ -85,16 +85,22 @@ public class RecommendPatternTool {
 
         // 入力検証
         if (requirement == null || requirement.isBlank()) {
-            return "エラー: 要件テキストが指定されていません";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("要件テキストが指定されていません")
+                    .build();
         }
         if (requirement.length() < 10) {
-            return "エラー: 要件テキストが短すぎます（10文字以上必要）";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("要件テキストが短すぎます（10文字以上必要）")
+                    .build();
         }
 
         Set<String> validAppTypes = knowledgeBase.getAvailableAppTypes();
         if (appType != null && !appType.isBlank() && !validAppTypes.contains(appType.toLowerCase())) {
-            return "エラー: 不明なアプリケーションタイプ: " + appType
-                    + "\n有効なタイプ: " + String.join(", ", validAppTypes);
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_002)
+                    .message("不明なアプリケーションタイプ: " + appType)
+                    .hint("有効なタイプ: " + String.join(", ", validAppTypes))
+                    .build();
         }
 
         int resultLimit = (maxResults != null && maxResults >= 1 && maxResults <= 11)
@@ -106,7 +112,9 @@ public class RecommendPatternTool {
         // Phase 2: 候補収集
         List<DesignPatternEntry> candidates = knowledgeBase.getAllDesignPatterns();
         if (candidates.isEmpty()) {
-            return "エラー: デザインパターンカタログが空です";
+            return ErrorResponseBuilder.of(ErrorCode.MCP_TOOL_004)
+                    .message("デザインパターンカタログが空です")
+                    .build();
         }
 
         // Phase 3: スコアリング
