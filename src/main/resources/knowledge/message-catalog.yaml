@@ -11,6 +11,7 @@ message:
     メッセージ管理機能。プロパティファイルまたはDBからメッセージを取得し、
     パラメータ置換して返却する。エラーメッセージ・業務メッセージの一元管理に使用。
     ApplicationExceptionと連携してバリデーションエラーを通知する。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/message.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-core-message"
@@ -71,6 +72,7 @@ code:
     コード管理機能。コードマスタ（DBテーブル）からコード値・名称・略称を取得する。
     パターン機能で機能ごとにコード表示を切り替え可能。多言語対応。
     バリデーションアノテーション（@CodeValue）で入力値がコードマスタに存在するかチェックできる。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/code.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-common-code"

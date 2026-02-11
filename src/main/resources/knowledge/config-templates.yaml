@@ -9,6 +9,7 @@ templates:
     category: web-xml
     app_type: web
     description: "Webアプリケーション用 web.xml テンプレート"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/architecture.html"
     template: |
       <?xml version="1.0" encoding="UTF-8"?>
       <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
@@ -64,6 +65,7 @@ templates:
   - name: rest-web-xml
     category: web-xml
     app_type: rest
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web_service/rest/architecture.html"
     description: "RESTful Webサービス用 web.xml テンプレート"
     template: |
       <?xml version="1.0" encoding="UTF-8"?>
@@ -96,6 +98,7 @@ templates:
   - name: web-component
     category: component
     app_type: web
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/architecture.html"
     description: "Webアプリケーション用コンポーネント定義XMLテンプレート"
     template: |
       <?xml version="1.0" encoding="UTF-8"?>
@@ -153,6 +156,7 @@ templates:
   - name: rest-component
     category: component
     app_type: rest
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web_service/rest/architecture.html"
     description: "RESTful Webサービス用コンポーネント定義XMLテンプレート"
     template: |
       <?xml version="1.0" encoding="UTF-8"?>
@@ -211,6 +215,7 @@ templates:
     category: component
     app_type: batch
     description: "バッチアプリケーション用コンポーネント定義XMLテンプレート"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/nablarch_batch/architecture.html"
     template: |
       <?xml version="1.0" encoding="UTF-8"?>
       <component-configuration
@@ -331,6 +336,7 @@ templates:
   # ===== Database =====
   - name: db-connection
     category: database
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     description: "データベース接続設定テンプレート（コンポーネント定義）"
     template: |
       <!-- データソース設定 -->
@@ -380,6 +386,7 @@ templates:
     category: database
     app_type: web
     description: "セッションストア設定テンプレート（DBストア）"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/session_store.html"
     template: |
       <!-- セッションストアハンドラ -->
       <component name="sessionStoreHandler"

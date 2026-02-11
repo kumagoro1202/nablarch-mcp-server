@@ -19,6 +19,8 @@ public class ModuleEntry {
     @JsonProperty("since_version")
     public String sinceVersion;
     public List<String> dependencies;
+    @JsonProperty("source_url")
+    public String sourceUrl;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class KeyClassEntry {

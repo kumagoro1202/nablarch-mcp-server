@@ -24,6 +24,7 @@ modules:
     artifact_id: "nablarch-core-repository"
     description: "DIコンテナ（システムリポジトリ）。XMLベースのコンポーネント定義とDI"
     category: core
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/repository.html"
     key_classes:
       - fqcn: "nablarch.core.repository.SystemRepository"
         description: "システムリポジトリ。コンポーネントの取得・設定値の取得"
@@ -35,6 +36,7 @@ modules:
   - name: nablarch-core-validation
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-core-validation"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation.html"
     description: "バリデーション機能。Bean ValidationおよびNablarch独自バリデーション"
     category: core
     key_classes:
@@ -79,6 +81,7 @@ modules:
   - name: nablarch-fw-web
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-fw-web"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/index.html"
     description: "Webアプリケーションフレームワーク。HTTPリクエスト/レスポンス処理、ハンドラキュー"
     category: web
     key_classes:
@@ -115,6 +118,7 @@ modules:
   - name: nablarch-fw-jaxrs
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-fw-jaxrs"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web_service/rest/index.html"
     description: "JAX-RSサポート。RESTful Webサービスの構築"
     category: web
     key_classes:
@@ -133,6 +137,7 @@ modules:
     artifact_id: "nablarch-fw-batch"
     description: "バッチアプリケーションフレームワーク。都度起動型・常駐型バッチの実行基盤"
     category: batch
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/nablarch_batch/index.html"
     key_classes:
       - fqcn: "nablarch.fw.action.BatchAction"
         description: "バッチアクション基底クラス"
@@ -153,6 +158,7 @@ modules:
     artifact_id: "nablarch-fw-batch-ee"
     description: "Jakarta Batch（JSR 352）対応。jBatchランタイム上でNablarchバッチを実行"
     category: batch
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/jsr352/index.html"
     key_classes:
       - fqcn: "nablarch.fw.batch.ee.listener.NablarchListenerExecutor"
         description: "Nablarchリスナー実行制御"
@@ -165,6 +171,7 @@ modules:
     artifact_id: "nablarch-fw-messaging"
     description: "メッセージングフレームワーク。MOM連携・テーブルキューイング"
     category: messaging
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/system_messaging.html"
     key_classes:
       - fqcn: "nablarch.fw.messaging.MessageSender"
         description: "メッセージ送信クラス"
@@ -192,6 +199,7 @@ modules:
   - name: nablarch-common-dao
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-common-dao"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     description: "Universal DAO。エンティティクラスベースのデータベースアクセス"
     category: library
     key_classes:
@@ -232,6 +240,7 @@ modules:
   - name: nablarch-common-mail
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-common-mail"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/mail.html"
     description: "メール送信。テンプレートベースのメール送信機能"
     category: library
     key_classes:

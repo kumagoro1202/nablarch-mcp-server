@@ -7,6 +7,7 @@ patterns:
   - name: handler-queue-pattern
     category: architecture
     description: "ハンドラキューパターン。Nablarchの根幹アーキテクチャ。リクエスト処理を複数のハンドラによるパイプラインで実行する"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/index.html"
     problem: "Webリクエスト処理において、認証・ログ・トランザクション管理等の横断的関心事を各業務ロジックに混在させると保守性が低下する"
     solution: |
       ハンドラ（Handler<I, O>インターフェース実装）をキュー形式で直列に連結し、
@@ -52,6 +53,7 @@ patterns:
   - name: action-class-pattern
     category: action
     description: "アクションクラスパターン。ハンドラキューの最内殻で業務ロジックを実行するクラス"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/architecture.html"
     problem: "業務ロジックとフレームワーク処理を分離し、業務ロジックに集中できるようにしたい"
     solution: |
       アクションクラスは業務ロジックのみを記述し、横断的関心事（認証、ログ、トランザクション等）は
@@ -103,6 +105,7 @@ patterns:
   - name: form-validation-pattern
     category: validation
     description: "フォームバリデーションパターン。Bean Validationアノテーションによる宣言的入力検証"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation.html"
     problem: "リクエストパラメータのバリデーションを各アクションメソッド内に記述すると、コードが冗長になり保守性が低下する"
     solution: |
       フォームクラス（POJO）にBean Validationアノテーションを付与し、
@@ -150,6 +153,7 @@ patterns:
   - name: universal-dao-pattern
     category: data-access
     description: "Universal DAOパターン。エンティティクラスベースの汎用データアクセス"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     problem: "データベースアクセスコードがSQL文の組み立てやResultSetのマッピングで冗長になる"
     solution: |
       JPAアノテーション付きエンティティクラスを定義し、UniversalDaoの静的メソッドで
@@ -206,6 +210,7 @@ patterns:
   - name: sql-file-pattern
     category: data-access
     description: "外部SQLファイルパターン。SQLをJavaコードから分離し、エンティティクラスと同じパッケージに配置"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     problem: "複雑なSQLをJava文字列として記述すると、可読性・保守性が低下する"
     solution: |
       SQLをエンティティクラスと同じパッケージに「エンティティ名.sql」として外部ファイル化する。
@@ -250,6 +255,7 @@ patterns:
   - name: exclusive-control-pattern
     category: data-access
     description: "排他制御パターン。楽観ロック（バージョン番号）と悲観ロック（SELECT FOR UPDATE）"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/exclusive_control.html"
     problem: "複数ユーザーが同時にデータを更新する場合、データの整合性が失われる可能性がある"
     solution: |
       楽観ロック: エンティティに@Versionカラムを追加し、更新時にバージョン不一致を検知する。
@@ -298,6 +304,7 @@ patterns:
   - name: double-submit-prevention-pattern
     category: security
     description: "二重送信防止パターン。トークンベースのCSRF対策と二重送信防止"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/db_double_submit.html"
     problem: "ブラウザの戻るボタンや再読み込みにより、同一フォームが複数回送信される可能性がある"
     solution: |
       入力画面表示時にサーバー側でトークンを生成し、HTMLのhiddenフィールドとセッションに保存する。
@@ -337,6 +344,7 @@ patterns:
   - name: interceptor-pattern
     category: handler
     description: "インターセプタパターン。アノテーションベースのAOP的な横断処理"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/index.html"
     problem: "バリデーション・権限チェック等の横断的関心事を各アクションメソッドに直接記述すると冗長になる"
     solution: |
       Nablarchのインターセプタ機構を使い、アクションメソッドにアノテーションを付与するだけで
@@ -384,6 +392,7 @@ patterns:
   - name: file-download-pattern
     category: action
     description: "ファイルダウンロードパターン。StreamResponseを使ったバイナリファイルの送信"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/feature_details.html"
     problem: "CSV/Excel/PDFなどのファイルをブラウザにダウンロードさせたい"
     solution: |
       StreamResponseを使用してファイルコンテンツをHTTPレスポンスとして送信する。
@@ -425,6 +434,7 @@ patterns:
   - name: system-repository-pattern
     category: architecture
     description: "システムリポジトリパターン。XMLベースのDIコンテナとコンポーネント管理"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/repository.html"
     problem: "アプリケーションの設定やコンポーネントの依存関係をハードコーディングすると変更が困難になる"
     solution: |
       XMLベースのコンポーネント定義ファイルでDIコンテナを構成し、
@@ -468,6 +478,7 @@ patterns:
   - name: multi-db-pattern
     category: data-access
     description: "複数データベース接続パターン。異なるデータベースへの同時接続"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     problem: "メインDBとは異なるDBに接続する必要がある（ログDB、参照専用DB等）"
     solution: |
       DbConnectionManagementHandlerとTransactionManagementHandlerを複数定義し、

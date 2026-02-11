@@ -20,4 +20,8 @@ public class DesignPatternEntry {
     @JsonProperty("applicable_app_types")
     public List<String> applicableAppTypes;
     public List<String> references;
+    @JsonProperty("source_url")
+    public String sourceUrl;
+    @JsonProperty("source_urls")
+    public List<String> sourceUrls;
 }

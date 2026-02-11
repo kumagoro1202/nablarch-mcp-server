@@ -5,7 +5,9 @@
 
 errors:
   # ===== Handler Queue Errors =====
+  # source_url: https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/
   - id: "ERR-001"
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/"
     category: handler
     error_message: "java.lang.ClassCastException: Cannot cast handler result"
     cause: "ハンドラキューの順序が不正。前段のハンドラが返す型と後段のハンドラが期待する型が一致しない"
@@ -20,6 +22,7 @@ errors:
 
   - id: "ERR-002"
     category: handler
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/"
     error_message: "nablarch.fw.NoMoreHandlerException: handler queue is empty"
     cause: "ハンドラキューにディスパッチャ（PackageMapping/RoutesMapping）が設定されていないか、アクションクラスが見つからない"
     solution: |
@@ -33,6 +36,7 @@ errors:
 
   - id: "ERR-003"
     category: handler
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/handlers/"
     error_message: "Handler queue is not properly configured for application type"
     cause: "アプリケーションタイプに必要なハンドラが不足している。例：バッチにLoopHandlerがない"
     solution: |
@@ -44,6 +48,7 @@ errors:
   # ===== Database Errors =====
   - id: "ERR-004"
     category: database
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     error_message: "java.sql.SQLException: Connection is not available"
     cause: "DbConnectionManagementHandlerが設定されていないか、データソースの設定が不正"
     solution: |
@@ -61,6 +66,7 @@ errors:
 
   - id: "ERR-005"
     category: database
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     error_message: "nablarch.common.dao.NoDataException"
     cause: "UniversalDao.findByIdで指定した主キーに該当するレコードが存在しない"
     solution: |
@@ -78,6 +84,7 @@ errors:
 
   - id: "ERR-006"
     category: database
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     error_message: "javax.persistence.OptimisticLockException"
     cause: "楽観ロックの競合。他のトランザクションが先にレコードを更新し、バージョン番号が不一致"
     solution: |
@@ -94,6 +101,7 @@ errors:
 
   - id: "ERR-007"
     category: database
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/database_management.html"
     error_message: "SQL file not found: ENTITY_NAME#SQL_ID"
     cause: "SQLファイルが所定のパスに存在しないか、SQL_IDが不正"
     solution: |
@@ -108,6 +116,7 @@ errors:
   # ===== Validation Errors =====
   - id: "ERR-008"
     category: validation
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation/bean_validation.html"
     error_message: "nablarch.core.message.ApplicationException: validation error"
     cause: "フォームバリデーションエラー。@Required、@Length等のバリデーションに失敗"
     solution: |
@@ -122,6 +131,7 @@ errors:
 
   - id: "ERR-009"
     category: validation
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/validation/bean_validation.html"
     error_message: "java.lang.IllegalArgumentException: charset definition not found"
     cause: "@SystemCharアノテーションで指定した文字種定義が見つからない"
     solution: |
@@ -143,6 +153,7 @@ errors:
   # ===== Configuration Errors =====
   - id: "ERR-010"
     category: config
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/repository.html"
     error_message: "nablarch.core.repository.di.ComponentCreationException"
     cause: "コンポーネント定義XMLのパースエラーまたはコンポーネントのインスタンス化に失敗"
     solution: |
@@ -155,6 +166,7 @@ errors:
 
   - id: "ERR-011"
     category: config
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/repository.html"
     error_message: "Component not found: [component-name]"
     cause: "SystemRepository.getで指定したコンポーネント名が定義されていない"
     solution: |
@@ -184,6 +196,7 @@ errors:
   # ===== Batch Errors =====
   - id: "ERR-013"
     category: batch
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/nablarch_batch/architecture.html"
     error_message: "nablarch.fw.handler.DuplicateProcessException"
     cause: "同一バッチプロセスが既に実行中。DuplicateProcessCheckHandlerによる多重起動検知"
     solution: |
@@ -196,6 +209,7 @@ errors:
 
   - id: "ERR-014"
     category: batch
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/nablarch_batch/architecture.html"
     error_message: "DataReader returned null / No data to process"
     cause: "バッチアクションのcreateReaderが返すDataReaderからデータが取得できない"
     solution: |

@@ -7,6 +7,7 @@ examples:
   - type: rest-api
     description: "NablarchによるRESTful API サンプル"
     app_type: rest
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web_service/rest/architecture.html"
     reference_repo: "https://github.com/nablarch/nablarch-example-rest"
     handler_queue_type: rest
     key_patterns:
@@ -58,6 +59,7 @@ examples:
   - type: web-crud
     description: "Nablarch Webアプリケーション サンプル（CRUD画面）"
     app_type: web
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/web/architecture.html"
     reference_repo: "https://github.com/nablarch/nablarch-example-web"
     handler_queue_type: web
     key_patterns:
@@ -79,6 +81,7 @@ examples:
   - type: batch-db
     description: "Nablarchバッチアプリケーション サンプル"
     app_type: batch
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/batch/jsr352/architecture.html"
     reference_repo: "https://github.com/nablarch/nablarch-example-batch-ee"
     handler_queue_type: batch
     key_patterns:
@@ -98,6 +101,7 @@ examples:
   - type: messaging-mom
     description: "Nablarchメッセージング サンプル"
     app_type: messaging
+    source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/messaging/db/index.html"
     reference_repo: "https://github.com/nablarch/nablarch-example-mom-testing-common"
     handler_queue_type: messaging
     key_patterns:

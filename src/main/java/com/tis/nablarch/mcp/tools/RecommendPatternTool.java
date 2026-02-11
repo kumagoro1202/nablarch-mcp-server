@@ -2,6 +2,7 @@ package com.tis.nablarch.mcp.tools;
 
 import com.tis.nablarch.mcp.knowledge.NablarchKnowledgeBase;
 import com.tis.nablarch.mcp.knowledge.model.DesignPatternEntry;
+
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
@@ -370,7 +371,14 @@ public class RecommendPatternTool {
             }
 
             // リソースURI
-            sb.append("**📖 詳細**: `nablarch://pattern/").append(pattern.name).append("`\n\n");
+            sb.append("**📖 詳細**: `nablarch://pattern/").append(pattern.name).append("`\n");
+
+            // 出典URL
+            String sourceRef = NablarchKnowledgeBase.buildSourceRef(pattern.sourceUrl, pattern.sourceUrls);
+            if (sourceRef != null) {
+                sb.append("**").append(sourceRef).append("**\n");
+            }
+            sb.append("\n");
 
             if (i < patterns.size() - 1) {
                 sb.append("---\n\n");

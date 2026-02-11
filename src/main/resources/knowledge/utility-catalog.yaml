@@ -8,6 +8,7 @@ date:
   description: |
     日付管理機能。業務日付（テーブル管理）とシステム日付（OS日時）の2種類を提供。
     業務日付はDBテーブルで管理され、テスト時の日付切り替えが容易。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/date.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-core-date"
@@ -49,6 +50,7 @@ file_path:
   description: |
     ファイルパス管理機能。ファイルパスの論理名→物理パス変換を提供。
     環境ごとにファイル配置が異なる場合に、設定で物理パスを切り替えられる。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/libraries/file_path_management.html"
   module:
     group_id: "com.nablarch.framework"
     artifact_id: "nablarch-core"

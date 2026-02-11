@@ -14,6 +14,8 @@ public class ConfigTemplateEntry {
     public String description;
     public String template;
     public List<TemplateParameter> parameters;
+    @JsonProperty("source_url")
+    public String sourceUrl;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TemplateParameter {
