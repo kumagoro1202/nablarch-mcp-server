@@ -35,7 +35,7 @@ public class SearchApiTool {
      * @param category カテゴリフィルタ（handler, library, web, batch, rest, messaging等）
      * @return 検索結果のフォーマット済みテキスト
      */
-    @Tool(description = "Search the Nablarch API documentation for classes, methods, and patterns. "
+    @Tool(name = "search_api", description = "Search the Nablarch API documentation for classes, methods, and patterns. "
             + "Use this when you need to find Nablarch APIs for code generation.")
     public String searchApi(
             @ToolParam(description = "Search keyword (class name, method name, or concept)") String keyword,

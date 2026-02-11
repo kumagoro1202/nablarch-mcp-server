@@ -66,7 +66,7 @@ public class OptimizeHandlerQueueTool {
      * @param concern 最適化観点（all, correctness, security, performance）
      * @return Markdown形式の最適化提案
      */
-    @Tool(description = "Analyzes an existing Nablarch handler queue XML and generates optimization proposals "
+    @Tool(name = "optimize_handler_queue", description = "Analyzes an existing Nablarch handler queue XML and generates optimization proposals "
             + "from correctness, security, and performance perspectives.")
     public String optimize(
             @ToolParam(description = "Current handler queue XML configuration")

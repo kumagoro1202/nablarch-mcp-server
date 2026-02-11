@@ -45,7 +45,7 @@ public class ValidateHandlerQueueTool {
      * @param applicationType アプリケーションタイプ（web, rest, batch, messaging）
      * @return 検証結果（エラー・警告を含むフォーマット済みテキスト）
      */
-    @Tool(description = "Validate a Nablarch handler queue XML configuration. "
+    @Tool(name = "validate_handler_queue", description = "Validate a Nablarch handler queue XML configuration. "
             + "Checks handler ordering constraints, required handlers, and best practices. "
             + "Use this to verify handler queue configurations before deployment.")
     public String validateHandlerQueue(

@@ -83,7 +83,7 @@ public class TestGenerationTool {
      * @param coverageTarget カバレッジ目標（minimal, standard, comprehensive）
      * @return テストコードとExcelテストデータ構造のMarkdownフォーマット文字列
      */
-    @Tool(description = "Generate test code for Nablarch applications using the Nablarch Testing "
+    @Tool(name = "generate_test", description = "Generate test code for Nablarch applications using the Nablarch Testing "
             + "Framework (JUnit5 + Excel test data). Supports unit tests, request-response tests "
             + "(web/REST), batch tests, and messaging tests. Generates test classes, test methods, "
             + "and Excel test data structure definitions following Nablarch conventions.")

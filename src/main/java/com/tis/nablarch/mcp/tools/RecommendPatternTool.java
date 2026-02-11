@@ -70,7 +70,7 @@ public class RecommendPatternTool {
      * @param maxResults 返却する最大候補数（1〜11、デフォルト3）
      * @return Markdown形式の推薦結果
      */
-    @Tool(description = "Recommends Nablarch design patterns based on requirements. "
+    @Tool(name = "recommend_pattern", description = "Recommends Nablarch design patterns based on requirements. "
             + "Analyzes natural language requirements and returns scored pattern recommendations "
             + "with rationale and code examples.")
     public String recommend(

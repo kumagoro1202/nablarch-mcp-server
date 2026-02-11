@@ -182,7 +182,7 @@ public class MigrationAnalysisTool {
      * @param analysisScope 分析範囲（full, namespace, dependency, api）
      * @return Markdown形式の分析結果
      */
-    @Tool(description = "Analyzes Nablarch version migration impact. "
+    @Tool(name = "analyze_migration", description = "Analyzes Nablarch version migration impact. "
             + "Detects deprecated API usage, breaking changes, and generates migration recommendations "
             + "for upgrading from Nablarch 5.x to 6.x.")
     public String analyzeMigration(

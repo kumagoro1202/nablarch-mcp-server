@@ -54,7 +54,7 @@ public class CodeGenerationTool {
      * @param specifications タイプ固有の詳細パラメータ（JSON文字列）
      * @return 生成結果のMarkdownフォーマット文字列
      */
-    @Tool(description = "Generate Nablarch-compliant code (Action, Form, SQL, Entity, Handler, "
+    @Tool(name = "generate_code", description = "Generate Nablarch-compliant code (Action, Form, SQL, Entity, Handler, "
             + "Interceptor). Produces boilerplate code following Nablarch coding conventions "
             + "and best practices. Use this when developers need skeleton code that adheres "
             + "to Nablarch patterns.")

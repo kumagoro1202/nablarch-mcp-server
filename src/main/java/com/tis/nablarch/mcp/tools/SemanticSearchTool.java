@@ -83,7 +83,7 @@ public class SemanticSearchTool {
      * @param mode 検索モード（hybrid, vector, keyword、デフォルトhybrid）
      * @return 検索結果のMarkdownフォーマット文字列
      */
-    @Tool(description = "Semantic search over the Nablarch knowledge base. "
+    @Tool(name = "semantic_search", description = "Semantic search over the Nablarch knowledge base. "
             + "Uses hybrid search (BM25 + vector) with Cross-Encoder reranking "
             + "for high-accuracy results. Supports natural language queries in "
             + "Japanese and English. Use this for finding Nablarch APIs, patterns, "

@@ -43,7 +43,7 @@ public class DesignHandlerQueueTool {
      * @param includeComments XMLにコメントを含めるか
      * @return 設計結果（XML設定と説明を含むMarkdown形式）
      */
-    @Tool(description = "Designs a Nablarch handler queue configuration based on application type and requirements. "
+    @Tool(name = "design_handler_queue", description = "Designs a Nablarch handler queue configuration based on application type and requirements. "
             + "Generates optimized XML configuration with proper handler ordering and validates constraints.")
     public String design(
             @ToolParam(description = "Application type: web, rest, batch, or messaging")
