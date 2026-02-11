@@ -19,7 +19,6 @@ import java.util.*;
 public class ApiResourceProvider {
 
     private List<Map<String, Object>> modules;
-    private List<Map<String, Object>> apiPatterns;
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
     @PostConstruct
@@ -33,10 +32,6 @@ public class ApiResourceProvider {
             modules = (List<Map<String, Object>>) data.get("modules");
         }
 
-        try (InputStream is = loadResource("knowledge/api-patterns.yaml")) {
-            Map<String, Object> data = yamlMapper.readValue(is, mapType);
-            apiPatterns = (List<Map<String, Object>>) data.get("patterns");
-        }
     }
 
     public String getModuleList() {
