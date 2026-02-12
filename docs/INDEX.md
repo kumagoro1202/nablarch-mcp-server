@@ -193,7 +193,7 @@ Phase 1〜3の詳細設計書（WBS番号順）。
 ## クイックリンク
 
 - **GitHub**: [nablarch-mcp-server](https://github.com/kumagoro1202/nablarch-mcp-server)
-- **現在の進捗**: Phase 1-3 完了 / Phase 4 未着手
+- **現在の進捗**: Phase 1-3 完了 / Phase 4-1 完了（品質基盤・オブザーバビリティ）
 - **技術スタック**: Spring Boot 3.x + MCP Java SDK 0.17.x + PostgreSQL 16 + pgvector
 - **知識データ**: 17 YAMLファイル（カバレッジ85%）
 - **Agent Skills**: 6件（.claude/skills/配下）
