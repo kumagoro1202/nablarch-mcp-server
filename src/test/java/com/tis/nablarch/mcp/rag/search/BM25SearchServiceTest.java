@@ -3,7 +3,6 @@ package com.tis.nablarch.mcp.rag.search;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -46,34 +45,29 @@ class BM25SearchServiceTest {
         @Test
         @DisplayName("正常系: document_chunksとcode_chunksの結果がスコア降順でマージされる")
         void searchMergesResultsFromBothTables() {
-            // document_chunksの結果
             List<SearchResult> docResults = List.of(
                     new SearchResult("doc1", "ドキュメント内容1", 0.9, Map.of("source", "nablarch-document"), "https://example.com/1"),
                     new SearchResult("doc2", "ドキュメント内容2", 0.7, Map.of("source", "nablarch-document"), "https://example.com/2")
             );
 
-            // code_chunksの結果
             List<SearchResult> codeResults = List.of(
                     new SearchResult("code1", "コード内容1", 0.8, Map.of("source", "github"), "https://github.com/1"),
                     new SearchResult("code2", "コード内容2", 0.6, Map.of("source", "github"), "https://github.com/2")
             );
 
-            // document_chunksテーブルへのクエリ
             when(jdbcTemplate.query(contains("document_chunks"), any(MapSqlParameterSource.class), any(RowMapper.class)))
                     .thenReturn(docResults);
 
-            // code_chunksテーブルへのクエリ
             when(jdbcTemplate.query(contains("code_chunks"), any(MapSqlParameterSource.class), any(RowMapper.class)))
                     .thenReturn(codeResults);
 
             List<SearchResult> results = service.search("ハンドラキュー", SearchFilters.NONE, 10);
 
             assertEquals(4, results.size());
-            // スコア降順の確認
-            assertEquals("doc1", results.get(0).id());   // 0.9
-            assertEquals("code1", results.get(1).id());   // 0.8
-            assertEquals("doc2", results.get(2).id());    // 0.7
-            assertEquals("code2", results.get(3).id());   // 0.6
+            assertEquals("doc1", results.get(0).id());
+            assertEquals("code1", results.get(1).id());
+            assertEquals("doc2", results.get(2).id());
+            assertEquals("code2", results.get(3).id());
         }
 
         @Test
@@ -137,6 +131,24 @@ class BM25SearchServiceTest {
 
             assertDoesNotThrow(() -> service.search("テスト", null, 10));
         }
+
+        @Test
+        @DisplayName("正常系: SQLにILIKE条件が含まれる（pg_trgm対応）")
+        @SuppressWarnings("unchecked")
+        void searchUsesIlikeForTrgm() {
+            ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+
+            when(jdbcTemplate.query(sqlCaptor.capture(), any(MapSqlParameterSource.class), any(RowMapper.class)))
+                    .thenReturn(Collections.emptyList());
+
+            service.search("バッチ処理", SearchFilters.NONE, 10);
+
+            List<String> sqls = sqlCaptor.getAllValues();
+            for (String sql : sqls) {
+                assertTrue(sql.contains("ILIKE"), "SQLにILIKE条件が含まれていない: " + sql);
+                assertTrue(sql.contains("similarity"), "SQLにsimilarity関数が含まれていない: " + sql);
+            }
+        }
     }
 
     @Nested
@@ -155,7 +167,6 @@ class BM25SearchServiceTest {
 
             service.search("テスト", filters, 10);
 
-            // document_chunksのSQLにはapp_typeフィルタが含まれる
             List<String> sqls = sqlCaptor.getAllValues();
             String docSql = sqls.stream().filter(s -> s.contains("document_chunks")).findFirst().orElseThrow();
             String codeSql = sqls.stream().filter(s -> s.contains("code_chunks")).findFirst().orElseThrow();
@@ -179,7 +190,6 @@ class BM25SearchServiceTest {
             String docSql = sqls.stream().filter(s -> s.contains("document_chunks")).findFirst().orElseThrow();
             String codeSql = sqls.stream().filter(s -> s.contains("code_chunks")).findFirst().orElseThrow();
 
-            // document_chunksは全フィルタ適用
             assertAll(
                     () -> assertTrue(docSql.contains("app_type = :app_type")),
                     () -> assertTrue(docSql.contains("module = :module")),
@@ -188,7 +198,6 @@ class BM25SearchServiceTest {
                     () -> assertTrue(docSql.contains("language = :language"))
             );
 
-            // code_chunksは共通フィルタのみ適用
             assertAll(
                     () -> assertFalse(codeSql.contains("app_type = :app_type")),
                     () -> assertTrue(codeSql.contains("module = :module")),
@@ -219,35 +228,42 @@ class BM25SearchServiceTest {
     }
 
     @Nested
-    @DisplayName("buildTsQuery")
-    class BuildTsQueryTests {
+    @DisplayName("extractKeywords")
+    class ExtractKeywordsTests {
 
         @Test
-        @DisplayName("スペース区切りのトークンがAND演算子で結合される")
-        void tokensJoinedWithAnd() {
-            String result = service.buildTsQuery("REST API 認証");
-            assertEquals("REST & API & 認証", result);
+        @DisplayName("スペース区切りのトークンがキーワードリストとして返される")
+        void tokensReturnedAsList() {
+            List<String> result = service.extractKeywords("REST API 認証");
+            assertEquals(List.of("REST", "API", "認証"), result);
         }
 
         @Test
         @DisplayName("特殊文字が除去される")
         void specialCharactersRemoved() {
-            String result = service.buildTsQuery("nablarch.fw.Handler<T>");
-            assertEquals("nablarch.fw.Handler", result);
+            List<String> result = service.extractKeywords("nablarch.fw.Handler<T>");
+            assertEquals(List.of("nablarch.fw.Handler"), result);
         }
 
         @Test
         @DisplayName("連続スペースが正しく処理される")
         void multipleSpacesHandled() {
-            String result = service.buildTsQuery("REST   API   認証");
-            assertEquals("REST & API & 認証", result);
+            List<String> result = service.extractKeywords("REST   API   認証");
+            assertEquals(List.of("REST", "API", "認証"), result);
         }
 
         @Test
-        @DisplayName("単一トークンの場合はそのまま返す")
-        void singleTokenReturnedAsIs() {
-            String result = service.buildTsQuery("ハンドラキュー");
-            assertEquals("ハンドラキュー", result);
+        @DisplayName("単一トークンの場合は1要素のリスト")
+        void singleTokenReturnedAsList() {
+            List<String> result = service.extractKeywords("ハンドラキュー");
+            assertEquals(List.of("ハンドラキュー"), result);
+        }
+
+        @Test
+        @DisplayName("日本語キーワードが正しく抽出される")
+        void japaneseKeywordsExtracted() {
+            List<String> result = service.extractKeywords("バッチ処理 データベース アクセス");
+            assertEquals(List.of("バッチ処理", "データベース", "アクセス"), result);
         }
     }
 }

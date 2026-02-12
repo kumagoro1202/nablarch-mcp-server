@@ -16,9 +16,10 @@ import java.util.Map;
 /**
  * BM25キーワード検索サービス。
  *
- * <p>PostgreSQL Full Text Search（to_tsvector / to_tsquery）を使用した
- * BM25ベースのキーワード検索を提供する。ts_rank_cd関数による
- * スコア計算とメタデータフィルタリングをサポートする。</p>
+ * <p>pg_trgm（trigram）のILIKE検索とsimilarity関数を使用した
+ * キーワード検索を提供する。PostgreSQL標準のFTS（to_tsvector/to_tsquery）
+ * は日本語テキストの空白区切りトークナイズに非対応のため、
+ * pg_trgmベースのILIKE検索に置き換えた。</p>
  *
  * <p>検索対象テーブル:</p>
  * <ul>
@@ -34,19 +35,6 @@ public class BM25SearchService {
 
     private static final Logger log = LoggerFactory.getLogger(BM25SearchService.class);
 
-    /**
-     * PostgreSQL FTSの辞書設定。simpleトークナイザーを使用する。
-     * 日本語形態素解析（pgroonga/pg_bigm）未導入のため、
-     * スペース/句読点区切りの基本的なトークン化で検索する。
-     */
-    private static final String FTS_CONFIG = "simple";
-
-    /**
-     * ts_rank_cdの正規化フラグ。
-     * 32 = rank / (rank + 1) で [0, 1) に正規化。
-     */
-    private static final int RANK_NORMALIZATION = 32;
-
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     /**
@@ -59,7 +47,7 @@ public class BM25SearchService {
     }
 
     /**
-     * BM25キーワード検索を実行する。
+     * キーワード検索を実行する。
      *
      * <p>document_chunksテーブルとcode_chunksテーブルの両方を検索し、
      * スコア降順で統合した結果を返す。</p>
@@ -79,49 +67,65 @@ public class BM25SearchService {
         }
 
         SearchFilters effectiveFilters = (filters != null) ? filters : SearchFilters.NONE;
-        String tsQuery = buildTsQuery(query);
+        List<String> keywords = extractKeywords(query);
 
-        log.debug("BM25検索実行: query='{}', tsQuery='{}', topK={}", query, tsQuery, topK);
+        log.debug("BM25検索実行: query='{}', keywords={}, topK={}", query, keywords, topK);
 
-        List<SearchResult> docResults = searchTable("document_chunks", tsQuery, effectiveFilters, topK);
-        List<SearchResult> codeResults = searchTable("code_chunks", tsQuery, effectiveFilters, topK);
+        List<SearchResult> docResults = searchTable("document_chunks", query, keywords, effectiveFilters, topK);
+        List<SearchResult> codeResults = searchTable("code_chunks", query, keywords, effectiveFilters, topK);
 
         return mergeAndSort(docResults, codeResults, topK);
     }
 
     /**
-     * 指定テーブルに対してBM25検索を実行する。
+     * 指定テーブルに対してキーワード検索を実行する。
+     *
+     * <p>pg_trgm GINインデックスを活用したILIKE検索で日本語を含む全言語に対応する。
+     * スコアはpg_trgm similarity関数で算出する。</p>
      *
      * @param tableName 検索対象テーブル名
-     * @param tsQuery PostgreSQL tsquery文字列
+     * @param originalQuery 元のクエリ文字列（similarity計算用）
+     * @param keywords 抽出済みキーワードリスト
      * @param filters メタデータフィルタ条件
      * @param topK 返却する結果数
      * @return 検索結果リスト
      */
     private List<SearchResult> searchTable(
-            String tableName, String tsQuery, SearchFilters filters, int topK) {
+            String tableName, String originalQuery, List<String> keywords,
+            SearchFilters filters, int topK) {
 
         boolean isDocTable = "document_chunks".equals(tableName);
 
+        if (keywords.isEmpty()) {
+            return List.of();
+        }
+
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT id, content, ");
-        sql.append("ts_rank_cd(");
-        sql.append("to_tsvector('").append(FTS_CONFIG).append("', content), ");
-        sql.append("to_tsquery('").append(FTS_CONFIG).append("', :ts_query), ");
-        sql.append(RANK_NORMALIZATION);
-        sql.append(") AS bm25_score, ");
+        sql.append("similarity(content, :original_query) AS bm25_score, ");
         sql.append("module, language, ");
         if (isDocTable) {
             sql.append("source, source_type, app_type, url ");
         } else {
             sql.append("repo, chunk_type, file_path ");
         }
-        sql.append("FROM ").append(tableName).append(" ");
-        sql.append("WHERE to_tsvector('").append(FTS_CONFIG).append("', content) ");
-        sql.append("@@ to_tsquery('").append(FTS_CONFIG).append("', :ts_query)");
+        sql.append("FROM ").append(tableName);
+
+        // ILIKE条件：全キーワードをAND結合
+        sql.append(" WHERE ");
+        for (int i = 0; i < keywords.size(); i++) {
+            if (i > 0) {
+                sql.append(" AND ");
+            }
+            String paramName = "kw" + i;
+            sql.append("content ILIKE :").append(paramName);
+        }
 
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("ts_query", tsQuery);
+        params.addValue("original_query", originalQuery);
+        for (int i = 0; i < keywords.size(); i++) {
+            params.addValue("kw" + i, "%" + escapeIlike(keywords.get(i)) + "%");
+        }
 
         appendFilters(sql, params, filters, isDocTable);
 
@@ -136,42 +140,49 @@ public class BM25SearchService {
     }
 
     /**
-     * ユーザークエリをPostgreSQL tsquery文字列に変換する。
+     * ユーザークエリからキーワードを抽出する。
      *
-     * <p>スペースで区切られた各トークンをAND演算子（&amp;）で結合する。
-     * 空トークンと特殊文字は除外する。</p>
+     * <p>スペースで区切られた各トークンからキーワードを抽出する。
+     * 日本語テキスト（スペースなし）の場合はクエリ全体を1キーワードとして扱う。</p>
      *
      * @param query ユーザークエリ
-     * @return tsquery文字列
+     * @return キーワードリスト
      */
-    String buildTsQuery(String query) {
+    List<String> extractKeywords(String query) {
         String[] tokens = query.trim().split("\\s+");
-        List<String> validTokens = new ArrayList<>();
+        List<String> keywords = new ArrayList<>();
 
         for (String token : tokens) {
             String sanitized = sanitizeToken(token);
             if (!sanitized.isEmpty()) {
-                validTokens.add(sanitized);
+                keywords.add(sanitized);
             }
         }
 
-        if (validTokens.isEmpty()) {
-            return query.trim();
-        }
-
-        return String.join(" & ", validTokens);
+        return keywords;
     }
 
     /**
-     * トークンからtsquery特殊文字を除去する。
+     * ILIKE用エスケープ。%と_と\をエスケープする。
+     *
+     * @param value エスケープ対象文字列
+     * @return エスケープ済み文字列
+     */
+    private String escapeIlike(String value) {
+        return value
+                .replace("\\", "\\\\")
+                .replace("%", "\\%")
+                .replace("_", "\\_");
+    }
+
+    /**
+     * トークンから特殊文字を除去する。
      *
      * @param token 入力トークン
      * @return サニタイズ済みトークン
      */
     private String sanitizeToken(String token) {
-        // まずジェネリック型パラメータ（<T>等）を除去
         String result = token.replaceAll("<[^>]*>", "");
-        // 次に特殊文字を除去（<と>は上で処理済みなので除外）
         return result.replaceAll("[&|!():'\"\\\\]", "").trim();
     }
 
@@ -195,7 +206,6 @@ public class BM25SearchService {
             sql.append(" AND language = :language");
             params.addValue("language", filters.language());
         }
-        // document_chunks固有カラム
         if (isDocTable) {
             if (filters.appType() != null) {
                 sql.append(" AND app_type = :app_type");
