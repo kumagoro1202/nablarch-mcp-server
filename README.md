@@ -67,6 +67,29 @@ Nablarchはミッションクリティカルシステム向けのJavaアプリ�
 ./mvnw package
 ```
 
+### ナレッジベース初期化（任意）
+
+**Embedding検索を使う場合のみ**、初回に1度だけ実行してください。
+
+```bash
+# 1. pgvectorコンテナ起動 + PostgreSQL初期化
+docker compose up -d
+
+# 2. Nablarch公式ドキュメントのEmbedding取込（所要時間: 約20-30分）
+bash scripts/init-knowledge.sh
+```
+
+**処理内容:**
+- Nablarch公式ドキュメント（467ページ）をクローリング
+- チャンク分割（約1,500チャンク）
+- ローカルONNXモデル（BGE-M3）でEmbedding生成
+- pgvectorに格納
+
+**注意:**
+- `init-knowledge.sh` を実行しなくても、**keyword mode（BM25検索）で動作**します
+- Embedding検索は精度が高いですが、初期化に時間がかかります
+- 再実行すると既存データを上書きします（冪等性あり）
+
 ### 実行（STDIOモード）
 
 ```bash
