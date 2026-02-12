@@ -76,8 +76,8 @@
 |-----|---------|------|-----|
 | 2.2.4 | ドキュメントパーサー実装 | ✅完了 | #10 |
 | 2.2.5 | チャンキングエンジン実装 | ✅完了 | #10 |
-| 2.2.6 | Embedding統合: Jina v4 | ✅完了 | #8 |
-| 2.2.7 | Embedding統合: Voyage-code-3 | ✅完了 | #8 |
+| 2.2.6 | Embedding統合: Jina v4 | ✅完了 | #8 | ※現在はONNXローカルモデル（BGE-M3）がデフォルト |
+| 2.2.7 | Embedding統合: Voyage-code-3 | ✅完了 | #8 | ※現在はONNXローカルモデル（CodeSage-small-v2）がデフォルト |
 | 2.2.8 | 公式Docs取込パイプライン | ✅完了 | #14 |
 | 2.2.9 | Fintan取込パイプライン | ✅完了 | #12 |
 | 2.2.10 | BM25検索実装 | ✅完了 | #9 |
@@ -308,6 +308,13 @@ Phase 4-2（コンテナ化・デプロイ基盤: 8タスク）、Phase 4-3（�
 | #76 | Phase 4-1: オブザーバビリティ基盤（Actuator/HealthIndicator/構造化ログ/相関ID） | 2026-02-11 |
 | #77 | Phase 4-1: 品質改善（エラー統一・警告修正・Tool名snake_case） | 2026-02-11 |
 | #78 | Phase 4-1完結: Micrometer/Prometheus/JSON-RPCログ/pgvector CI/ドキュメント | 2026-02-11 |
+| #79 | feat: ONNX Embedding移行 — 有償API → ローカルbge-m3/CodeSage | 2026-02-11 |
+| #80 | 一次ソースURL付与: 知識YAML + 検索結果にNablarch公式ドキュメントURL | 2026-02-11 |
+| #81 | Mermaid Parse error修正: 08-spring-ai-mcp-integration.md | 2026-02-11 |
+| #82 | docs: 連載記事をPhase 4-1の変更に追随（cmd_087） | 2026-02-12 |
+| #83 | fix: MCP Server運用改善 - Docker再起動/DLスクリプト/環境変数/BM25検索修正 | 2026-02-12 |
+| #84 | feat: 日本語全文検索対応（pg_trgm） | 2026-02-12 |
+| #85 | feat: Embeddingデータ手動取込スクリプト追加 | 2026-02-12 |
 
 ## 品質改善・知識拡充（cmd_066〜cmd_080）
 
@@ -345,9 +352,9 @@ Phase 4-2（コンテナ化・デプロイ基盤: 8タスク）、Phase 4-3（�
 
 | 項目 | 件数 |
 |------|------|
-| 総テスト数 | 1,027件以上 |
-| 成功 | 1,013件以上 |
+| 総テスト数 | 1,029件 |
+| 成功 | 1,015件 |
 | 失敗 | 0件 |
 | スキップ | 14件（ONNXモデル関連5件・Phase 1 stub 4件・Transport 5件） |
 
-**最終テスト実行**: 2026-02-11 `mvn clean test`
+**最終テスト実行**: 2026-02-12 `mvn clean test`
