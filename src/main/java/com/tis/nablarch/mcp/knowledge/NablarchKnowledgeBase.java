@@ -63,7 +63,8 @@ public class NablarchKnowledgeBase {
             "message-catalog.yaml",
             "utility-catalog.yaml",
             "log-catalog.yaml",
-            "security-catalog.yaml"
+            "security-catalog.yaml",
+            "project-setup-catalog.yaml"
     };
 
     /** カテゴリ別APIパターンインデックス */
@@ -148,7 +149,7 @@ public class NablarchKnowledgeBase {
         if (keyword == null || keyword.isBlank()) {
             return List.of();
         }
-        String lowerKeyword = keyword.toLowerCase();
+        String[] tokens = keyword.toLowerCase().split("\\s+");
         List<String> results = new ArrayList<>();
 
         // APIパターン検索
@@ -157,46 +158,34 @@ public class NablarchKnowledgeBase {
             patternStream = patternStream.filter(p -> category.equalsIgnoreCase(p.category));
         }
         patternStream
-                .filter(p -> matchesKeyword(p, lowerKeyword))
+                .filter(p -> matchesAnyToken(p, tokens))
                 .forEach(p -> results.add(formatApiPattern(p)));
 
-        // モジュール検索
-        if (category == null || category.isBlank() || "library".equalsIgnoreCase(category)
-                || "module".equalsIgnoreCase(category)) {
-            modules.stream()
-                    .filter(m -> matchesKeyword(m, lowerKeyword))
-                    .forEach(m -> results.add(formatModule(m)));
-        }
+        // モジュール検索（カテゴリ指定時も検索対象に含める）
+        modules.stream()
+                .filter(m -> matchesAnyToken(m, tokens))
+                .forEach(m -> results.add(formatModule(m)));
 
-        // ハンドラ検索
-        if (category == null || category.isBlank() || "handler".equalsIgnoreCase(category)) {
-            handlerCatalog.values().stream()
-                    .flatMap(c -> c.handlers != null ? c.handlers.stream() : Stream.empty())
-                    .filter(h -> matchesKeyword(h, lowerKeyword))
-                    .distinct()
-                    .forEach(h -> results.add(formatHandler(h)));
-        }
+        // ハンドラ検索（カテゴリ指定時も検索対象に含める）
+        handlerCatalog.values().stream()
+                .flatMap(c -> c.handlers != null ? c.handlers.stream() : Stream.empty())
+                .filter(h -> matchesAnyToken(h, tokens))
+                .distinct()
+                .forEach(h -> results.add(formatHandler(h)));
 
-        // 設計パターン検索
-        if (category == null || category.isBlank()) {
-            designPatterns.stream()
-                    .filter(d -> matchesKeyword(d, lowerKeyword))
-                    .forEach(d -> results.add(formatDesignPattern(d)));
-        }
+        // 設計パターン検索（カテゴリ指定時も検索対象に含める）
+        designPatterns.stream()
+                .filter(d -> matchesAnyToken(d, tokens))
+                .forEach(d -> results.add(formatDesignPattern(d)));
 
-        // エラー検索
-        if (category == null || category.isBlank() || "error".equalsIgnoreCase(category)) {
-            errors.stream()
-                    .filter(e -> matchesKeyword(e, lowerKeyword))
-                    .forEach(e -> results.add(formatError(e)));
-        }
+        // エラー検索（カテゴリ指定時も検索対象に含める）
+        errors.stream()
+                .filter(e -> matchesAnyToken(e, tokens))
+                .forEach(e -> results.add(formatError(e)));
 
-        // カタログ知識検索（拡張7ファイル）
-        String lowerCategory = category != null ? category.toLowerCase() : null;
+        // カタログ知識検索（拡張カタログYAML）
         catalogEntries.stream()
-                .filter(e -> lowerCategory == null || lowerCategory.isBlank()
-                        || e.matchesCategory(lowerCategory))
-                .filter(e -> e.matches(lowerKeyword))
+                .filter(e -> e.matchesAnyToken(tokens))
                 .forEach(e -> results.add(e.formatted()));
 
         return results;
@@ -559,6 +548,17 @@ public class NablarchKnowledgeBase {
                     || ci(usage, keyword) || ci(catalog, keyword);
         }
 
+        boolean matchesAnyToken(String[] tokens) {
+            for (String token : tokens) {
+                if (ci(name, token) || ci(fqcn, token)
+                        || ci(description, token) || ci(section, token)
+                        || ci(usage, token) || ci(catalog, token)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         boolean matchesCategory(String category) {
             return ci(catalog, category) || ci(section, category);
         }
@@ -664,26 +664,51 @@ public class NablarchKnowledgeBase {
 
     // ========== 内部: キーワードマッチング ==========
 
-    private boolean matchesKeyword(ApiPatternEntry p, String kw) {
-        return ci(p.name, kw) || ci(p.description, kw) || ci(p.fqcn, kw) || ci(p.category, kw);
+    private boolean matchesAnyToken(ApiPatternEntry p, String[] tokens) {
+        for (String t : tokens) {
+            if (ci(p.name, t) || ci(p.description, t) || ci(p.fqcn, t) || ci(p.category, t)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private boolean matchesKeyword(ModuleEntry m, String kw) {
-        return ci(m.name, kw) || ci(m.description, kw) || ci(m.artifactId, kw)
-                || (m.keyClasses != null && m.keyClasses.stream()
-                        .anyMatch(k -> ci(k.fqcn, kw) || ci(k.description, kw)));
+    private boolean matchesAnyToken(ModuleEntry m, String[] tokens) {
+        for (String t : tokens) {
+            if (ci(m.name, t) || ci(m.description, t) || ci(m.artifactId, t)
+                    || (m.keyClasses != null && m.keyClasses.stream()
+                            .anyMatch(k -> ci(k.fqcn, t) || ci(k.description, t)))) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private boolean matchesKeyword(HandlerEntry h, String kw) {
-        return ci(h.name, kw) || ci(h.description, kw) || ci(h.fqcn, kw);
+    private boolean matchesAnyToken(HandlerEntry h, String[] tokens) {
+        for (String t : tokens) {
+            if (ci(h.name, t) || ci(h.description, t) || ci(h.fqcn, t)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private boolean matchesKeyword(DesignPatternEntry d, String kw) {
-        return ci(d.name, kw) || ci(d.description, kw) || ci(d.problem, kw) || ci(d.category, kw);
+    private boolean matchesAnyToken(DesignPatternEntry d, String[] tokens) {
+        for (String t : tokens) {
+            if (ci(d.name, t) || ci(d.description, t) || ci(d.problem, t) || ci(d.category, t)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private boolean matchesKeyword(ErrorEntry e, String kw) {
-        return ci(e.id, kw) || ci(e.errorMessage, kw) || ci(e.cause, kw) || ci(e.category, kw);
+    private boolean matchesAnyToken(ErrorEntry e, String[] tokens) {
+        for (String t : tokens) {
+            if (ci(e.id, t) || ci(e.errorMessage, t) || ci(e.cause, t) || ci(e.category, t)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean ci(String text, String kw) {
