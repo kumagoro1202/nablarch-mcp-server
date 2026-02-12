@@ -65,7 +65,7 @@ fi
 
 cd "${PROJECT_ROOT}"
 
-if docker compose ps | grep -q "nablarch-mcp-postgres.*Up"; then
+if docker compose ps | grep -q "nablarch-mcp-pgvector.*Up"; then
     success "pgvectorコンテナは既に起動しています"
 else
     info "pgvectorコンテナを起動中..."
@@ -82,7 +82,7 @@ fi
 info "Step 2: PostgreSQL起動待機（最大${MAX_WAIT_SEC}秒）"
 
 wait_count=0
-while ! docker compose exec -T postgres pg_isready -h localhost -U "${DB_USER}" -d "${DB_NAME}" >/dev/null 2>&1; do
+while ! docker compose exec -T pgvector pg_isready -h localhost -U "${DB_USER}" -d "${DB_NAME}" >/dev/null 2>&1; do
     if [ $wait_count -ge $MAX_WAIT_SEC ]; then
         error "PostgreSQLが${MAX_WAIT_SEC}秒以内に起動しませんでした"
         exit 1
@@ -124,8 +124,8 @@ fi
 info "Step 4: 取込結果確認"
 
 # PostgreSQLからレコード数を取得
-CHUNK_COUNT=$(docker compose exec -T postgres psql -U "${DB_USER}" -d "${DB_NAME}" -t -c "SELECT count(*) FROM document_chunks WHERE source = 'nablarch-official-docs';" | xargs)
-EMBEDDING_COUNT=$(docker compose exec -T postgres psql -U "${DB_USER}" -d "${DB_NAME}" -t -c "SELECT count(*) FROM document_chunks WHERE source = 'nablarch-official-docs' AND embedding IS NOT NULL;" | xargs)
+CHUNK_COUNT=$(docker compose exec -T pgvector psql -U "${DB_USER}" -d "${DB_NAME}" -t -c "SELECT count(*) FROM document_chunks WHERE source = 'nablarch-official-docs';" | xargs)
+EMBEDDING_COUNT=$(docker compose exec -T pgvector psql -U "${DB_USER}" -d "${DB_NAME}" -t -c "SELECT count(*) FROM document_chunks WHERE source = 'nablarch-official-docs' AND embedding IS NOT NULL;" | xargs)
 
 echo ""
 echo "============================================"

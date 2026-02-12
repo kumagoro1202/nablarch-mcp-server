@@ -2,37 +2,43 @@
 
 > **対象読者**: 開発者（Resource URI仕様を参照したい人）
 > **前提知識**: MCP Resource, URIパターンの概念
-> **概要**: MCP Resource URIの命名規則と全8パターンの仕様
+> **概要**: MCP Resource URIの命名規則と全16リソースの仕様
 
 ---
 
 ## 1. 概要
 
 Nablarch MCP Serverが提供するMCP Resourceの完全なURI仕様書。
-全8種のResourceProvider実装に基づく、URIパターン・レスポンス形式・使用例を記載する。
+8種のResourceProvider実装に基づく、全16リソースのURIパターン・レスポンス形式・使用例を記載する。
 
 ### 1.1 Resource一覧
 
-| # | Resource種別 | URIプレフィックス | Provider | 登録状況 |
-|---|-------------|------------------|----------|----------|
-| 1 | Handler | `nablarch://handler/` | HandlerResourceProvider | ✅ 登録済み |
-| 2 | Guide | `nablarch://guide/` | GuideResourceProvider | ✅ 登録済み |
-| 3 | API | `nablarch://api/` | ApiResourceProvider | 🔧 実装済み |
-| 4 | Pattern | `nablarch://pattern/` | PatternResourceProvider | 🔧 実装済み |
-| 5 | Antipattern | `nablarch://antipattern/` | AntipatternResourceProvider | 🔧 実装済み |
-| 6 | Config | `nablarch://config/` | ConfigResourceProvider | 🔧 実装済み |
-| 7 | Example | `nablarch://example/` | ExampleResourceProvider | 🔧 実装済み |
-| 8 | Version | `nablarch://version` | VersionResourceProvider | 🔧 実装済み |
+| # | Resource種別 | URI | Provider | Content-Type | 登録状況 |
+|---|-------------|-----|----------|-------------|----------|
+| 1 | Handler | `nablarch://handler/{type}` (6種) | HandlerResourceProvider | `text/markdown` | ✅ 登録済み |
+| 2 | Guide | `nablarch://guide/{topic}` (6種) | GuideResourceProvider | `text/markdown` | ✅ 登録済み |
+| 3 | API | `nablarch://api/modules` | ApiResourceProvider | `application/json` | ✅ 登録済み |
+| 4 | Pattern | `nablarch://pattern/list` | PatternResourceProvider | `text/markdown` | ✅ 登録済み |
+| 5 | Antipattern | `nablarch://antipattern/list` | AntipatternResourceProvider | `application/json` | ✅ 登録済み |
+| 6 | Config | `nablarch://config/list` | ConfigResourceProvider | `text/plain` | ✅ 登録済み |
+| 7 | Example | `nablarch://example/list` | ExampleResourceProvider | `application/json` | ✅ 登録済み |
+| 8 | Version | `nablarch://version/info` | VersionResourceProvider | `application/json` | ✅ 登録済み |
 
 ### 1.2 URIスキーム
 
-```
-nablarch://{resource_type}/{resource_key}
-```
+URIは2つのパターンがあります:
 
-- **スキーム**: `nablarch`（固定）
-- **resource_type**: リソース種別（handler, guide, api, pattern等）
-- **resource_key**: リソース識別子（オプション、種別による）
+**パラメトリックパターン**（Handler, Guide）:
+```
+nablarch://{resource_type}/{key}
+```
+キー値ごとに個別のMCP Resourceとして登録されます（例: `nablarch://handler/web`, `nablarch://handler/rest` がそれぞれ独立リソース）。
+
+**固定URIパターン**（API, Pattern, Example, Config, Antipattern, Version）:
+```
+nablarch://{resource_type}/{固定パス}
+```
+各種別につき1つのMCP Resourceが登録されます（例: `nablarch://api/modules`, `nablarch://pattern/list`）。
 
 ---
 
@@ -223,26 +229,15 @@ NablarchのAPIリファレンス（モジュール・クラス情報）を提供
 | Content-Type | `application/json` |
 | データソース | `module-catalog.yaml`, `api-patterns.yaml` |
 
-### 4.2 URI体系
+### 4.2 URI
 
 | URI | 説明 | メソッド |
 |-----|------|---------|
-| `nablarch://api/` | モジュール一覧 | `getModuleList()` |
-| `nablarch://api/{module}` | モジュール内クラス一覧 | `getClassList(moduleKey)` |
-| `nablarch://api/{module}/{class}` | クラス詳細 | `getClassDetail(moduleKey, className)` |
+| `nablarch://api/modules` | モジュール一覧（全モジュールの概要をJSON形式で返却） | `getModuleList()` |
 
-### 4.3 有効なモジュールキー
+> **注**: 個別モジュールの詳細は `search_api` Tool経由で取得してください。Resource URIとしてはモジュール一覧のみ提供しています。
 
-```
-fw-web, fw-batch, fw-messaging, core, common,
-common-dao, common-jdbc, ...
-```
-
-※ `nablarch-` プレフィックスを除去した値
-
-### 4.4 レスポンス形式
-
-#### モジュール一覧
+### 4.3 レスポンス形式
 
 ```json
 {
@@ -261,44 +256,6 @@ common-dao, common-jdbc, ...
 }
 ```
 
-#### クラス一覧
-
-```json
-{
-  "type": "class_list",
-  "module_key": "fw-web",
-  "classes": [
-    {
-      "simple_name": "HttpRequest",
-      "fqcn": "nablarch.fw.web.HttpRequest",
-      "description": "HTTPリクエストを表すインターフェース"
-    }
-  ],
-  "total_classes": 15
-}
-```
-
-#### クラス詳細
-
-```json
-{
-  "type": "class_detail",
-  "module": "Nablarch Framework Web",
-  "simple_name": "HttpRequest",
-  "fqcn": "nablarch.fw.web.HttpRequest",
-  "description": "HTTPリクエストを表すインターフェース"
-}
-```
-
-### 4.5 エラーレスポンス
-
-```json
-{
-  "error": "Unknown module: invalid-module",
-  "valid_modules": ["fw-web", "fw-batch", "core", ...]
-}
-```
-
 ---
 
 ## 5. Pattern Resource
@@ -313,16 +270,13 @@ Nablarch固有の設計パターンカタログを提供する。
 | Content-Type | `text/markdown` |
 | データソース | `design-patterns.yaml` |
 
-### 5.2 URI体系
+### 5.2 URI
 
 | URI | 説明 | メソッド |
 |-----|------|---------|
-| `nablarch://pattern/` | パターン一覧 | `getPatternList()` |
-| `nablarch://pattern/{name}` | パターン詳細 | `getPatternDetail(name)` |
+| `nablarch://pattern/list` | パターン一覧（全パターンをMarkdown形式で返却） | `getPatternList()` |
 
 ### 5.3 レスポンス形式
-
-#### パターン一覧
 
 ```markdown
 # Nablarch デザインパターンカタログ
@@ -336,41 +290,6 @@ Nablarch固有の設計パターンカタログを提供する。
 *Source: design-patterns.yaml*
 ```
 
-#### パターン詳細
-
-```markdown
-# {パターン名}
-
-**カテゴリ**: {category}
-
-## 概要
-{description}
-
-## 問題
-{problem}
-
-## 解決策
-{solution}
-
-## コード例
-```java
-{code_example}
-```
-
----
-*Source: design-patterns.yaml*
-```
-
-### 5.4 エラーレスポンス
-
-```markdown
-# Unknown Pattern
-
-Unknown pattern: {invalid_name}
-
-Valid patterns: form-validation-pattern, ...
-```
-
 ---
 
 ## 6. Antipattern Resource
@@ -382,62 +301,18 @@ Nablarch開発でよく見られるアンチパターンとその修正方法を
 | 項目 | 値 |
 |------|-----|
 | Provider | `AntipatternResourceProvider` |
-| Content-Type | `text/markdown` |
+| Content-Type | `application/json` |
 | データソース | `antipattern-catalog.yaml` |
 
-### 6.2 URI体系
+### 6.2 URI
 
 | URI | 説明 | メソッド |
 |-----|------|---------|
-| `nablarch://antipattern/` | アンチパターン一覧 | `getAntipatternList()` |
-| `nablarch://antipattern/{name}` | アンチパターン詳細 | `getAntipatternDetail(name)` |
+| `nablarch://antipattern/list` | アンチパターン一覧（JSON形式で返却） | `getAntipatternList()` |
 
 ### 6.3 レスポンス形式
 
-#### 一覧
-
-```markdown
-# Nablarch アンチパターンカタログ
-
-| # | 名前 | カテゴリ | 重要度 | 説明 |
-|---|------|---------|--------|------|
-| 1 | handler-order-violation | handler-queue | high | ハンドラ順序違反 |
-
----
-*Source: antipattern-catalog.yaml*
-```
-
-#### 詳細
-
-```markdown
-# {タイトル}
-
-**名前**: {name}
-**カテゴリ**: {category}
-**重要度**: {severity}
-
-## 概要
-{description}
-
-## 問題
-{problem}
-
-## 悪い例
-```java
-{bad_example}
-```
-
-## 良い例
-```java
-{good_example}
-```
-
-## 修正方針
-{fix_strategy}
-
----
-*Source: antipattern-catalog.yaml*
-```
+アンチパターンカタログ全体がJSON形式で返却されます。各アンチパターンには名前・カテゴリ・重要度・説明・問題・悪い例・良い例・修正方針が含まれます。
 
 ---
 
@@ -450,48 +325,18 @@ NablarchのXML設定テンプレートを提供する。
 | 項目 | 値 |
 |------|-----|
 | Provider | `ConfigResourceProvider` |
-| Content-Type | `text/xml` (テンプレート) / `text/markdown` (一覧) |
+| Content-Type | `text/plain` |
 | データソース | `config-templates.yaml` |
 
-### 7.2 URI体系
+### 7.2 URI
 
 | URI | 説明 | メソッド |
 |-----|------|---------|
-| `nablarch://config/` | テンプレート一覧 | `getTemplateList()` |
-| `nablarch://config/{name}` | テンプレート取得 | `getTemplate(name)` |
+| `nablarch://config/list` | 設定テンプレート一覧（テキスト形式で返却） | `getTemplateList()` |
 
-### 7.3 有効なテンプレート名
+### 7.3 レスポンス形式
 
-```
-web-xml, web-component, rest-component, batch-component,
-db-connection, ...
-```
-
-### 7.4 レスポンス形式
-
-#### 一覧
-
-```markdown
-# Nablarch XML設定テンプレート一覧
-
-| # | テンプレート名 | カテゴリ | 説明 |
-|---|--------------|---------|------|
-| 1 | web-xml | web | web.xml設定テンプレート |
-
----
-*Source: config-templates.yaml*
-```
-
-#### テンプレート
-
-```xml
-<!--
-  Nablarch Configuration Template: {name}
-  Category: {category}
-  Description: {description}
--->
-{XMLテンプレート本文}
-```
+設定テンプレートカタログ全体がテキスト形式で返却されます。各テンプレートにはカテゴリ・説明・XMLテンプレート本文が含まれます。
 
 ---
 
@@ -507,16 +352,13 @@ Nablarchのサンプルアプリケーションコードを提供する。
 | Content-Type | `application/json` |
 | データソース | `example-catalog.yaml` |
 
-### 8.2 URI体系
+### 8.2 URI
 
 | URI | 説明 | メソッド |
 |-----|------|---------|
-| `nablarch://example/` | サンプル一覧 | `getExampleList()` |
-| `nablarch://example/{type}` | サンプル詳細 | `getExampleDetail(type)` |
+| `nablarch://example/list` | サンプル一覧（JSON形式で返却） | `getExampleList()` |
 
 ### 8.3 レスポンス形式
-
-#### 一覧
 
 ```json
 {
@@ -531,25 +373,6 @@ Nablarchのサンプルアプリケーションコードを提供する。
     }
   ],
   "total_examples": 10
-}
-```
-
-#### 詳細
-
-```json
-{
-  "type": "example_detail",
-  "example_type": "web-crud",
-  "description": "Web CRUD application example",
-  "app_type": "web",
-  "reference_repo": "nablarch-example-web",
-  "key_patterns": ["universal-dao", "form-validation"],
-  "files": [
-    {
-      "path": "src/main/java/.../Action.java",
-      "description": "Action class example"
-    }
-  ]
 }
 ```
 
@@ -571,7 +394,7 @@ Nablarchフレームワークのバージョン情報を提供する。
 
 | URI | 説明 |
 |-----|------|
-| `nablarch://version` | バージョン情報（キーなし） |
+| `nablarch://version/info` | バージョン情報 |
 
 ### 9.3 レスポンス形式
 
@@ -713,3 +536,4 @@ Valid {types}: {valid_values}
 | バージョン | 日付 | 変更内容 |
 |-----------|------|---------|
 | 1.0 | 2026-02-04 | 初版作成（全8 Resource仕様） |
+| 1.1 | 2026-02-12 | 実装に合わせてURI仕様を修正（パラメトリックURI → 固定URI、MIMEタイプ修正、全16リソース明記） |

@@ -303,6 +303,53 @@ $ psql -U nablarch -d nablarch_mcp -c "SELECT 1;"
 
 > **補足**: アプリケーションのデフォルト設定（`application.yaml`）では、接続先が `localhost:5432`、ユーザー名 `nablarch`、パスワード `nablarch_dev` になっています。これらの値は環境に合わせて `application.yaml` で変更できます。
 
+### Step 8.5: Docker Compose による簡易セットアップ（推奨）
+
+手動でのPostgreSQLセットアップの代わりに、Docker Composeを使用する方法も利用できます。
+
+```bash
+# pgvectorコンテナの起動（PostgreSQL + pgvector拡張済み）
+$ docker compose up -d
+
+# 起動確認
+$ docker compose ps
+# nablarch-mcp-pgvector が "Up" であればOK
+```
+
+Docker Composeを使用した場合、データベース・ユーザー・pgvector拡張の作成は自動で行われるため、Step 6〜8は不要です。
+
+### Step 8.6: ONNXモデルのダウンロード
+
+ベクトル検索（Embedding）を使用する場合は、ONNXモデルを事前にダウンロードします。
+
+```bash
+# モデルダウンロードスクリプトの実行
+$ bash scripts/download-models.sh
+```
+
+ダウンロードされるモデル:
+- **BGE-M3**（ドキュメント用Embedding）→ `~/models/bge-m3/`
+- **CodeSage-small-v2**（コード用Embedding）→ `~/models/codesage-small-v2/`
+
+> **補足**: キーワード検索（BM25）のみを使用する場合は、このステップは不要です。
+
+### Step 8.7: ナレッジベースの初期化（オプション）
+
+Nablarch公式ドキュメントのEmbeddingデータをデータベースに取り込みます。
+
+```bash
+# ナレッジベース初期化スクリプトの実行（20-30分かかります）
+$ bash scripts/init-knowledge.sh
+```
+
+このスクリプトは以下を自動実行します:
+1. pgvectorコンテナの起動確認
+2. PostgreSQL接続待機
+3. Nablarch公式ドキュメント（467ページ・1485チャンク）のEmbedding取込
+4. 取込結果サマリ表示
+
+> **補足**: init-knowledge.sh なしでもキーワード検索モード（BM25）で動作します。セマンティック検索（ベクトル検索）を使う場合のみ初回実行が必要です。
+
 ---
 
 ## サーバーの起動と確認
@@ -327,8 +374,8 @@ $ java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
  :: Spring Boot ::                (v3.4.2)
 
 2026-02-07T10:20:00.123+09:00  INFO 12345 --- [nablarch-mcp-server] [main] c.t.n.m.NablarchMcpServerApplication     : Starting NablarchMcpServerApplication v0.1.0-SNAPSHOT
-2026-02-07T10:20:01.234+09:00  INFO 12345 --- [nablarch-mcp-server] [main] c.t.n.m.s.k.KnowledgeBaseLoader          : Loaded 6 handler constraints from knowledge/handler-constraints.yaml
-2026-02-07T10:20:01.345+09:00  INFO 12345 --- [nablarch-mcp-server] [main] c.t.n.m.s.k.KnowledgeBaseLoader          : Loaded 42 handlers from knowledge/handler-catalog.yaml
+2026-02-07T10:20:01.234+09:00  INFO 12345 --- [nablarch-mcp-server] [main] c.t.n.m.k.NablarchKnowledgeBase          : Loaded 6 handler constraints from knowledge/handler-constraints.yaml
+2026-02-07T10:20:01.345+09:00  INFO 12345 --- [nablarch-mcp-server] [main] c.t.n.m.k.NablarchKnowledgeBase          : Loaded 42 handlers from knowledge/handler-catalog.yaml
 2026-02-07T10:20:01.456+09:00  INFO 12345 --- [nablarch-mcp-server] [main] c.t.n.m.NablarchMcpServerApplication     : Started NablarchMcpServerApplication in 1.456 seconds (process running for 1.789)
 ```
 
@@ -522,7 +569,7 @@ MCP Inspectorの左メニューから **「Tools」** を選択します。
 
 左メニューから **「Resources」** を選択します。
 
-**表示されるべきResources（8種）**:
+**表示されるべきResources（16種）**:
 
 | URI | 説明 |
 |-----|------|
@@ -530,9 +577,18 @@ MCP Inspectorの左メニューから **「Tools」** を選択します。
 | `nablarch://handler/rest` | RESTアプリケーションのハンドラキュー仕様 |
 | `nablarch://handler/batch` | バッチアプリケーションのハンドラキュー仕様 |
 | `nablarch://handler/messaging` | メッセージングのハンドラキュー仕様 |
+| `nablarch://handler/http-messaging` | HTTPメッセージングのハンドラキュー仕様 |
+| `nablarch://handler/jakarta-batch` | Jakarta Batchのハンドラキュー仕様 |
 | `nablarch://guide/setup` | プロジェクトセットアップガイド |
+| `nablarch://guide/testing` | テストパターンガイド |
+| `nablarch://guide/validation` | バリデーションガイド |
 | `nablarch://guide/database` | データベースアクセスガイド |
-| ... | 他6種（API仕様、設計パターン、アンチパターン、設定例、バージョン情報等） |
+| `nablarch://guide/handler-queue` | ハンドラキューアーキテクチャガイド |
+| `nablarch://guide/error-handling` | エラーハンドリングガイド |
+| `nablarch://api/modules` | APIモジュールカタログ |
+| `nablarch://pattern/list` | デザインパターンカタログ |
+| `nablarch://example/list` | サンプルコードカタログ |
+| `nablarch://config/list` | 設定テンプレートカタログ |
 
 ### Step 13: Prompts の確認
 

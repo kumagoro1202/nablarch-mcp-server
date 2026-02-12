@@ -37,7 +37,41 @@ cd nablarch-mcp-server
 target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
-### 3. 動作確認（単体）
+### 3. データベースの準備
+
+Docker Composeでpgvectorデータベースを起動します。
+
+```bash
+docker compose up -d
+```
+
+### 4. ONNXモデルのダウンロード（オプション）
+
+ベクトル検索（セマンティック検索）を使用する場合は、ONNXモデルを事前にダウンロードします。
+
+```bash
+bash scripts/download-models.sh
+```
+
+ダウンロードされるモデル:
+- **BGE-M3**（ドキュメント用Embedding）→ `~/models/bge-m3/`
+- **CodeSage-small-v2**（コード用Embedding）→ `~/models/codesage-small-v2/`
+
+> キーワード検索（BM25）のみで使用する場合は、このステップは不要です。
+
+### 5. ナレッジベースの初期化（オプション）
+
+Nablarch公式ドキュメントのEmbeddingデータをデータベースに取り込みます。
+
+```bash
+bash scripts/init-knowledge.sh
+```
+
+所要時間は約20-30分です（467ページ分のHTML取得・チャンク分割・Embedding生成）。
+
+> init-knowledge.sh なしでもキーワード検索モード（BM25）で動作します。セマンティック検索を使う場合のみ初回実行が必要です。
+
+### 6. 動作確認（単体）
 
 サーバーが正しく起動するか確認します。
 

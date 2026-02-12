@@ -140,8 +140,8 @@ Spring Bootの設定は以下の優先順で適用されます（下に行くほ
 | キー | デフォルト値 | 説明 |
 |------|------------|------|
 | `nablarch.mcp.embedding.local.document.model-name` | `BAAI/bge-m3` | HuggingFaceモデルID |
-| `nablarch.mcp.embedding.local.document.model-path` | `${EMBEDDING_MODEL_PATH:/opt/models/bge-m3}/model.onnx` | ONNXモデルパス |
-| `nablarch.mcp.embedding.local.document.tokenizer-path` | `${EMBEDDING_MODEL_PATH:/opt/models/bge-m3}` | トークナイザーパス |
+| `nablarch.mcp.embedding.local.document.model-path` | `${EMBEDDING_MODEL_PATH:${user.home}/models/bge-m3}/model.onnx` | ONNXモデルパス |
+| `nablarch.mcp.embedding.local.document.tokenizer-path` | `${EMBEDDING_MODEL_PATH:${user.home}/models/bge-m3}` | トークナイザーパス |
 | `nablarch.mcp.embedding.local.document.dimensions` | `1024` | ベクトル次元数 |
 | `nablarch.mcp.embedding.local.document.max-tokens` | `512` | 最大トークン数 |
 | `nablarch.mcp.embedding.local.document.batch-size` | `32` | バッチサイズ（メモリ使用量に影響） |
@@ -151,8 +151,8 @@ Spring Bootの設定は以下の優先順で適用されます（下に行くほ
 | キー | デフォルト値 | 説明 |
 |------|------------|------|
 | `nablarch.mcp.embedding.local.code.model-name` | `codesage/codesage-small-v2` | HuggingFaceモデルID |
-| `nablarch.mcp.embedding.local.code.model-path` | `${EMBEDDING_MODEL_PATH:/opt/models/codesage-small-v2}/model.onnx` | ONNXモデルパス |
-| `nablarch.mcp.embedding.local.code.tokenizer-path` | `${EMBEDDING_MODEL_PATH:/opt/models/codesage-small-v2}` | トークナイザーパス |
+| `nablarch.mcp.embedding.local.code.model-path` | `${EMBEDDING_MODEL_PATH:${user.home}/models/codesage-small-v2}/model.onnx` | ONNXモデルパス |
+| `nablarch.mcp.embedding.local.code.tokenizer-path` | `${EMBEDDING_MODEL_PATH:${user.home}/models/codesage-small-v2}` | トークナイザーパス |
 | `nablarch.mcp.embedding.local.code.dimensions` | `1024` | ベクトル次元数 |
 | `nablarch.mcp.embedding.local.code.max-tokens` | `512` | 最大トークン数 |
 | `nablarch.mcp.embedding.local.code.batch-size` | `32` | バッチサイズ |
@@ -193,11 +193,14 @@ Spring Bootの設定は以下の優先順で適用されます（下に行くほ
 
 ### 3.8 ログ設定
 
-| キー | デフォルト値 | 説明 | 変更例 |
-|------|------------|------|--------|
-| `logging.pattern.console` | （空） | コンソールログ抑制（STDIO干渉防止） | 変更不要 |
-| `logging.level.root` | `WARN` | ルートロガーレベル | 開発時は`INFO` |
-| `logging.level.com.tis.nablarch.mcp` | `INFO` | nablarch-mcp-server内部ログ | デバッグ時は`DEBUG` |
+ログ設定は `src/main/resources/logback-spring.xml` で管理しています。Springプロファイルに応じて出力先・フォーマットが切り替わります。
+
+| プロファイル | 出力先 | フォーマット | ルートレベル | アプリレベル |
+|------------|--------|------------|------------|------------|
+| デフォルト（STDIO） | stderr | プレーンテキスト | `WARN` | `INFO` |
+| http | stdout | JSON構造化ログ（Logstash形式） | `INFO` | `DEBUG` |
+
+STDIOモードではMCPプロトコルに干渉しないよう、ログを stderr に出力します。HTTPモードでは ELK/Loki 等のログ集約ツールと互換性のある JSON 構造化ログを使用します。
 
 ---
 
@@ -238,11 +241,18 @@ Spring Bootの設定は以下の優先順で適用されます（下に行くほ
 
 ### 4.5 ログ設定
 
-| キー | 値 | 説明 |
-|------|-----|------|
-| `logging.pattern.console` | `%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n` | ログフォーマット（HTTPモードでは出力可） |
-| `logging.level.root` | `INFO` | HTTPモードではINFO推奨 |
-| `logging.level.com.tis.nablarch.mcp` | `DEBUG` | デバッグログ有効化 |
+HTTPモードのログ設定は `logback-spring.xml` で管理されています（`application-http.yaml` には記載していません）。
+
+HTTPプロファイルでは Logstash JSON 構造化ログが自動適用されます:
+
+```
+# logback-spring.xml（httpプロファイル時）
+- 出力: JSON構造化ログ（LogstashEncoder）
+- ルートレベル: INFO
+- アプリレベル: DEBUG（com.tis.nablarch.mcp）
+- タイムゾーン: Asia/Tokyo
+- MDC: requestId を含む
+```
 
 ---
 
@@ -262,10 +272,10 @@ Spring Bootの設定は以下の優先順で適用されます（下に行くほ
 
 ```bash
 # STDIOモード（デフォルト）
-java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 
 # HTTPモード
-java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar --spring.profiles.active=http
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar --spring.profiles.active=http
 ```
 
 #### 方法2: 環境変数
@@ -273,7 +283,7 @@ java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar --spring.profiles.active
 ```bash
 # HTTPモード
 export SPRING_PROFILES_ACTIVE=http
-java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
 #### 方法3: application.yaml に記載（非推奨）
@@ -410,7 +420,7 @@ export SPRING_DATASOURCE_PASSWORD=secure_password_here
 export JINA_API_KEY=jina_xxxxxxxxxxxxxxxxxxxx
 export VOYAGE_API_KEY=pa-xxxxxxxxxxxxxxxxxxxx
 
-java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
 #### Windows (PowerShell)
@@ -419,7 +429,7 @@ java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar
 $env:SPRING_DATASOURCE_PASSWORD = "secure_password_here"
 $env:JINA_API_KEY = "jina_xxxxxxxxxxxxxxxxxxxx"
 
-java -jar target\nablarch-mcp-server-0.2.0-SNAPSHOT.jar
+java -jar target\nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
 #### Docker Compose
@@ -450,7 +460,7 @@ set -a
 source .env
 set +a
 
-java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar
 ```
 
 ⚠️ **本番環境では推奨しません**。AWS Secrets Manager、HashiCorp Vault等のシークレット管理サービスを使用してください。
@@ -509,7 +519,7 @@ mcp:
 **起動方法**:
 
 ```bash
-java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar \
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar \
   --spring.profiles.active=http \
   --server.port=443
 ```
@@ -548,7 +558,7 @@ export SPRING_DATASOURCE_PASSWORD=<RDSパスワード>
 **コマンドライン引数で一時的に変更**:
 
 ```bash
-java -jar target/nablarch-mcp-server-0.2.0-SNAPSHOT.jar \
+java -jar target/nablarch-mcp-server-0.1.0-SNAPSHOT.jar \
   --logging.level.com.tis.nablarch.mcp=DEBUG \
   --logging.level.org.springframework.web.client=DEBUG
 ```
