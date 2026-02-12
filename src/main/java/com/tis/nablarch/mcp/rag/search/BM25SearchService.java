@@ -35,9 +35,11 @@ public class BM25SearchService {
     private static final Logger log = LoggerFactory.getLogger(BM25SearchService.class);
 
     /**
-     * PostgreSQL FTSの辞書設定。日本語形態素解析を使用する。
+     * PostgreSQL FTSの辞書設定。simpleトークナイザーを使用する。
+     * 日本語形態素解析（pgroonga/pg_bigm）未導入のため、
+     * スペース/句読点区切りの基本的なトークン化で検索する。
      */
-    private static final String FTS_CONFIG = "japanese";
+    private static final String FTS_CONFIG = "simple";
 
     /**
      * ts_rank_cdの正規化フラグ。
@@ -99,6 +101,8 @@ public class BM25SearchService {
     private List<SearchResult> searchTable(
             String tableName, String tsQuery, SearchFilters filters, int topK) {
 
+        boolean isDocTable = "document_chunks".equals(tableName);
+
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT id, content, ");
         sql.append("ts_rank_cd(");
@@ -106,7 +110,12 @@ public class BM25SearchService {
         sql.append("to_tsquery('").append(FTS_CONFIG).append("', :ts_query), ");
         sql.append(RANK_NORMALIZATION);
         sql.append(") AS bm25_score, ");
-        sql.append("metadata, source_url ");
+        sql.append("module, language, ");
+        if (isDocTable) {
+            sql.append("source, source_type, app_type, url ");
+        } else {
+            sql.append("repo, chunk_type, file_path ");
+        }
         sql.append("FROM ").append(tableName).append(" ");
         sql.append("WHERE to_tsvector('").append(FTS_CONFIG).append("', content) ");
         sql.append("@@ to_tsquery('").append(FTS_CONFIG).append("', :ts_query)");
@@ -114,7 +123,7 @@ public class BM25SearchService {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("ts_query", tsQuery);
 
-        appendFilters(sql, params, filters);
+        appendFilters(sql, params, filters, isDocTable);
 
         sql.append(" ORDER BY bm25_score DESC");
         sql.append(" LIMIT :top_k");
@@ -122,7 +131,8 @@ public class BM25SearchService {
 
         log.debug("BM25検索SQL ({}): {}", tableName, sql);
 
-        return jdbcTemplate.query(sql.toString(), params, this::mapRow);
+        return jdbcTemplate.query(sql.toString(), params,
+                (rs, rowNum) -> mapRow(rs, rowNum, isDocTable));
     }
 
     /**
@@ -171,29 +181,34 @@ public class BM25SearchService {
      * @param sql SQL文字列ビルダー
      * @param params パラメータソース
      * @param filters フィルタ条件
+     * @param isDocTable document_chunksテーブルの場合true
      */
     private void appendFilters(
-            StringBuilder sql, MapSqlParameterSource params, SearchFilters filters) {
+            StringBuilder sql, MapSqlParameterSource params, SearchFilters filters,
+            boolean isDocTable) {
 
-        if (filters.appType() != null) {
-            sql.append(" AND metadata->>'app_type' = :app_type");
-            params.addValue("app_type", filters.appType());
-        }
         if (filters.module() != null) {
-            sql.append(" AND metadata->>'module' = :module");
+            sql.append(" AND module = :module");
             params.addValue("module", filters.module());
         }
-        if (filters.source() != null) {
-            sql.append(" AND metadata->>'source' = :source");
-            params.addValue("source", filters.source());
-        }
-        if (filters.sourceType() != null) {
-            sql.append(" AND metadata->>'source_type' = :source_type");
-            params.addValue("source_type", filters.sourceType());
-        }
         if (filters.language() != null) {
-            sql.append(" AND metadata->>'language' = :language");
+            sql.append(" AND language = :language");
             params.addValue("language", filters.language());
+        }
+        // document_chunks固有カラム
+        if (isDocTable) {
+            if (filters.appType() != null) {
+                sql.append(" AND app_type = :app_type");
+                params.addValue("app_type", filters.appType());
+            }
+            if (filters.source() != null) {
+                sql.append(" AND source = :source");
+                params.addValue("source", filters.source());
+            }
+            if (filters.sourceType() != null) {
+                sql.append(" AND source_type = :source_type");
+                params.addValue("source_type", filters.sourceType());
+            }
         }
     }
 
@@ -202,42 +217,47 @@ public class BM25SearchService {
      *
      * @param rs ResultSet
      * @param rowNum 行番号
+     * @param isDocTable document_chunksテーブルの場合true
      * @return SearchResult
      * @throws SQLException SQL例外
      */
-    private SearchResult mapRow(ResultSet rs, int rowNum) throws SQLException {
-        String metadataJson = rs.getString("metadata");
-        Map<String, String> metadata = parseMetadata(metadataJson);
+    private SearchResult mapRow(ResultSet rs, int rowNum, boolean isDocTable) throws SQLException {
+        Map<String, String> metadata = new HashMap<>();
+        putIfNotNull(metadata, "module", rs.getString("module"));
+        putIfNotNull(metadata, "language", rs.getString("language"));
+
+        String sourceUrl;
+        if (isDocTable) {
+            putIfNotNull(metadata, "source", rs.getString("source"));
+            putIfNotNull(metadata, "source_type", rs.getString("source_type"));
+            putIfNotNull(metadata, "app_type", rs.getString("app_type"));
+            sourceUrl = rs.getString("url");
+        } else {
+            putIfNotNull(metadata, "repo", rs.getString("repo"));
+            putIfNotNull(metadata, "chunk_type", rs.getString("chunk_type"));
+            putIfNotNull(metadata, "file_path", rs.getString("file_path"));
+            sourceUrl = rs.getString("file_path");
+        }
 
         return new SearchResult(
                 rs.getString("id"),
                 rs.getString("content"),
                 rs.getDouble("bm25_score"),
                 metadata,
-                rs.getString("source_url")
+                sourceUrl
         );
     }
 
     /**
-     * JSONB文字列をMap&lt;String, String&gt;に変換する。
+     * null以外の値をマップに追加する。
      *
-     * <p>簡易的なJSONパースを行う。本番環境ではJacksonのObjectMapperを
-     * 使用することを推奨する。</p>
-     *
-     * @param json JSONB文字列
-     * @return メタデータマップ
+     * @param map 追加先マップ
+     * @param key キー
+     * @param value 値（nullの場合は追加しない）
      */
-    @SuppressWarnings("unchecked")
-    private Map<String, String> parseMetadata(String json) {
-        if (json == null || json.isBlank()) {
-            return Map.of();
-        }
-        try {
-            var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            return mapper.readValue(json, Map.class);
-        } catch (Exception e) {
-            log.warn("メタデータのパースに失敗: {}", e.getMessage());
-            return Map.of();
+    private void putIfNotNull(Map<String, String> map, String key, String value) {
+        if (value != null && !value.isBlank()) {
+            map.put(key, value);
         }
     }
 

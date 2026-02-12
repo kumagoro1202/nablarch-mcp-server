@@ -39,18 +39,21 @@ nablarch:
       # 使用するプロバイダ: local（推奨・無償）または api（従量課金）
       provider: local
       # ローカルONNXモデル設定（provider: local の場合に使用）
+      # モデルパスは環境変数で個別指定可能:
+      #   EMBEDDING_DOCUMENT_MODEL_PATH: ドキュメント用モデルディレクトリ
+      #   EMBEDDING_CODE_MODEL_PATH: コード用モデルディレクトリ
       local:
         document:
           model-name: BAAI/bge-m3
-          model-path: ${EMBEDDING_MODEL_PATH:/opt/models/bge-m3}/model.onnx
-          tokenizer-path: ${EMBEDDING_MODEL_PATH:/opt/models/bge-m3}
+          model-path: ${EMBEDDING_DOCUMENT_MODEL_PATH:${EMBEDDING_MODEL_PATH:${user.home}/models/bge-m3}}/model.onnx
+          tokenizer-path: ${EMBEDDING_DOCUMENT_MODEL_PATH:${EMBEDDING_MODEL_PATH:${user.home}/models/bge-m3}}
           dimensions: 1024
           max-tokens: 512
           batch-size: 32
         code:
           model-name: codesage/codesage-small-v2
-          model-path: ${EMBEDDING_MODEL_PATH:/opt/models/codesage-small-v2}/model.onnx
-          tokenizer-path: ${EMBEDDING_MODEL_PATH:/opt/models/codesage-small-v2}
+          model-path: ${EMBEDDING_CODE_MODEL_PATH:${EMBEDDING_MODEL_PATH:${user.home}/models/codesage-small-v2}}/model.onnx
+          tokenizer-path: ${EMBEDDING_CODE_MODEL_PATH:${EMBEDDING_MODEL_PATH:${user.home}/models/codesage-small-v2}}
           dimensions: 1024
           max-tokens: 512
           batch-size: 32
