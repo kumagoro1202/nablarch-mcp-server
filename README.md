@@ -17,7 +17,7 @@ Nablarchはミッションクリティカルシステム向けのJavaアプリ�
 
 - **Tools**（10個）: セマンティック検索、ハンドラキュー設計、コード生成、設定XML検証、API検索、テスト生成、トラブルシューティング、マイグレーション分析、パターン推奨、ハンドラキュー最適化
 - **Resources**（8 URIパターン）: ハンドラカタログ、APIリファレンス、設計パターン、学習ガイド、サンプルコード、設定テンプレート、アンチパターン、バージョン情報
-- **Prompts**（6テンプレート）: Webアプリ作成、REST API作成、バッチ作成、ハンドラキュー設計、コードレビュー、トラブルシューティング
+- **Prompts**（6テンプレート）: ハンドラキュー設計（setup-handler-queue）、アクション作成（create-action）、設定レビュー（review-config）、ハンドラ解説（explain-handler）、移行ガイド（migration-guide）、ベストプラクティス（best-practices）
 - **RAGパイプライン**: Nablarch公式ドキュメント・GitHub 113リポジトリ・Javadoc・Fintanコンテンツに対するハイブリッド検索（BM25 + ベクトル類似度）
 
 ## アーキテクチャ
@@ -43,7 +43,7 @@ Nablarchはミッションクリティカルシステム向けのJavaアプリ�
 │  ┌──────────────────────────▼──────────────────────────────────┐ │
 │  │                   RAGエンジン（内蔵）                         │ │
 │  │   セマンティック検索  |  ハイブリッド検索  |  リランキング       │ │
-│  │   Doc Embedder (Jina v4)  |  Code Embedder (Voyage-code-3) │ │
+│  │   Doc Embedder (ONNX bge-m3)  |  Code Embedder (ONNX CodeSage) │ │
 │  └──────────────────────────┬──────────────────────────────────┘ │
 │                              │                                    │
 │  ┌──────────────────────────▼──────────────────────────────────┐ │
@@ -127,8 +127,8 @@ docker compose up
 | ビルド | Maven 3.9.x | Nablarchエコシステムとの整合性 |
 | テスト | JUnit 5 + Spring Test | 標準的なJavaテスト |
 | ベクトルDB | PostgreSQL + pgvector | SQL + ベクトル検索統合、コスト効率 |
-| ドキュメントEmbedding | Jina embeddings-v4 | 89言語対応、32Kコンテキスト、OSS |
-| コードEmbedding | Voyage-code-3 | Java/XMLに最高水準のEmbedding |
+| ドキュメントEmbedding | BAAI/bge-m3（ONNX）/ Jina v4（API fallback） | ローカル無償、プロファイル切替可能 |
+| コードEmbedding | CodeSage-small-v2（ONNX）/ Voyage-code-3（API fallback） | ローカル無償、プロファイル切替可能 |
 | リランキング | Cross-Encoder | ハイブリッド検索の精度向上 |
 | トランスポート | STDIO / Streamable HTTP | ローカル開発 + リモートチーム共有 |
 
@@ -175,7 +175,7 @@ RAGパイプラインは以下のNablarch関連情報源をインデックス化
 ### Phase 2: RAGエンジン統合（✅ 完了）
 - [x] pgvectorセットアップ + スキーマ定義
 - [x] ドキュメント取込みパイプライン
-- [x] デュアルEmbedding（Jina v4 + Voyage-code-3）
+- [x] デュアルEmbedding（ローカルONNX / API切替可能）
 - [x] `semantic_search` ツール
 - [x] ハイブリッド検索（BM25 + ベクトル検索）
 - [x] リランキング（Cross-Encoder）

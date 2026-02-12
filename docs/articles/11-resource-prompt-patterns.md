@@ -54,7 +54,7 @@ nablarch://{resource_type}/{resource_key}
 
 例:
 - `nablarch://handler/web` → ハンドラカタログの「web」タイプ
-- `nablarch://api/common-dao/UniversalDao` → APIリファレンスの「common-dao」モジュールの「UniversalDao」クラス
+- `nablarch://api/modules` → APIモジュールカタログ（全モジュール一覧）
 - `nablarch://pattern/form-validation-pattern` → パターンカタログの「form-validation-pattern」
 
 このURI設計により、AIクライアントは「どこに何があるか」を理解しやすくなります。
@@ -71,12 +71,12 @@ Nablarch MCP Serverは以下の8種類のResourceを提供します。
 |---|-------------|------------------|-----------|------|
 | 1 | Handler | `nablarch://handler/` | `text/markdown` | アプリタイプ別ハンドラキュー仕様 |
 | 2 | Guide | `nablarch://guide/` | `text/markdown` | トピック別開発ガイド |
-| 3 | API | `nablarch://api/` | `application/json` | モジュール・クラスAPIリファレンス |
+| 3 | API | `nablarch://api/modules` | `application/json` | モジュールAPIカタログ |
 | 4 | Pattern | `nablarch://pattern/` | `text/markdown` | 設計パターンカタログ |
-| 5 | Antipattern | `nablarch://antipattern/` | `text/markdown` | アンチパターンと修正方法 |
-| 6 | Config | `nablarch://config/` | `application/xml` | XML設定テンプレート |
-| 7 | Example | `nablarch://example/` | `application/json` | サンプルアプリケーションコード |
-| 8 | Version | `nablarch://version` | `application/json` | バージョン情報（キーなし） |
+| 5 | Antipattern | `nablarch://antipattern/list` | `application/json` | アンチパターンと修正方法 |
+| 6 | Config | `nablarch://config/list` | `text/plain` | XML設定テンプレート |
+| 7 | Example | `nablarch://example/list` | `application/json` | サンプルアプリケーションコード |
+| 8 | Version | `nablarch://version/info` | `application/json` | バージョン情報 |
 
 ### URIパターンの階層構造
 
@@ -84,16 +84,12 @@ Nablarch MCP Serverは以下の8種類のResourceを提供します。
 graph TD
     A[nablarch://] --> B1[handler/{app_type}]
     A --> B2[guide/{topic}]
-    A --> B3[api/]
-    A --> B4[pattern/{name}]
-    A --> B5[antipattern/{name}]
-    A --> B6[config/{name}]
-    A --> B7[example/{type}]
-    A --> B8[version]
-
-    B3 --> C1[api/ モジュール一覧]
-    B3 --> C2[api/{module} クラス一覧]
-    B3 --> C3[api/{module}/{class} クラス詳細]
+    A --> B3[api/modules]
+    A --> B4[pattern/list]
+    A --> B5[antipattern/list]
+    A --> B6[config/list]
+    A --> B7[example/list]
+    A --> B8[version/info]
 
     B1 --> D1[web]
     B1 --> D2[rest]

@@ -32,7 +32,7 @@
 
 ```bash
 # 1. JARファイルをダウンロード（将来的にリリースページから取得可能になる想定）
-# https://github.com/kumanoGoro/nablarch-mcp-server/releases から最新版を取得
+# https://github.com/kumagoro1202/nablarch-mcp-server/releases から最新版を取得
 
 # 2. 実行確認
 java -jar nablarch-mcp-server-x.x.x.jar --help
@@ -45,7 +45,7 @@ java -jar nablarch-mcp-server-x.x.x.jar
 
 ```bash
 # 1. リポジトリをクローン
-git clone https://github.com/kumanoGoro/nablarch-mcp-server.git
+git clone https://github.com/kumagoro1202/nablarch-mcp-server.git
 cd nablarch-mcp-server
 
 # 2. ビルド
@@ -57,43 +57,46 @@ cd nablarch-mcp-server
 
 ビルド成果物は `target/nablarch-mcp-server-x.x.x.jar` に生成される。
 
-### 方法3: Docker Compose（将来対応予定）
+### 方法3: Docker Compose（pgvectorのみ提供中）
 
-RAGエンジン（ベクトルDB等）を含むフルスタック構成での実行を想定。
+RAGエンジンのベクトルDB（PostgreSQL + pgvector）をDocker Composeで起動できる。MCPサーバー自体のコンテナ化はPhase 4-2で対応予定。
 
 ```yaml
-# docker-compose.yml（将来提供予定の想定構成）
-version: '3.8'
+# docker-compose.yml（現在提供中の構成）
 services:
-  nablarch-mcp:
-    image: nablarch-mcp-server:latest
-    ports:
-      - "8080:8080"
-    environment:
-      - TRANSPORT_MODE=http
-      - VECTOR_DB_URL=jdbc:postgresql://pgvector:5432/nablarch_kb
-    depends_on:
-      - pgvector
-
   pgvector:
     image: pgvector/pgvector:pg16
+    container_name: nablarch-mcp-pgvector
+    restart: unless-stopped
     environment:
-      - POSTGRES_DB=nablarch_kb
-      - POSTGRES_USER=nablarch
-      - POSTGRES_PASSWORD=changeme
+      POSTGRES_DB: nablarch_mcp
+      POSTGRES_USER: nablarch
+      POSTGRES_PASSWORD: nablarch_dev
+    ports:
+      - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgvector-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nablarch -d nablarch_mcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
-  pgdata:
+  pgvector-data:
 ```
 
 ```bash
-# 起動
+# pgvectorコンテナ起動
 docker compose up -d
 
-# ログ確認
-docker compose logs -f nablarch-mcp
+# ナレッジベース初期化（Embedding取込）
+bash scripts/init-knowledge.sh
+
+# MCPサーバー起動（ローカル）
+./mvnw spring-boot:run
 ```
 
 ### 方法4: リモートサーバーデプロイ（将来対応予定）

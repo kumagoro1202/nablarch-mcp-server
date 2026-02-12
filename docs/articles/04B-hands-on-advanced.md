@@ -27,7 +27,7 @@
 
 | カテゴリ | 本記事で学ぶ内容 |
 |---------|----------------|
-| **Tools（7種）** | validate_handler_queue, generate_code, generate_test, optimize, recommend, analyze_migration, troubleshoot |
+| **Tools（7種）** | validate_handler_queue, generate_code, generate_test, optimize_handler_queue, recommend_pattern, analyze_migration, troubleshoot |
 | **Resources（8種）** | handler, guide, api, pattern, antipattern, config, example, version |
 | **Prompts（6種）** | setup-handler-queue, create-action, review-config, explain-handler, migration-guide, best-practices |
 | **統合** | Claude Desktop / Claude Code での利用方法 |
@@ -204,7 +204,7 @@ Excelテストデータ構造（`UserRegistrationActionRequestTest.xlsx`）も�
 
 ---
 
-### 2.4 optimize --- ハンドラキュー最適化
+### 2.4 optimize_handler_queue --- ハンドラキュー最適化
 
 既存のハンドラキューXML設定を**正確性・セキュリティ・パフォーマンス**の3観点から分析し、最適化提案を生成します。
 
@@ -250,7 +250,7 @@ Excelテストデータ構造（`UserRegistrationActionRequestTest.xlsx`）も�
 
 ---
 
-### 2.5 recommend --- パターン推薦
+### 2.5 recommend_pattern --- パターン推薦
 
 自然言語要件に基づいて、Nablarch固有のデザインパターンをスコアリング付きで推薦します。
 
@@ -399,13 +399,13 @@ nablarch.fw.handler.HandlerQueueEmptyException:
 | # | Tool名 | 用途 | 解説記事 |
 |---|--------|------|---------|
 | 1 | semantic_search | RAGセマンティック検索 | 04A |
-| 2 | design | ハンドラキュー設計 | 04A |
+| 2 | design_handler_queue | ハンドラキュー設計 | 04A |
 | 3 | search_api | APIキーワード検索 | 04A |
 | 4 | validate_handler_queue | ハンドラキュー検証 | 04B（本記事） |
 | 5 | generate_code | コード生成 | 04B（本記事） |
 | 6 | generate_test | テスト生成 | 04B（本記事） |
-| 7 | optimize | ハンドラキュー最適化 | 04B（本記事） |
-| 8 | recommend | パターン推薦 | 04B（本記事） |
+| 7 | optimize_handler_queue | ハンドラキュー最適化 | 04B（本記事） |
+| 8 | recommend_pattern | パターン推薦 | 04B（本記事） |
 | 9 | analyze_migration | 移行影響分析 | 04B（本記事） |
 | 10 | troubleshoot | トラブルシューティング | 04B（本記事） |
 
@@ -421,12 +421,12 @@ ResourcesはAIが参照できる**知識カタログ**です。AIに「ハンド
 |---|---------|------------------|---------|
 | 1 | Handler | `nablarch://handler/{app_type}` | ハンドラカタログ（web/rest/batch/messaging/http-messaging/jakarta-batch） |
 | 2 | Guide | `nablarch://guide/{topic}` | 開発ガイド（setup/testing/validation/database/handler-queue/error-handling） |
-| 3 | API | `nablarch://api/{module}/{class}` | APIリファレンス（モジュール・クラス一覧） |
+| 3 | API | `nablarch://api/modules` | APIリファレンス（モジュール一覧） |
 | 4 | Pattern | `nablarch://pattern/{name}` | 設計パターン（11パターン） |
 | 5 | Antipattern | `nablarch://antipattern/{name}` | アンチパターンと修正方法 |
 | 6 | Config | `nablarch://config/{name}` | XML設定テンプレート（web-xml/web-component/rest-component等） |
 | 7 | Example | `nablarch://example/{type}` | サンプルアプリケーションコード |
-| 8 | Version | `nablarch://version` | フレームワークバージョン情報 |
+| 8 | Version | `nablarch://version/info` | フレームワークバージョン情報 |
 
 ### 3.2 Handler Resource --- ハンドラカタログ
 
@@ -478,7 +478,7 @@ UniversalDao、EntityUtil等のクラス名・FQCN・説明の一覧が返され
 Nablarch固有の設計パターンとアンチパターンを参照できます。
 
 ```
-nablarch://pattern/form-validation-pattern を読んで
+nablarch://pattern/list を読んで
 ```
 
 Bean Validationアノテーション + @InjectFormインターセプタを組み合わせたバリデーション実装パターンが、コード例付きで返されます。
@@ -489,7 +489,7 @@ Bean Validationアノテーション + @InjectFormインターセプタを組み
 |---------|-----------|---------|
 | Config | `nablarch://config/web-component を読んで` | Web用コンポーネント定義XMLテンプレート |
 | Example | `nablarch://example/web を読んで` | Webアプリのサンプルコード |
-| Version | `nablarch://version を読んで` | 最新バージョン、サポートバージョン、BOM情報 |
+| Version | `nablarch://version/info を読んで` | 最新バージョン、サポートバージョン、BOM情報 |
 
 ---
 

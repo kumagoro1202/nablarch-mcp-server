@@ -69,12 +69,12 @@ Phase 3で実装完了した10個のToolを機能別に分類します。
 | # | Tool名 | 分類 | 役割 | 主な入力 | 主な出力 |
 |---|--------|------|------|---------|---------|
 | 1 | **semantic_search** | 検索系 | RAGベースのセマンティック検索 | 自然言語クエリ | 検索結果（Markdown） |
-| 2 | **search_nablarch_api** | 検索系 | 静的知識ベースのキーワード検索 | キーワード、カテゴリ | API情報（Markdown） |
+| 2 | **search_api** | 検索系 | 静的知識ベースのキーワード検索 | キーワード、カテゴリ | API情報（Markdown） |
 | 3 | **design_handler_queue** | 設計系 | ハンドラキュー構成の自動設計 | app_type、要件 | XML設定+説明 |
 | 4 | **recommend_pattern** | 設計系 | 設計パターンの推奨 | シナリオ、問題 | 推奨パターン一覧 |
 | 5 | **generate_code** | 生成系 | Nablarchコード生成 | type、name、app_type | Javaコード |
 | 6 | **generate_test** | 生成系 | テストコード生成 | target_class | JUnitテストコード |
-| 7 | **validate_config** | 検証系 | ハンドラキューXML検証 | XML、app_type | 検証結果（エラー/警告） |
+| 7 | **validate_handler_queue** | 検証系 | ハンドラキューXML検証 | XML、app_type | 検証結果（エラー/警告） |
 | 8 | **troubleshoot** | 分析系 | エラー診断・トラブルシューティング | エラーメッセージ | 原因分析+対策 |
 | 9 | **analyze_migration** | 分析系 | 旧バージョンからの移行分析 | from_version、to_version | 移行ガイド |
 | 10 | **optimize_handler_queue** | 分析系 | ハンドラキュー最適化提案 | 既存XML | 最適化提案 |
@@ -84,7 +84,7 @@ Phase 3で実装完了した10個のToolを機能別に分類します。
 ```mermaid
 graph TD
     A[検索系] --> B[semantic_search]
-    A --> C[search_nablarch_api]
+    A --> C[search_api]
 
     D[設計系] --> E[design_handler_queue]
     D --> F[recommend_pattern]
@@ -92,7 +92,7 @@ graph TD
     G[生成系] --> H[generate_code]
     G --> I[generate_test]
 
-    J[検証系] --> K[validate_config]
+    J[検証系] --> K[validate_handler_queue]
 
     L[分析系] --> M[troubleshoot]
     L --> N[analyze_migration]
@@ -117,7 +117,7 @@ graph TD
 
 **依存関係の特徴**:
 - **検索系Toolは他のToolから呼び出される**: `semantic_search`は`design_handler_queue`や`generate_code`の内部でRAG検索に使われる
-- **検証系Toolは設計系・分析系の後工程**: `validate_config`は設計後の検証に使用
+- **検証系Toolは設計系・分析系の後工程**: `validate_handler_queue`は設計後の検証に使用
 - **分析系Toolは既存資産の改善**: 既存コード・設定を入力として改善提案を出力
 
 ---
@@ -963,7 +963,7 @@ graph LR
 
 ### 5.2 設計系 → 検証系の連携
 
-`design_handler_queue`で生成したXMLを`validate_config`で検証する連鎖パターン。
+`design_handler_queue`で生成したXMLを`validate_handler_queue`で検証する連鎖パターン。
 
 **AIアシスタントの動作例**:
 
@@ -973,7 +973,7 @@ graph LR
 AI: design_handler_queue(appType="web") 呼び出し
     → XML設定を取得
     ↓
-AI: validate_config(handlerQueueXml=<生成XML>, applicationType="web") 呼び出し
+AI: validate_handler_queue(handlerQueueXml=<生成XML>, applicationType="web") 呼び出し
     → 検証結果を取得
     ↓
 AI: 「以下のXML設定を使用してください。検証結果: OK」
@@ -1002,7 +1002,7 @@ public String design(String appType, String requirements) {
 
 **ポイント**:
 - `design_handler_queue`は生成時に自動検証を実行
-- AIアシスタントは追加で`validate_config`を呼ぶこともできる（二重チェック）
+- AIアシスタントは追加で`validate_handler_queue`を呼ぶこともできる（二重チェック）
 - 検証結果が`NG`の場合、AIは修正指示を出す
 
 ### 5.3 生成系 → 分析系の連携
@@ -1091,7 +1091,7 @@ public class GenerateTool {
 #### 原則2: AIフレンドリーな命名とdescription
 
 **命名規則**:
-- **Tool名**: 動詞 + 目的語（例: `search_api`, `validate_config`, `generate_code`）
+- **Tool名**: 動詞 + 目的語（例: `search_api`, `validate_handler_queue`, `generate_code`）
 - **descriptionは英語で記述**: AIアシスタントが理解しやすい
 - **descriptionは具体的に**: 「何をするToolか」「いつ使うべきか」を明示
 
@@ -1226,10 +1226,10 @@ private String formatResult(List<SearchResult> results) {
 ### 本記事で学んだこと
 
 1. **10 Toolの分類と役割**:
-   - 検索系（semantic_search、search_nablarch_api）
+   - 検索系（semantic_search、search_api）
    - 設計系（design_handler_queue、recommend_pattern）
    - 生成系（generate_code、generate_test）
-   - 検証系（validate_config）
+   - 検証系（validate_handler_queue）
    - 分析系（troubleshoot、analyze_migration、optimize_handler_queue）
 
 2. **Tool実装の共通パターン**:
@@ -1291,7 +1291,7 @@ Toolが「AIの手足」なら、**Resourceは「AIの記憶」**です。次回
 - [API仕様書](../06-api-specification.md) — 全Tool/Resource/Promptの仕様
 - [アーキテクチャ設計書](../02-architecture.md) — システム全体設計
 - [設計書: search_api Tool](../designs/04_tool-search-api.md)
-- [設計書: validate_config Tool](../designs/05_tool-validate-config.md)
+- [設計書: validate_handler_queue Tool](../designs/05_tool-validate-config.md)
 - [設計書: design_handler_queue Tool](../designs/15_tool-design-handler-queue.md)
 - [設計書: generate_code Tool](../designs/16_tool-generate-code.md)
 
