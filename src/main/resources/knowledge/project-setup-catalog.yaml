@@ -1,0 +1,104 @@
+# Nablarch Project Setup Catalog
+# Mavenアーキタイプによるプロジェクト初期構築の知識
+# Version: 1.0
+# Reference: https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/index.html
+# FQCN検証: 公式ドキュメントで確認（2026-02-12）
+
+blank_project:
+  description: |
+    Nablarch公式Mavenアーキタイプによるブランクプロジェクト生成。
+    各アプリケーションタイプ（Web/REST/バッチ/メッセージング）に対応した
+    プロジェクトの雛形をMaven archetypeコマンドで生成できる。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/index.html"
+
+  archetypes:
+    - name: nablarch-web-archetype
+      description: "JSPベースのWebアプリケーション用ブランクプロジェクト。Nablarchのハンドラキュー・アクション・フォーム構成を含む"
+      usage: |
+        mvn archetype:generate -DarchetypeGroupId=com.nablarch.archetype -DarchetypeArtifactId=nablarch-web-archetype -DarchetypeVersion=6u2
+      source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/setup_blankProject/setup_Web.html"
+
+    - name: nablarch-jaxrs-archetype
+      description: "JAX-RSベースのRESTful Webサービス用ブランクプロジェクト。JSON APIエンドポイントの構成を含む"
+      usage: |
+        mvn archetype:generate -DarchetypeGroupId=com.nablarch.archetype -DarchetypeArtifactId=nablarch-jaxrs-archetype -DarchetypeVersion=6u2
+      source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/setup_blankProject/setup_WebService.html"
+
+    - name: nablarch-batch-archetype
+      description: "Nablarchバッチアプリケーション用ブランクプロジェクト。都度起動バッチ（DataReader＋Action構成）の雛形を含む"
+      usage: |
+        mvn archetype:generate -DarchetypeGroupId=com.nablarch.archetype -DarchetypeArtifactId=nablarch-batch-archetype -DarchetypeVersion=6u2
+      source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/setup_blankProject/setup_NablarchBatch.html"
+
+    - name: nablarch-batch-ee-archetype
+      description: "JSR352(jBatch)準拠のバッチアプリケーション用ブランクプロジェクト。Batchlet/Chunk構成の雛形を含む"
+      usage: |
+        mvn archetype:generate -DarchetypeGroupId=com.nablarch.archetype -DarchetypeArtifactId=nablarch-batch-ee-archetype -DarchetypeVersion=6u2
+      source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/setup_blankProject/setup_NablarchBatchEE.html"
+
+    - name: nablarch-messaging-archetype
+      description: "MOMメッセージング（応答不要受信）用ブランクプロジェクト。メッセージキュー連携の構成を含む"
+      usage: |
+        mvn archetype:generate -DarchetypeGroupId=com.nablarch.archetype -DarchetypeArtifactId=nablarch-messaging-archetype -DarchetypeVersion=6u2
+      source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/setup_blankProject/setup_NablarchMessaging.html"
+
+    - name: nablarch-container-archetype
+      description: "コンテナ環境（Docker/Kubernetes）向けWebアプリケーション用ブランクプロジェクト"
+      usage: |
+        mvn archetype:generate -DarchetypeGroupId=com.nablarch.archetype -DarchetypeArtifactId=nablarch-container-archetype -DarchetypeVersion=6u2
+      source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/setup_blankProject/setup_Web.html"
+
+setup_guide:
+  description: |
+    ブランクプロジェクトの初期セットアップ手順。
+    アーキタイプ生成後の共通設定（DB接続、コンポーネント定義、ログ設定等）を含む。
+  source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/index.html"
+
+  steps:
+    - name: Maven archetype generate
+      description: "mvn archetype:generateコマンドでブランクプロジェクトを生成する初期手順"
+      usage: |
+        mvn archetype:generate \
+          -DarchetypeGroupId=com.nablarch.archetype \
+          -DarchetypeArtifactId=<archetype-name> \
+          -DarchetypeVersion=6u2 \
+          -DgroupId=com.example \
+          -DartifactId=myapp \
+          -Dversion=1.0.0
+
+    - name: gsp-dba-maven-plugin setup
+      description: "DB環境構築用のgsp-dba-maven-pluginによるテーブル自動生成セットアップ"
+      usage: |
+        # Entity定義からDDLを生成しDBに反映
+        mvn -P gsp generate-resources
+      source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/addin_gsp.html"
+
+    - name: waitt-maven-plugin setup
+      description: "開発用組み込みサーバー（WAITT）によるWebアプリケーション起動セットアップ"
+      usage: |
+        # 組み込みTomcatでアプリ起動
+        mvn waitt:run
+      source_url: "https://nablarch.github.io/docs/LATEST/doc/application_framework/application_framework/blank_project/setup_blankProject/setup_Web.html"
+
+example_projects:
+  description: |
+    Nablarch公式のサンプルプロジェクト一覧。
+    各アプリケーションタイプの実装パターンを学ぶためのリファレンス実装。
+  source_url: "https://github.com/nablarch"
+
+  projects:
+    - name: nablarch-example-web
+      description: "Webアプリケーションのサンプルプロジェクト。プロジェクト検索・登録・更新・削除の実装例"
+      source_url: "https://github.com/nablarch/nablarch-example-web"
+
+    - name: nablarch-example-batch
+      description: "都度起動バッチのサンプルプロジェクト。DataReaderによるDB読み取り＋Action処理の実装例"
+      source_url: "https://github.com/nablarch/nablarch-example-batch"
+
+    - name: nablarch-example-batch-ee
+      description: "JSR352バッチのサンプルプロジェクト。Batchlet/Chunk構成の実装例"
+      source_url: "https://github.com/nablarch/nablarch-example-batch-ee"
+
+    - name: nablarch-example-rest
+      description: "RESTful Webサービスのサンプルプロジェクト。JAX-RSによるJSON API実装例"
+      source_url: "https://github.com/nablarch/nablarch-example-rest"

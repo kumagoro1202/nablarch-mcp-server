@@ -199,7 +199,7 @@ public class BM25SearchService {
             boolean isDocTable) {
 
         if (filters.module() != null) {
-            sql.append(" AND module = :module");
+            sql.append(" AND (module = :module OR module IS NULL)");
             params.addValue("module", filters.module());
         }
         if (filters.language() != null) {
@@ -208,7 +208,7 @@ public class BM25SearchService {
         }
         if (isDocTable) {
             if (filters.appType() != null) {
-                sql.append(" AND app_type = :app_type");
+                sql.append(" AND (app_type = :app_type OR app_type IS NULL)");
                 params.addValue("app_type", filters.appType());
             }
             if (filters.source() != null) {

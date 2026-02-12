@@ -302,4 +302,30 @@ class NablarchKnowledgeBaseIntegrationTest {
                     keyword + "の検索結果に" + expectedFqcn + "が含まれない。結果: " + results);
         }
     }
+
+    @Nested
+    class トークン化検索 {
+        @Test
+        void batchカテゴリでスペース区切りキーワードが検索できる() {
+            List<String> results = kb.search("batch action DataReader", "batch");
+            assertFalse(results.isEmpty(),
+                    "search_api: keyword='batch action DataReader', category=batch で結果が空");
+        }
+
+        @Test
+        void アーキタイプ知識が検索できる() {
+            List<String> results = kb.search("archetype Maven project setup", null);
+            assertFalse(results.isEmpty(),
+                    "search_api: keyword='archetype Maven project setup' で結果が空");
+            assertTrue(results.stream().anyMatch(r -> r.contains("archetype")),
+                    "アーキタイプ関連の結果が含まれない");
+        }
+
+        @Test
+        void nablarchExampleBatchで検索できる() {
+            List<String> results = kb.search("nablarch-example-batch", null);
+            assertFalse(results.isEmpty(),
+                    "search_api: keyword='nablarch-example-batch' で結果が空");
+        }
+    }
 }
